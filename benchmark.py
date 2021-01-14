@@ -171,20 +171,23 @@ def run_ddsmt_master(input, output, binary, opts):
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_err.py', str(timeout), opts['stderr'], *solver]
 
-    res = subprocess.run(['build/ddsmt-master/ddsmt.py', '-v', *matcher, input, output, *solver], capture_output = True)
-    if re.search('unable to minimize input file', res.stderr.decode('utf8')) != None:
+    subprocess.run(['build/ddsmt-master/ddsmt.py', '-v', *matcher, input, output, *solver], stdout = open(f'{output}.log', 'w'), stderr = open(f'{output}.err', 'w'))
+
+    err = open(f'{output}.err').read()
+
+    if re.search('unable to minimize input file', err) != None:
         print('ERROR: unable to minimize input file')
         shutil.copy(input, output)
         return
-    m = re.search('unknown command (\'[^\']+\')', res.stderr.decode('utf8'))
+    m = re.search('unknown command (\'[^\']+\')', err)
     if m is not None:
         print('ERROR: unknown command {}'.format(m.group(1)))
         return
-    m = re.search('function (\'[^\']+\') undeclared', res.stderr.decode('utf8'))
+    m = re.search('function (\'[^\']+\') undeclared', err)
     if m is not None:
         print('ERROR: unknown function {}'.format(m.group(1)))
         return
-    if re.search('AssertionError', res.stderr.decode('utf8')) != None:
+    if re.search('AssertionError', err) != None:
         print('ERROR: some assertion failed')
         return
 
