@@ -1,0 +1,43 @@
+diff --git a/pydelta/mutator.py b/pydelta/mutator.py
+index 66ddd8c..54c54a1 100644
+--- a/pydelta/mutator.py
++++ b/pydelta/mutator.py
+@@ -1,6 +1,5 @@
+ import collections
+ import copy
+-import progressbar
+ 
+ from . import mutator_options
+ from . import semantics
+@@ -37,16 +36,15 @@ class MutationGenerator:
+                 pass
+         return res
+ 
+-    def __generate_mutations(self, linput, ginput, prg):
++    def __generate_mutations(self, linput, ginput):
+         """Generate mutations from the given original, updating the progress bar."""
+-        prg.update(prg.currval + 1)
+         if self.__node_count >= self.__node_skip:
+             yield from self.__mutate_node(linput, ginput)
+         self.__node_count += 1
+         if isinstance(linput, list):
+             for i, o in enumerate(linput):
+                 cand = copy.copy(linput)
+-                for mutated in self.__generate_mutations(o, ginput, prg):
++                for mutated in self.__generate_mutations(o, ginput):
+                     if mutated.localm is not None:
+                         cand[i] = mutated.localm
+                         yield Mutation(mutated.nodeid, mutated.name, cand, mutated.globalm)
+@@ -57,11 +55,7 @@ class MutationGenerator:
+         """A generator that produces all possible mutations from the given original."""
+         semantics.collect_information(original)
+         s = semantics.node_count(original)
+-        widgets = [progressbar.Bar(), ' ', progressbar.Counter(), ' / ', str(s)]
+-        prg = progressbar.ProgressBar(maxval = s, widgets = widgets)
+-        prg.start()
+-        prg.update_interval = 1
+-        for mutated in self.__generate_mutations(original, original, prg):
++        for mutated in self.__generate_mutations(original, original):
+             if mutated.localm is not None:
+                 yield (mutated.nodeid, mutated.name, mutated.localm)
+             if mutated.globalm is not None:

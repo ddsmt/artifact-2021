@@ -51,6 +51,7 @@ def setup_pydelta():
     """Download pydelta"""
     if not os.path.isdir('build/pydelta'):
         subprocess.run(['git', 'clone', 'https://github.com/nafur/pydelta.git', 'build/pydelta'])
+        subprocess.run(['git', 'apply', '../../stuff/pydelta.patch'], cwd = 'build/pydelta')
 
 
 def setup_yices():
