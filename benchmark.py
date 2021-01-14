@@ -274,7 +274,7 @@ solvers = {
     'ddsmt-dev-ddmin-j1': run_ddsmt_dev_ddmin_j1,
     'ddsmt-dev-naive': run_ddsmt_dev_naive,
     'ddsmt-dev-naive-j1': run_ddsmt_dev_naive_j1,
-    'deltasmt': run_deltasmt,
+    #'deltasmt': run_deltasmt,
     'pydelta': run_pydelta,
 }
 
