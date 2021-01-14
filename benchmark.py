@@ -153,11 +153,11 @@ def run_ddsexpr(input, output, binary, opts):
         solver = solver + ['--lang', 'smt2'] + opts['args']
     matcher = []
     if opts['match'] == 'incorrect':
-        solver = ['bin/result_differs.py', *solver]
+        solver = ['stuff/result_differs.py', *solver]
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
-        solver = ['bin/match_err.py', str(timeout), "\"" + opts['stderr'] + "\"", *solver]
-    res = subprocess.run(['build/ddsexpr/ddsexpr', '-l', '-s', *matcher, input, output, *solver], stdout = open(f'{output}.log', 'w'), stderr = open(f'{output}.err', 'w'))
+        solver = ['stuff/match_err.py', str(timeout), "\"" + opts['stderr'] + "\"", *solver]
+    subprocess.run(['build/ddsexpr/ddsexpr', '-l', '-s', *matcher, input, output, *solver], stdout = open(f'{output}.log', 'w'), stderr = open(f'{output}.err', 'w'))
 
 
 def run_ddsmt_master(input, output, binary, opts):
@@ -166,10 +166,10 @@ def run_ddsmt_master(input, output, binary, opts):
         solver = solver + opts['args']
     matcher = []
     if opts['match'] == 'incorrect':
-        solver = ['bin/result_differs.py', *solver]
+        solver = ['stuff/result_differs.py', *solver]
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
-        solver = ['bin/match_err.py', str(timeout), opts['stderr'], *solver]
+        solver = ['stuff/match_err.py', str(timeout), opts['stderr'], *solver]
 
     res = subprocess.run(['build/ddsmt-master/ddsmt.py', '-v', *matcher, input, output, *solver], capture_output = True)
     if re.search('unable to minimize input file', res.stderr.decode('utf8')) != None:
@@ -195,7 +195,7 @@ def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=8):
         solver = solver + opts['args']
     matcher = []
     if opts['match'] == 'incorrect':
-        solver = ['bin/result_differs.py', *solver]
+        solver = ['stuff/result_differs.py', *solver]
     elif opts['match'] == 'stderr':
         matcher = ['--match-err', opts['stderr']]
     elif opts['match'] == 'exitcode':
@@ -213,7 +213,7 @@ def run_ddsmt_dev_naive(input, output, binary, opts, jobs=8):
         solver = solver + opts['args']
     matcher = []
     if opts['match'] == 'incorrect':
-        solver = ['bin/result_differs.py', *solver]
+        solver = ['stuff/result_differs.py', *solver]
     elif opts['match'] == 'stderr':
         matcher = ['--match-err', opts['stderr']]
     elif opts['match'] == 'exitcode':
@@ -232,11 +232,11 @@ def run_deltasmt(input, output, binary, opts):
         solver = solver + opts['args']
     matcher = []
     if opts['match'] == 'incorrect':
-        solver = ['../bin/result_differs.py', *solver]
+        solver = ['../stuff/result_differs.py', *solver]
         print(solver)
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
-        solver = ['../bin/match_err.py', str(timeout), opts['stderr'], *solver]
+        solver = ['../stuff/match_err.py', str(timeout), opts['stderr'], *solver]
 
     res = subprocess.run(['./deltasmt', *matcher, '../' + input, '../' + output, *solver], cwd = 'deltasmtV2', capture_output = True)
     if re.search('(Internal error|expected: |Expected <|expected identifier|logic must be declared|unsupported type|quantifiers unsupported|incompatible types)', res.stdout.decode('utf8')) != None:
@@ -255,7 +255,7 @@ def run_pydelta(input, output, binary, opts):
         solver = solver + opts['args']
     matcher = []
     if opts['match'] == 'incorrect':
-        solver = ['bin/result_differs.py', *solver]
+        solver = ['stuff/result_differs.py', *solver]
     elif opts['match'] == 'stderr':
         matcher = ['--match-err', opts['stderr']]
     elif opts['match'] == 'exitcode':
