@@ -1,0 +1,10 @@
+(set-logic QF_FPBV)
+(declare-fun a () (_ BitVec 32))
+(assert
+(let ((b ((_ to_fp 8 24) (_ bv0000000001 32))))
+(let ((c (fp.add roundTowardPositive (fp.add roundTowardPositive ((_ to_fp 8 24) a) b) b)))
+(let ((d (fp.add roundTowardPositive (fp.add roundTowardPositive c b) b)))
+(let ((f (fp.add roundTowardNegative (fp.add roundTowardNegative ((_ to_fp 8 24) a) b) b)))
+(let ((e (fp.add roundTowardNegative (fp.add roundTowardNegative f b) b)))
+(xor (not (fp.isNaN d)) (fp.geq e d))))))))
+(check-sat)

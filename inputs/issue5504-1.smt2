@@ -1,0 +1,6 @@
+(set-logic ALL)
+(define-fun a () (_ FloatingPoint 11 53) (fp #b1 #b11101110101 #b1111000011000000101000110100011000011010100000111111))
+(define-fun b () (_ FloatingPoint 11 53) (fp #b0 #b11111011001 #b0111110010010011001010011101111011010100101110011010))
+(define-fun c () (_ FloatingPoint 11 53) (fp #b1 #b11111111111 #b0000000000000000000000000000000000000000000000000000))
+(assert (distinct (fp.mul roundTowardNegative a b) c))
+(check-sat)

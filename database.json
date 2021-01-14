@@ -1,0 +1,496 @@
+{
+    "issue5187.smt2": {
+        "cvc4-commit": "13cf418",
+        "args": ["--strings-exp", "-i"],
+        "match": "stderr",
+        "stderr": "d_decisionEngine->hasSatLiteral"
+    },
+    "issue5201.smt2": {
+        "cvc4-commit": "13cf418",
+        "args": ["--uf-ho"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5230-1.smt2": {
+        "cvc4-commit": "e591346",
+        "match": "stderr",
+        "stderr": "y.isConst"
+    },
+    "issue5230-2.smt2": {
+        "cvc4-commit": "e591346",
+        "match": "stderr",
+        "stderr": "k == kind::BITVECTOR_PLUS"
+    },
+    "issue5230-3.smt2": {
+        "cvc4-commit": "e591346",
+        "match": "stderr",
+        "stderr": "BVToInt::translateWithChildren"
+    },
+    "issue5234.smt2": {
+        "cvc4-commit": "e6c9674",
+        "match": "stderr",
+        "stderr": "hasResolutionChain"
+    },
+    "issue5236.smt2": {
+        "cvc4-commit": "e6c9674",
+        "match": "stderr",
+        "stderr": "CVC4 suffered a segfault"
+    },
+    "issue5237.smt2": {
+        "cvc4-commit": "e6c9674",
+        "args": ["--check-models"],
+        "match": "stderr",
+        "stderr": "m->hasApproximations"
+    },
+    "issue5238.smt2": {
+        "cvc4-commit": "e6c9674",
+        "args": ["-i", "--full-saturate-quant", "--dump-unsat-cores"],
+        "match": "stderr",
+        "stderr": "reason_ref != Solver::TCRef_Undef"
+    },
+    "issue5239.smt2": {
+        "cvc4-commit": "e6c9674",
+        "args": ["--uf-ss-totality", "-i"],
+        "match": "stderr",
+        "stderr": "e.d_nv != __null"
+    },
+    "issue5269.smt2": {
+        "cvc4-commit": "42dd10f",
+        "match": "stderr",
+        "stderr": "a.getType"
+    },
+    "issue5271.smt2": {
+        "cvc4-commit": "ae8e63d",
+        "args": ["--sets-ext", "--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5278.smt2": {
+        "cvc4-commit": "ae8e63d",
+        "args": ["--ext-rewrite-quant"],
+        "match": "stderr",
+        "stderr": "d_rewriteStack->find"
+    },
+    "issue5279.smt2": {
+        "cvc4-commit": "1a1aea5",
+        "args": ["--cegqi-nested-qe"],
+        "match": "stderr",
+        "stderr": "CegInstantiator::constructInstantiation"
+    },
+    "issue5280.smt2": {
+        "cvc4-commit": "1a1aea5",
+        "match": "stderr",
+        "stderr": "TheoryEngineModelBuilder::buildModel"
+    },
+    "issue5281.smt2": {
+        "cvc4-commit": "1a1aea5",
+        "args": ["--check-models", "-i"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5288.smt2": {
+        "cvc4-commit": "7c249b3",
+        "args": ["--strings-exp"],
+        "match": "stderr",
+        "stderr": "n.getConst<Rational>"
+    },
+    "issue5293-1.smt2": {
+        "cvc4-commit": "94e3d9a",
+        "match": "stderr",
+        "stderr": "toTheoryId != fromTheoryId"
+    },
+    "issue5293-2.smt2": {
+        "cvc4-commit": "94e3d9a",
+        "match": "stderr",
+        "stderr": "expr::hasFreeVar"
+    },
+    "issue5309.smt2": {
+        "cvc4-commit": "96c6ec7",
+        "match": "stderr",
+        "stderr": "TheoryEngineModelBuilder::buildModel"
+    },
+    "issue5330-1.smt2": {
+        "cvc4-commit": "a7aba0c",
+        "args": ["--strings-exp", "--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5330-2.smt2": {
+        "cvc4-commit": "a7aba0c",
+        "args": ["--strings-exp", "--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5342.smt2": {
+        "cvc4-commit": "0a4ee1a",
+        "args": ["--sets-ext", "--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5343-1.smt2": {
+        "cvc4-commit": "0a4ee1a",
+        "match": "stderr",
+        "stderr": "d_type_ref.isNull"
+    },
+    "issue5343-2.smt2": {
+        "cvc4-commit": "0a4ee1a",
+        "args": ["--check-models"],
+        "match": "stderr",
+        "stderr": "vpto.isConst"
+    },
+    "issue5344.smt2": {
+        "cvc4-commit": "0a4ee1a",
+        "match": "stderr",
+        "stderr": "d_equalityEngine->hasTerm"
+    },
+    "issue5348.smt2": {
+        "cvc4-commit": "04640a1",
+        "args": ["--no-nl-ext", "--no-nl-cad", "--debug-check-models"],
+        "match": "stderr",
+        "stderr": "tm->getValue"
+    },
+    "issue5358-1.smt2": {
+        "cvc4-commit": "e456766",
+        "args": ["-i", "--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5358-2.smt2": {
+        "cvc4-commit": "e456766",
+        "match": "stderr",
+        "stderr": "No variable should be assigned a witness term if we get here."
+    },
+    "issue5358-3.smt2": {
+        "cvc4-commit": "e456766",
+        "match": "stderr",
+        "stderr": "d_check_model_witnesses.find"
+    },
+    "issue5365.smt2": {
+        "cvc4-commit": "42fe4ae",
+        "args": ["--cegqi-nested-qe"],
+        "match": "stderr",
+        "stderr": "expr::hasClosure"
+    },
+    "issue5370.smt2": {
+        "cvc4-commit": "42fe4ae",
+        "match": "stderr",
+        "stderr": "d_modelBuiltSuccess"
+    },
+    "issue5371.smt2": {
+        "cvc4-commit": "42fe4ae",
+        "args": ["--uf-ho"],
+        "match": "stderr",
+        "stderr": "f_def.isConst"
+    },
+    "issue5372.smt2": {
+        "cvc4-commit": "42fe4ae",
+        "args": ["-i", "--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5373.smt2": {
+        "cvc4-commit": "42fe4ae",
+        "args": ["-i"],
+        "match": "stderr",
+        "stderr": "Literal not in the CNF Cache"
+    },
+    "issue5374.smt2": {
+        "cvc4-commit": "42fe4ae",
+        "args": ["-i"],
+        "match": "stderr",
+        "stderr": "d_proxyVarToLength.find"
+    },
+    "issue5378.smt2": {
+        "cvc4-commit": "42fe4ae",
+        "args": ["--strings-exp"],
+        "match": "stderr",
+        "stderr": "i >= 0"
+    },
+    "issue5384.smt2": {
+        "cvc4-commit": "116114d",
+        "args": ["-i", "--strings-exp", "--check-models"],
+        "match": "stderr",
+        "stderr": "d_state.isInConflict"
+    },
+    "issue5385.smt2": {
+        "cvc4-commit": "116114d",
+        "args": ["-i", "--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5396-1.smt2": {
+        "cvc4-commit": "d301b51",
+        "match": "stderr",
+        "stderr": "node.getType"
+    },
+    "issue5396-2.smt2": {
+        "cvc4-commit": "d301b51",
+        "match": "stderr",
+        "stderr": "isBitVector"
+    },
+    "issue5400.smt2": {
+        "cvc4-commit": "63df35c",
+        "args": ["--sets-ext"],
+        "match": "stderr",
+        "stderr": "d_im.hasSent"
+    },
+    "issue5402.smt2": {
+        "cvc4-commit": "63df35c",
+        "args": ["-i", "--sets-ext", "--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5406-1.smt2": {
+        "cvc4-commit": "b5eb623",
+        "args": ["-i", "--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5406-2.smt2": {
+        "cvc4-commit": "b5eb623",
+        "args": ["-i",  "--no-strings-lazy-pp"],
+        "match": "incorrect"
+    },
+    "issue5427.smt2": {
+        "cvc4-commit": "80930ce",
+        "args": ["--check-models"],
+        "match": "stderr",
+        "stderr": "vpto.isConst"
+    },
+    "issue5428.smt2": {
+        "cvc4-commit": "80930ce",
+        "match": "incorrect"
+    },
+    "issue5454.smt2": {
+        "cvc4-commit": "2b504cd",
+        "args": ["--check-models"],
+        "match": "stderr",
+        "stderr": "Output should be justified"
+    },
+    "issue5460.smt2": {
+        "cvc4-commit": "83a502c",
+        "match": "stderr",
+        "stderr": "Unexpected bag kind"
+    },
+    "issue5461-1.smt2": {
+        "cvc4-commit": "83a502c",
+        "args": ["--check-unsat-cores"],
+        "match": "stderr",
+        "stderr": "produced core was satisfiable"
+    },
+    "issue5461-2.smt2": {
+        "cvc4-commit": "83a502c",
+        "args": ["--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5462.smt2": {
+        "cvc4-commit": "83a502c",
+        "args": ["--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5463.smt2": {
+        "cvc4-commit": "83a502c",
+        "args": ["--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5469.smt2": {
+        "cvc4-commit": "2901ee1",
+        "args": ["--strings-exp"],
+        "match": "stderr",
+        "stderr": "isRelationOperator"
+    },
+    "issue5470.smt2": {
+        "cvc4-commit": "2901ee1",
+        "args": ["--strings-exp"],
+        "match": "stderr",
+        "stderr": "expr::hasFreeVar"
+    },
+    "issue5471.smt2": {
+        "cvc4-commit": "2901ee1",
+        "match": "stderr",
+        "stderr": "simpleCheckModelMsum"
+    },
+    "issue5482.smt2": {
+        "cvc4-commit": "f2ed7b1",
+        "args": ["--strings-exp"],
+        "match": "incorrect"
+    },
+    "issue5483.smt2": {
+        "cvc4-commit": "f2ed7b1",
+        "args": ["-i"],
+        "match": "stderr",
+        "stderr": "expr::hasFreeVar"
+    },
+    "issue5484-1.smt2": {
+        "cvc4-commit": "f2ed7b1",
+        "match": "stderr",
+        "stderr": "vs.size\\(\\) == ss.size\\(\\)"
+    },
+    "issue5484-2.smt2": {
+        "cvc4-commit": "f2ed7b1",
+        "match": "stderr",
+        "stderr": "isComparableTo"
+    },
+    "issue5504-1.smt2": {
+        "cvc4-commit": "36af095",
+        "match": "incorrect"
+    },
+    "issue5504-2.smt2": {
+        "cvc4-commit": "36af095",
+        "match": "incorrect"
+    },
+    "issue5504-3.smt2": {
+        "cvc4-commit": "36af095",
+        "match": "incorrect"
+    },
+    "issue5507-1.smt2": {
+        "cvc4-commit": "36af095",
+        "args": ["-i"],
+        "match": "stderr",
+        "stderr": "vs.size\\(\\) == ss.size\\(\\)"
+    },
+    "issue5507-2.smt2": {
+        "cvc4-commit": "36af095",
+        "args": ["-i"],
+        "match": "stderr",
+        "stderr": "isComparableTo"
+    },
+    "issue5508.smt2": {
+        "cvc4-commit": "36af095",
+        "args": ["--strings-exp"],
+        "match": "stderr",
+        "stderr": "d_state.isInConflict"
+    },
+    "issue5509.smt2": {
+        "cvc4-commit": "36af095",
+        "args": ["-i"],
+        "match": "stderr",
+        "stderr": "quant.find"
+    },
+    "issue5511.smt2": {
+        "cvc4-commit": "36af095",
+        "match": "stderr",
+        "stderr": "wrappedBitVector"
+    },
+    "issue5513-1.smt2": {
+        "cvc4-commit": "36af095",
+        "match": "stderr",
+        "stderr": "eqNotifyNewClass"
+    },
+    "issue5513-2.smt2": {
+        "cvc4-commit": "36af095",
+        "match": "stderr",
+        "stderr": "eqNotifyDisequal"
+    },
+    "issue5515.smt2": {
+        "cvc4-commit": "2b4d699",
+        "match": "stderr",
+        "stderr": "TheoryEngineModelBuilder"
+    },
+    "issue5534.smt2": {
+        "cvc4-commit": "d0c352e",
+        "args": ["-i"],
+        "match": "stderr",
+        "stderr": "mVarpolyCVC.end"
+    },
+    "issue5540.smt2": {
+        "cvc4-commit": "865d1ee",
+        "args": ["-i", "--check-models", "--dump-models"],
+        "match": "stderr",
+        "stderr": "d_substitutions.find"
+    },
+    "issue5541.smt2": {
+        "cvc4-commit": "865d1ee",
+        "args": ["-i"],
+        "match": "stderr",
+        "stderr": "d_type_references_all"
+    },
+    "issue5542.smt2": {
+        "cvc4-commit": "9f372f0",
+        "args": ["--strings-exp"],
+        "match": "stderr",
+        "stderr": "n.getNumChildren"
+    },
+    "issue5543.smt2": {
+        "cvc4-commit": "9f372f0",
+        "args": ["--strings-exp"],
+        "match": "stderr",
+        "stderr": "d_sharedSolver"
+    },
+    "issue5547.smt2": {
+        "cvc4-commit": "9f372f0",
+        "args": ["-i", "--strings-exp", "--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5550.smt2": {
+        "cvc4-commit": "6489cf5",
+        "match": "stderr",
+        "stderr": "kind::metakind::getLowerBoundForKind"
+    },
+    "issue5558.smt2": {
+        "cvc4-commit": "d452621",
+        "args": ["--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "yices-273.smt2": {
+        "yices-commit": "22f948f",
+        "yices-mode": "debug",
+        "args": ["--mcsat"],
+        "match": "stderr",
+        "stderr": "Assertion failed"
+    },
+    "yices-287.smt2": {
+        "yices-commit": "0f9e45f",
+        "yices-mode": "debug",
+        "match": "stderr",
+        "stderr": "is_finite_type"
+    },
+    "z3-4899.smt2": {
+        "z3-commit": "11477f1",
+        "match": "stderr",
+        "stderr": "ASSERTION VIOLATION"
+    },
+    "z3-4690.smt2": {
+        "z3-commit": "79734f2",
+        "match": "stderr",
+        "stderr": "ASSERTION VIOLATION"
+    },
+    "z3-4737.smt2": {
+        "z3-commit": "79734f2",
+        "match": "exitcode"
+    },
+    "z3-4572.smt2": {
+        "z3-commit": "ad55a1f",
+        "match": "exitcode"
+    },
+    "z3-3974.smt2": {
+        "z3-commit": "30e7c22",
+        "match": "exitcode"
+    },
+    "z3-3293.smt2": {
+        "z3-commit": "6f2b569",
+        "match": "exitcode"
+    },
+    "z3-3275.smt2": {
+        "z3-commit": "7bcd345",
+        "match": "exitcode"
+    },
+    "z3-2874.smt2": {
+        "z3-commit": "30e7c22",
+        "match": "exitcode"
+    },
+    "z3-2468.smt2": {
+        "z3-commit": "e79542c",
+        "match": "exitcode"
+    },
+    "z3-2201.smt2": {
+        "z3-commit": "604c9d3",
+        "match": "stderr",
+        "stderr": "Overflow"
+    }
+}

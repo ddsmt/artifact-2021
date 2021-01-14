@@ -1,0 +1,7 @@
+(set-option :produce-unsat-cores true)
+(declare-codatatypes ((list 0)) (((cons (head Int) (tail list)))))
+(declare-fun x () list)
+(declare-fun y () list)
+(assert (distinct x (cons 0 y)))
+(assert (= x y))
+(check-sat)
