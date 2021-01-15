@@ -8,6 +8,12 @@ import subprocess
 import time
 
 
+# number of jobs to compile stuff
+COMPILE_JOBS = 8
+# number of jobs for debuggers
+DEBUGGER_JOBS = 8
+
+
 def setup_cvc4():
     """Prepare a cvc4 checkout for compilation"""
     if not os.path.isdir('build/cvc4'):
@@ -69,7 +75,7 @@ def setup_yices():
     if not os.path.isdir('build/yices/libpoly'):
         subprocess.run(['git', 'clone', 'https://github.com/SRI-CSL/libpoly.git', 'build/yices/libpoly'])
         subprocess.run(['cmake', '-DCMAKE_INSTALL_PREFIX=install', '..'], cwd = 'build/yices/libpoly/build')
-        subprocess.run(['make', '-j8', 'install'], cwd = 'build/yices/libpoly/build')
+        subprocess.run(['make', f'-j{COMPILE_JOBS}', 'install'], cwd = 'build/yices/libpoly/build')
         subprocess.run('rm *', shell = True, cwd = 'build/yices/libpoly/build/install/lib')
         subprocess.run('cp src/libpicpoly.a install/lib/libpoly.a', shell = True, cwd = 'build/yices/libpoly/build')
 
@@ -79,7 +85,7 @@ def setup_yices():
         # stupid monkey-patching
         subprocess.run("grep -rlZ aclocal-1.14 . | xargs -0 sed -i 's/aclocal-1.14/aclocal/g'", shell = True, cwd = 'build/yices/cudd')
         subprocess.run("grep -rlZ automake-1.14 . | xargs -0 sed -i 's/automake-1.14/automake/g'", shell = True, cwd = 'build/yices/cudd')
-        subprocess.run(['make', '-j8', 'install'], cwd = 'build/yices/cudd')
+        subprocess.run(['make', f'-j{COMPILE_JOBS}', 'install'], cwd = 'build/yices/cudd')
 
 
 def setup_z3():
@@ -100,7 +106,7 @@ def setup_z3_ref():
         subprocess.run(['git', 'checkout', 'z3-4.8.9'], cwd='build/z3-ref')
         subprocess.run(['mkdir', 'build/z3-ref/build'])
         subprocess.run(['cmake', '..'], cwd = 'build/z3-ref/build')
-        subprocess.run(['make', '-j8', 'shell'], cwd = 'build/z3-ref/build')
+        subprocess.run(['make', f'-j{COMPILE_JOBS}', 'shell'], cwd = 'build/z3-ref/build')
         shutil.copy('build/z3-ref/build/z3', 'bin/z3-ref')
 
 
@@ -109,7 +115,7 @@ def build_cvc4(commit):
     binfile = 'bin/cvc4-{}'.format(commit)
     if not os.path.isfile(binfile):
         subprocess.run(['git', 'checkout', commit], cwd = 'build/cvc4')
-        subprocess.run(['make', '-j8', 'cvc4-bin'], cwd = 'build/cvc4/build')
+        subprocess.run(['make', f'-j{COMPILE_JOBS}', 'cvc4-bin'], cwd = 'build/cvc4/build')
         shutil.copy('build/cvc4/build/bin/cvc4', binfile)
     return binfile
 
@@ -133,7 +139,7 @@ def build_yices(commit, opts):
         if 'args' in opts and '--mcsat' in opts['args']:
             cmd.append('--enable-mcsat')
         subprocess.run(cmd, cwd = 'yices', env = my_env)
-        subprocess.run(['make', '-j8', 'MODE={}'.format(opts['yices-mode'])], cwd = 'build/yices')
+        subprocess.run(['make', f'-j{COMPILE_JOBS}', 'MODE={}'.format(opts['yices-mode'])], cwd = 'build/yices')
         shutil.copy('build/yices/build/x86_64-pc-linux-gnu-{}/dist/bin/yices-smt2'.format(opts['yices-mode']), binfile)
     return binfile
 
@@ -144,7 +150,7 @@ def build_z3(commit, opts):
     if not os.path.isfile(binfile):
         subprocess.run(['git', 'checkout', commit], cwd = 'build/z3')
         subprocess.run(['cmake', '-DCMAKE_POSITION_INDEPENDENT_CODE=ON', '-DCMAKE_BUILD_TYPE=Release', '..'], cwd = 'build/z3/build')
-        subprocess.run(['make', '-j8', 'CXX_FLAGS=-DNO_Z3_DEBUGGER=1', 'shell'], cwd = 'build/z3/build')
+        subprocess.run(['make', f'-j{COMPILE_JOBS}', 'CXX_FLAGS=-DNO_Z3_DEBUGGER=1', 'shell'], cwd = 'build/z3/build')
         shutil.copy('build/z3/build/z3', binfile)
     return binfile
 
@@ -240,7 +246,7 @@ def run_ddsmt_master(input, output, binary, opts):
         return
 
 
-def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=8):
+def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=DEBUGGER_JOBS):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -259,7 +265,7 @@ def run_ddsmt_dev_ddmin_j1(input, output, binary, opts):
     run_ddsmt_dev_ddmin(input, output, binary, opts, 1)
 
 
-def run_ddsmt_dev_naive(input, output, binary, opts, jobs=8):
+def run_ddsmt_dev_naive(input, output, binary, opts, jobs=DEBUGGER_JOBS):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -317,7 +323,7 @@ def run_pydelta(input, output, binary, opts):
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/pydelta/bin/pydelta', '--max-threads', '8', *matcher, '--mode-beautify', '--outputfile', output, input, *solver], output)
+    run_debugger(['build/pydelta/bin/pydelta', '--max-threads', str(DEBUGGER_JOBS), *matcher, '--mode-beautify', '--outputfile', output, input, *solver], output)
 
 
 solvers = {
