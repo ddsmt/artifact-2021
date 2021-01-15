@@ -183,7 +183,9 @@ f"""#!/bin/sh
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --partition=octa
-{' '.join(cmd)} > {output}.out 2> {output}.err
+#SBATCH --output={output}.out
+#SBATCH --error={output}.err
+{' '.join(cmd)}
 """)
 
     cmd = ['sbatch', scriptfile]
