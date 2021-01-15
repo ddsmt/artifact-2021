@@ -11,7 +11,7 @@ def handler(sig, frame):
 signal.signal(signal.SIGTERM, handler)
 
 def run(cmd):
-    return subprocess.run(cmd, capture_output = True).stdout.decode('utf8').strip()
+    return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode('utf8').strip()
 
 A = run(sys.argv[1:])
 B = run(['bin/z3-ref', sys.argv[-1]])

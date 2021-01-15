@@ -14,7 +14,7 @@ timeout = int(sys.argv[1])
 
 def run(cmd):
     try:
-        return subprocess.run(cmd, capture_output = True, timeout = timeout)
+        return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout = timeout)
     except subprocess.TimeoutExpired:
         print("Timeout")
         sys.exit(2)
