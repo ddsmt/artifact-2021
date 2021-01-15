@@ -298,6 +298,8 @@ def setup_confidential():
         subprocess.run(['git', 'clone', 'git@github.com:ddsmt/artifact-2021-confidential.git', 'confidential'])
     else:
         subprocess.run(['git', 'pull'], cwd='confidential')
+    for s in solvers:
+        os.makedirs(f'confidential/out/{s}', exist_ok = True)
 
 
 def setup():
@@ -316,28 +318,35 @@ def setup():
     setup_z3_ref()
     setup_confidential()
 
-setup()
-data = json.load(open('database.json'))
 
-for input,opts in data.items():
-    print('{}: {}'.format(input, opts))
-    if 'binary' in opts:
-        binary = f'bin/{opts["binary"]}'
-    elif 'cvc4-commit' in opts:
-        binary = build_cvc4(opts['cvc4-commit'])
-    elif 'yices-commit' in opts:
-        binary = build_yices(opts['yices-commit'], opts)
-    elif 'z3-commit' in opts:
-        binary = build_z3(opts['z3-commit'], opts)
-    
-    infile = 'inputs/{}'.format(input)
-    insize = os.stat(infile).st_size
+def run_experiments(prefix = ''):
+    data = json.load(open(f'{prefix}database.json'))
+    for input,opts in data.items():
+        print(f'{input}: {opts}')
+        if 'binary' in opts:
+            binary = f'{prefix}bin/{opts["binary"]}'
+        elif 'cvc4-commit' in opts:
+            binary = build_cvc4(opts['cvc4-commit'])
+        elif 'yices-commit' in opts:
+            binary = build_yices(opts['yices-commit'], opts)
+        elif 'z3-commit' in opts:
+            binary = build_z3(opts['z3-commit'], opts)
 
-    for s in solvers:
-        outfile = f'out/{s}/{input}'
-        if not os.path.isfile(outfile):
-            start = time.time()
-            print('Running {} on {}'.format(s, input))
-            solvers[s](infile, outfile, binary, opts)
-            duration = time.time() - start
-            open(f'{outfile}.time', 'w').write(str(duration))
+        infile = f'{prefix}inputs/{input}'
+        insize = os.stat(infile).st_size
+
+        for s in solvers:
+            outfile = f'{prefix}out/{s}/{input}'
+            if not os.path.isfile(outfile):
+                start = time.time()
+                print('Running {} on {}'.format(s, input))
+                solvers[s](infile, outfile, binary, opts)
+                duration = time.time() - start
+                open(f'{outfile}.time', 'w').write(str(duration))
+
+
+if __name__ == '__main__':
+    setup()
+    run_experiments()
+    if os.path.isdir('confidential/'):
+        run_experiments('confidential/')
