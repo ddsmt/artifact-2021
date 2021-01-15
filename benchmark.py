@@ -179,13 +179,14 @@ def submit_slurm_job(cmd, output, cwd=None):
     scriptfile = f'slurm/script-{SLURM_JOB_ID}.sh'
     open(scriptfile, 'w').write(
 f"""#!/bin/sh
-#SBATCH --time=01:00:00
+#SBATCH --time=00:30:00
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=8G
+#SBATCH --mem=32G
+#SBATCH --partition=octa
 {' '.join(cmd)} > {output}.out 2> {output}.err
 """)
 
-    cmd = ['sbatch', '--partition=octa', scriptfile]
+    cmd = ['sbatch', scriptfile]
     if cwd:
         cmd += ['--chdir', cwd]
     subprocess.run(cmd)
