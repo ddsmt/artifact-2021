@@ -279,6 +279,15 @@ solvers = {
     'pydelta': run_pydelta,
 }
 
+
+def setup_confidential():
+    """Integrate confidential benchmarks"""
+    if not os.path.isdir('confidential'):
+        subprocess.run(['git', 'clone', 'git@github.com:ddsmt/artifact-2021-confidential.git', 'confidential'])
+    else:
+        subprocess.run(['git', 'pull'], cwd='confidential')
+
+
 def setup():
     """Setup all tools and output folders"""
     os.makedirs('bin', exist_ok = True)
@@ -293,6 +302,7 @@ def setup():
     setup_yices()
     setup_z3()
     setup_z3_ref()
+    setup_confidential()
 
 setup()
 data = json.load(open('database.json'))
