@@ -3,6 +3,7 @@
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import time
@@ -176,6 +177,8 @@ def submit_slurm_job(cmd, output, cwd=None):
     global SLURM_JOB_ID
     SLURM_JOB_ID += 1
 
+    cmd = list(map(shlex.quote, cmd))
+
     scriptfile = f'slurm/script-{SLURM_JOB_ID}.sh'
     open(scriptfile, 'w').write(
 f"""#!/bin/sh
@@ -214,7 +217,7 @@ def run_ddsexpr(input, output, binary, opts):
         solver = ['stuff/result_differs.py', *solver]
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
-        solver = ['stuff/match_err.py', str(timeout), "\"" + opts['stderr'] + "\"", *solver]
+        solver = ['stuff/match_err.py', str(timeout), f'"{opts["stderr"]}"', *solver]
 
     run_debugger(['build/ddsexpr/ddsexpr', '-l', '-s', *matcher, input, output, *solver], output)
 
