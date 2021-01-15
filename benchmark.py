@@ -13,6 +13,9 @@ def setup_cvc4():
     """Prepare a cvc4 checkout for compilation"""
     if not os.path.isdir('build/cvc4'):
         subprocess.run(['git', 'clone', 'https://github.com/CVC4/CVC4.git', 'build/cvc4'])
+    else:
+        subprocess.run(['git', 'checkout', 'master'], cwd='build/cvc4')
+        subprocess.run(['git', 'pull'], cwd='build/cvc4')
     if not os.path.isdir('build/cvc4/deps/antlr-3.4'):
         subprocess.run(['./contrib/get-antlr-3.4', 'cvc4'], cwd = 'build/cvc4')
     if not os.path.isdir('build/cvc4/deps/poly'):
@@ -45,6 +48,8 @@ def setup_ddsmt_dev():
     if not os.path.isdir('build/ddsmt-dev'):
         subprocess.run(['git', 'clone', 'https://github.com/aniemetz/ddSMT', 'build/ddsmt-dev'])
         subprocess.run(['git', 'checkout', 'development'], cwd = 'build/ddsmt-dev')
+    else:
+        subprocess.run(['git', 'pull'], cwd = 'build/ddsmt-dev')
 
 
 def setup_pydelta():
@@ -58,6 +63,9 @@ def setup_yices():
     """Prepare a yices checkout for compilation"""
     if not os.path.isdir('build/yices'):
         subprocess.run(['git', 'clone', 'https://github.com/SRI-CSL/yices2.git', 'build/yices'])
+    else:
+        subprocess.run(['git', 'checkout', 'master'], cwd='build/yices')
+        subprocess.run(['git', 'pull'], cwd = 'build/yices')
 
     if not os.path.isdir('build/yices/libpoly'):
         subprocess.run(['git', 'clone', 'https://github.com/SRI-CSL/libpoly.git', 'build/yices/libpoly'])
@@ -81,12 +89,16 @@ def setup_z3():
         subprocess.run(['git', 'clone', 'https://github.com/Z3Prover/z3.git', 'build/z3'])
         subprocess.run(['mkdir', 'build/z3/build'])
         subprocess.run(['cmake', '-DCMAKE_POSITION_INDEPENDENT_CODE=ON', '-DCMAKE_BUILD_TYPE=Debug', '..'], cwd = 'build/z3/build')
+    else:
+        subprocess.run(['git', 'checkout', 'master'], cwd='build/z3')
+        subprocess.run(['git', 'pull'], cwd = 'build/z3')
 
 
 def setup_z3_ref():
     """Download and compile z3 reference version"""
     if not os.path.isdir('build/z3-ref'):
         subprocess.run(['git', 'clone', 'https://github.com/Z3Prover/z3.git', 'build/z3-ref'])
+        subprocess.run(['git', 'checkout', 'z3-4.8.9'], cwd='build/z3-ref')
         subprocess.run(['mkdir', 'build/z3-ref/build'])
         subprocess.run(['cmake', '..'], cwd = 'build/z3-ref/build')
         subprocess.run(['make', '-j8', 'shell'], cwd = 'build/z3-ref/build')
