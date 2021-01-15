@@ -193,7 +193,7 @@ START=$(date +%s.%N)
 {' '.join(cmd)}
 END=$(date +%s.%N)
 DIFF=$(echo "$END - $START" | bc)
-echo $DIFF > {output}.time
+expr $END - $START > {output}.time
 """)
 
     cmd = ['sbatch', scriptfile]
