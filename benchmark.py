@@ -202,10 +202,13 @@ def run_debugger(cmd, output, cwd=None):
     if SUBMIT_TO_SLURM:
         submit_slurm_job(cmd, output, cwd)
     else:
+        start = time.time()
         subprocess.run(cmd,
                     stdout=open(f'{output}.out', 'w'),
                     stderr=open(f'{output}.err', 'w'),
                     cwd=cwd)
+        duration = time.time() - start
+        open(f'{outfile}.time', 'w').write(str(duration))
 
 
 def run_ddsexpr(input, output, binary, opts):
@@ -399,11 +402,8 @@ def run_experiments(prefix = ''):
         for s in solvers:
             outfile = f'{prefix}out/{s}/{input}'
             if not os.path.isfile(outfile):
-                start = time.time()
                 print('Running {} on {}'.format(s, input))
                 solvers[s](infile, outfile, binary, opts)
-                duration = time.time() - start
-                open(f'{outfile}.time', 'w').write(str(duration))
 
 
 if __name__ == '__main__':
