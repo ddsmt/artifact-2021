@@ -160,6 +160,14 @@ def get_timeout(cmd, input):
     return min((int(time.time() - start) + 1) * 2, 12)
 
 
+def run_debugger(cmd, output, cwd=None):
+    """Actually run the command and redirect stdout and stderr."""
+    subprocess.run(cmd,
+                   stdout=open(f'{output}.out', 'w'),
+                   stderr=open(f'{output}.err', 'w'),
+                   cwd=cwd)
+
+
 def run_ddsexpr(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
@@ -170,7 +178,8 @@ def run_ddsexpr(input, output, binary, opts):
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_err.py', str(timeout), "\"" + opts['stderr'] + "\"", *solver]
-    subprocess.run(['build/ddsexpr/ddsexpr', '-l', '-s', *matcher, input, output, *solver], stdout = open(f'{output}.log', 'w'), stderr = open(f'{output}.err', 'w'))
+
+    run_debugger(['build/ddsexpr/ddsexpr', '-l', '-s', *matcher, input, output, *solver], output)
 
 
 def run_ddsmt_master(input, output, binary, opts):
@@ -184,7 +193,7 @@ def run_ddsmt_master(input, output, binary, opts):
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_err.py', str(timeout), opts['stderr'], *solver]
 
-    subprocess.run(['build/ddsmt-master/ddsmt.py', '-v', *matcher, input, output, *solver], stdout = open(f'{output}.log', 'w'), stderr = open(f'{output}.err', 'w'))
+    run_debugger(['build/ddsmt-master/ddsmt.py', '-v', *matcher, input, output, *solver], output)
 
     err = open(f'{output}.err').read()
 
@@ -216,7 +225,8 @@ def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=8):
         matcher = ['--match-err', opts['stderr']]
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
-    subprocess.run(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'ddmin', *matcher, input, output, *solver], stdout = open(f'{output}.log', 'w'), stderr = open(f'{output}.err', 'w'))
+
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'ddmin', *matcher, input, output, *solver], output)
 
 
 def run_ddsmt_dev_ddmin_j1(input, output, binary, opts):
@@ -235,7 +245,7 @@ def run_ddsmt_dev_naive(input, output, binary, opts, jobs=8):
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    subprocess.run(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'naive', *matcher, input, output, *solver], stdout = open(f'{output}.log', 'w'), stderr = open(f'{output}.err', 'w'))
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'naive', *matcher, input, output, *solver], output)
 
 
 def run_ddsmt_dev_naive_j1(input, output, binary, opts):
@@ -254,12 +264,16 @@ def run_deltasmt(input, output, binary, opts):
         timeout = get_timeout(solver, input)
         solver = ['../stuff/match_err.py', str(timeout), opts['stderr'], *solver]
 
-    res = subprocess.run(['./deltasmt', *matcher, '../' + input, '../' + output, *solver], cwd = 'deltasmtV2', capture_output = True)
-    if re.search('(Internal error|expected: |Expected <|expected identifier|logic must be declared|unsupported type|quantifiers unsupported|incompatible types)', res.stdout.decode('utf8')) != None:
+    run_debugger(['./deltasmt', *matcher, '../' + input, '../' + output, *solver], output, cwd = 'deltasmtV2')
+
+    out = open(f'{output}.out').read()
+    err = open(f'{output}.err').read()
+
+    if re.search('(Internal error|expected: |Expected <|expected identifier|logic must be declared|unsupported type|quantifiers unsupported|incompatible types)', out) != None:
         print('ERROR: parser error')
         os.unlink(output)
         return
-    if re.search('(at Parser\.parseFormula)', res.stderr.decode('utf8')) != None:
+    if re.search('(at Parser\.parseFormula)', err) != None:
         print('ERROR: parser error')
         os.unlink(output)
         return
@@ -277,7 +291,7 @@ def run_pydelta(input, output, binary, opts):
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    subprocess.run(['build/pydelta/bin/pydelta', '--max-threads', '8', *matcher, '--mode-beautify', '--outputfile', output, input, *solver], stdout = open(f'{output}.log', 'w'), stderr = open(f'{output}.err', 'w'))
+    run_debugger(['build/pydelta/bin/pydelta', '--max-threads', '8', *matcher, '--mode-beautify', '--outputfile', output, input, *solver], output)
 
 
 solvers = {
