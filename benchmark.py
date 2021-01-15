@@ -4,7 +4,6 @@ import json
 import os
 import re
 import shutil
-import sqlite3
 import subprocess
 import time
 
@@ -160,12 +159,39 @@ def get_timeout(cmd, input):
     return min((int(time.time() - start) + 1) * 2, 12)
 
 
+SLURM_JOB_ID = 0
+
+
+def submit_slurm_job(cmd, output, cwd=None):
+    """Submit the given command to slurm"""
+
+    global SLURM_JOB_ID
+    SLURM_JOB_ID += 1
+
+    scriptfile = f'slurm/script-{SLURM_JOB_ID}.sh'
+    open(scriptfile, 'w').write(
+f"""#!/bin/sh
+#SBATCH --time=01:00:00
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=8G
+{' '.join(cmd)} > {output}.out 2> {output}.err
+""")
+
+    cmd = ['sbatch', scriptfile]
+    if cwd:
+        cmd += ['--chdir', cwd]
+    subprocess.run(cmd)
+
+
 def run_debugger(cmd, output, cwd=None):
     """Actually run the command and redirect stdout and stderr."""
-    subprocess.run(cmd,
-                   stdout=open(f'{output}.out', 'w'),
-                   stderr=open(f'{output}.err', 'w'),
-                   cwd=cwd)
+    if True:
+        subprocess.run(cmd,
+                    stdout=open(f'{output}.out', 'w'),
+                    stderr=open(f'{output}.err', 'w'),
+                    cwd=cwd)
+    else:
+        submit_slurm_job(cmd, output, cwd)
 
 
 def run_ddsexpr(input, output, binary, opts):
@@ -320,6 +346,7 @@ def setup():
     """Setup all tools and output folders"""
     os.makedirs('bin', exist_ok = True)
     os.makedirs('build', exist_ok = True)
+    os.makedirs('slurm', exist_ok = True)
     for s in solvers:
         os.makedirs(f'out/{s}', exist_ok = True)
     setup_cvc4()
