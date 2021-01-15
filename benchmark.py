@@ -183,7 +183,7 @@ f"""#!/bin/sh
 {' '.join(cmd)} > {output}.out 2> {output}.err
 """)
 
-    cmd = ['sbatch', scriptfile]
+    cmd = ['sbatch', '--partition=octa', scriptfile]
     if cwd:
         cmd += ['--chdir', cwd]
     subprocess.run(cmd)
