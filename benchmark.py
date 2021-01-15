@@ -192,8 +192,7 @@ f"""#!/bin/sh
 START=$(date +%s.%N)
 {' '.join(cmd)}
 END=$(date +%s.%N)
-DIFF=$(echo "$END - $START" | bc)
-expr $END - $START > {output}.time
+echo | awk "{{ print $END - $START }}" {output}.time
 """)
 
     cmd = ['sbatch', scriptfile]
