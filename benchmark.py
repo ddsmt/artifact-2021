@@ -188,7 +188,12 @@ f"""#!/bin/sh
 #SBATCH --partition=octa
 #SBATCH --output={output}.out
 #SBATCH --error={output}.err
+
+START=$(date +%s.%N)
 {' '.join(cmd)}
+END=$(date +%s.%N)
+DIFF=$(echo "$END - $START" | bc)
+echo $DIFF > {output}.time
 """)
 
     cmd = ['sbatch', scriptfile]
