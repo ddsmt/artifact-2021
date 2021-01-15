@@ -153,7 +153,7 @@ def build_z3(commit, opts):
     if not os.path.isfile(binfile):
         subprocess.run(['git', 'checkout', commit], cwd = 'build/z3')
         subprocess.run(['cmake', '-DCMAKE_POSITION_INDEPENDENT_CODE=ON', '-DCMAKE_BUILD_TYPE=Release', '..'], cwd = 'build/z3/build')
-        subprocess.run(['make', f'-j{COMPILE_JOBS}', 'CXX_FLAGS=-DNO_Z3_DEBUGGER=1', 'shell'], cwd = 'build/z3/build')
+        subprocess.run(['make', f'-j{COMPILE_JOBS}', 'CXX_FLAGS=-std=c++11 -DNO_Z3_DEBUGGER=1', 'shell'], cwd = 'build/z3/build')
         shutil.copy('build/z3/build/z3', binfile)
     return binfile
 
