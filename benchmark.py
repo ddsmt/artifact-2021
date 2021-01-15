@@ -12,6 +12,8 @@ import time
 COMPILE_JOBS = 8
 # number of jobs for debuggers
 DEBUGGER_JOBS = 8
+# whether to use slurm or local execution
+SUBMIT_TO_SLURM = False
 
 
 def setup_cvc4():
@@ -191,13 +193,13 @@ f"""#!/bin/sh
 
 def run_debugger(cmd, output, cwd=None):
     """Actually run the command and redirect stdout and stderr."""
-    if True:
+    if SUBMIT_TO_SLURM:
+        submit_slurm_job(cmd, output, cwd)
+    else:
         subprocess.run(cmd,
                     stdout=open(f'{output}.out', 'w'),
                     stderr=open(f'{output}.err', 'w'),
                     cwd=cwd)
-    else:
-        submit_slurm_job(cmd, output, cwd)
 
 
 def run_ddsexpr(input, output, binary, opts):
@@ -226,6 +228,9 @@ def run_ddsmt_master(input, output, binary, opts):
         solver = ['stuff/match_err.py', str(timeout), opts['stderr'], *solver]
 
     run_debugger(['build/ddsmt-master/ddsmt.py', '-v', *matcher, input, output, *solver], output)
+
+    if SUBMIT_TO_SLURM:
+        return
 
     err = open(f'{output}.err').read()
 
@@ -297,6 +302,9 @@ def run_deltasmt(input, output, binary, opts):
         solver = ['../stuff/match_err.py', str(timeout), opts['stderr'], *solver]
 
     run_debugger(['./deltasmt', *matcher, '../' + input, '../' + output, *solver], output, cwd = 'deltasmtV2')
+
+    if SUBMIT_TO_SLURM:
+        return
 
     out = open(f'{output}.out').read()
     err = open(f'{output}.err').read()
