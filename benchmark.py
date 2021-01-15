@@ -141,7 +141,7 @@ def build_yices(commit, opts):
         ]
         if 'args' in opts and '--mcsat' in opts['args']:
             cmd.append('--enable-mcsat')
-        subprocess.run(cmd, cwd = 'yices', env = my_env)
+        subprocess.run(cmd, cwd = 'build/yices', env = my_env)
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'MODE={}'.format(opts['yices-mode'])], cwd = 'build/yices')
         shutil.copy('build/yices/build/x86_64-pc-linux-gnu-{}/dist/bin/yices-smt2'.format(opts['yices-mode']), binfile)
     return binfile
