@@ -189,6 +189,7 @@ f"""#!/bin/sh
 #SBATCH --output={output}.out
 #SBATCH --error={output}.err
 
+source {os.getcwd()}/slurm/venv/bin/activate
 START=$(date +%s.%N)
 {' '.join(cmd)}
 END=$(date +%s.%N)
@@ -373,7 +374,9 @@ def setup():
     """Setup all tools and output folders"""
     os.makedirs('bin', exist_ok = True)
     os.makedirs('build', exist_ok = True)
-    os.makedirs('slurm', exist_ok = True)
+    if SUBMIT_TO_SLURM:
+        os.makedirs('slurm/venv', exist_ok = True)
+        subprocess.run(['python3.6 -m venv slurm/venv'])
     for s in solvers:
         os.makedirs(f'out/{s}', exist_ok = True)
     setup_cvc4()
