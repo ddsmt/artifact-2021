@@ -147,7 +147,12 @@ def build_yices(commit, opts):
             cmd.append('--enable-mcsat')
         subprocess.run(cmd, cwd = 'build/yices', env = my_env)
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'MODE={}'.format(opts['yices-mode'])], cwd = 'build/yices')
-        shutil.copy('build/yices/build/x86_64-pc-linux-gnu-{}/dist/bin/yices-smt2'.format(opts['yices-mode']), binfile)
+        binary = f'build/yices/build/x86_64-pc-linux-gnu-{opts['yices-mode']}/dist/bin/yices-smt2'
+        res = subprocess.run([binary, '--version'], stdout=subprocess.PIPE)
+        if res.stdout.decode().find(f'Revision: {commit}') == -1:
+            print(f'Compiled yices binary should be at commit {commit}, but something went wrong.')
+            sys.exit(1)
+        shutil.copy(binary, binfile)
     return binfile
 
 
@@ -158,6 +163,10 @@ def build_z3(commit, opts):
         subprocess.run(['git', 'checkout', commit], cwd = 'build/z3')
         subprocess.run(['cmake', '-DCMAKE_POSITION_INDEPENDENT_CODE=ON', '-DCMAKE_BUILD_TYPE=Release', '..'], cwd = 'build/z3/build')
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'CXX_FLAGS=-std=c++11 -DNO_Z3_DEBUGGER=1', 'shell'], cwd = 'build/z3/build')
+        res = subprocess.run(['build/z3/build/z3', '--version'], stdout=subprocess.PIPE)
+        if res.stdout.decode().find(f'hashcode {commit}') == -1:
+            print(f'Compiled z3 binary should be at commit {commit}, but something went wrong.')
+            sys.exit(1)
         shutil.copy('build/z3/build/z3', binfile)
     return binfile
 
