@@ -180,7 +180,7 @@ def submit_slurm_job(cmd, output, cwd=None):
 
     scriptfile = f'slurm/script-{SLURM_JOB_ID}.sh'
     open(scriptfile, 'w').write(
-f"""#!/bin/sh
+f"""#!/bin/bash
 #SBATCH --time=00:30:00
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
@@ -375,7 +375,7 @@ def setup():
     os.makedirs('build', exist_ok = True)
     if SUBMIT_TO_SLURM:
         os.makedirs('slurm/venv', exist_ok = True)
-        subprocess.run(['python3.6 -m venv slurm/venv'])
+        subprocess.run(['python3.6', '-m', 'venv', 'slurm/venv'])
     for s in solvers:
         os.makedirs(f'out/{s}', exist_ok = True)
     setup_cvc4()
