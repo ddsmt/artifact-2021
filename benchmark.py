@@ -146,8 +146,8 @@ def build_yices(commit, opts):
         if 'args' in opts and '--mcsat' in opts['args']:
             cmd.append('--enable-mcsat')
         subprocess.run(cmd, cwd = 'build/yices', env = my_env)
-        subprocess.run(['make', f'-j{COMPILE_JOBS}', 'MODE={}'.format(opts['yices-mode'])], cwd = 'build/yices')
-        binary = f'build/yices/build/x86_64-pc-linux-gnu-{opts['yices-mode']}/dist/bin/yices-smt2'
+        subprocess.run(['make', f'-j{COMPILE_JOBS}', f'MODE={opts["yices-mode"]}'], cwd = 'build/yices')
+        binary = f'build/yices/build/x86_64-pc-linux-gnu-{opts["yices-mode"]}/dist/bin/yices-smt2'
         res = subprocess.run([binary, '--version'], stdout=subprocess.PIPE)
         if res.stdout.decode().find(f'Revision: {commit}') == -1:
             print(f'Compiled yices binary should be at commit {commit}, but something went wrong.')
