@@ -6,6 +6,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import time
 
 
@@ -118,6 +119,10 @@ def build_cvc4(commit):
         subprocess.run(['git', 'checkout', commit], cwd = 'build/cvc4')
         subprocess.run(['./configure.sh', 'production', '--assertions', '--static', '--static-binary', '--poly', '--symfpu'], cwd = 'build/cvc4')
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'cvc4-bin'], cwd = 'build/cvc4/build')
+        res = subprocess.run(['build/cvc4/build/bin/cvc4', '--version'], stdout=subprocess.PIPE)
+        if res.stdout.decode().find(f'git HEAD {commit}') == -1:
+            print(f'Compiled cvc4 binary should be at commit {commit}, but something went wrong.')
+            sys.exit(1)
         shutil.copy('build/cvc4/build/bin/cvc4', binfile)
     return binfile
 
