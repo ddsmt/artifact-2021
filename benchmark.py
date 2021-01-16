@@ -30,8 +30,6 @@ def setup_cvc4():
         subprocess.run(['./contrib/get-poly', 'cvc4'], cwd = 'build/cvc4')
     if not os.path.isdir('build/cvc4/deps/symfpu-CVC4'):
         subprocess.run(['./contrib/get-symfpu', 'cvc4'], cwd = 'build/cvc4')
-    if not os.path.isdir('build/cvc4/build'):
-        subprocess.run(['./configure.sh', 'production', '--assertions', '--static', '--static-binary', '--poly', '--symfpu'], cwd = 'build/cvc4')
 
 
 def setup_ddsexpr():
@@ -118,6 +116,7 @@ def build_cvc4(commit):
     binfile = 'bin/cvc4-{}'.format(commit)
     if not os.path.isfile(binfile):
         subprocess.run(['git', 'checkout', commit], cwd = 'build/cvc4')
+        subprocess.run(['./configure.sh', 'production', '--assertions', '--static', '--static-binary', '--poly', '--symfpu'], cwd = 'build/cvc4')
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'cvc4-bin'], cwd = 'build/cvc4/build')
         shutil.copy('build/cvc4/build/bin/cvc4', binfile)
     return binfile
