@@ -426,8 +426,15 @@ def run_experiments(prefix = ''):
                 solvers[s](infile, outfile, binary, opts)
 
 
+def sanitize_results():
+    subprocess.run(['grep', '-Inri', 'does not match', 'out/pydelta/'])
+    subprocess.run(['grep', '-Inri', 'Expected stdout to match', 'out/'])
+    subprocess.run(['grep', '-Inri', 'Expected stderr to match', 'out/'])
+
+
 if __name__ == '__main__':
     setup()
     run_experiments()
     if os.path.isdir('confidential/'):
         run_experiments('confidential/')
+    sanitize_results()
