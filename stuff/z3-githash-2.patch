@@ -1,0 +1,11 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e6b9933..8d48e6b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -72,5 +72,5 @@ set(GIT_DIR "${PROJECT_SOURCE_DIR}/.git")
+ if (EXISTS "${GIT_DIR}")
+   # Try to make CMake configure depend on the current git HEAD so that
+   # a re-configure is triggered when the HEAD changes.
+-  add_git_dir_dependency("${CMAKE_SOURCE_DIR}" ADD_GIT_DEP_SUCCESS)
++  add_git_dir_dependency("${GIT_DIR}" ADD_GIT_DEP_SUCCESS)
+   if (ADD_GIT_DEP_SUCCESS)

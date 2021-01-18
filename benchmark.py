@@ -162,7 +162,8 @@ def build_z3(commit, opts):
     if not os.path.isfile(binfile):
         subprocess.run(['git', 'checkout', '.'], cwd = 'build/z3')
         subprocess.run(['git', 'checkout', commit], cwd = 'build/z3')
-        subprocess.run(['git', 'apply', '../../stuff/z3-githash.patch'], cwd = 'build/z3')
+        subprocess.run(['git', 'apply', '../../stuff/z3-githash-1.patch'], cwd = 'build/z3')
+        subprocess.run(['git', 'apply', '../../stuff/z3-githash-2.patch'], cwd = 'build/z3')
         cmakeopts = {
             'CMAKE_POSITION_INDEPENDENT_CODE': 'ON',
             'CMAKE_BUILD_TYPE': 'Release',
