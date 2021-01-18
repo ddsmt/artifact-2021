@@ -160,8 +160,10 @@ def build_z3(commit, opts):
     """Build z3 on the given commit and put the binary to bin"""
     binfile = 'bin/z3-{}'.format(commit)
     if not os.path.isfile(binfile):
+        subprocess.run(['git', 'checkout', '.'], cwd = 'build/z3')
         subprocess.run(['git', 'checkout', commit], cwd = 'build/z3')
-        subprocess.run(['cmake', '-DCMAKE_POSITION_INDEPENDENT_CODE=ON', '-DCMAKE_BUILD_TYPE=Release', '..'], cwd = 'build/z3/build')
+        subprocess.run(['git', 'apply', '../../stuff/z3-githash.patch'], cwd = 'build/z3')
+        subprocess.run(['cmake', '-DCMAKE_POSITION_INDEPENDENT_CODE=ON', '-DCMAKE_BUILD_TYPE=Release', '-DZ3_INCLUDE_GIT_HASH=ON', '..'], cwd = 'build/z3/build')
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'CXX_FLAGS=-std=c++11 -DNO_Z3_DEBUGGER=1', 'shell'], cwd = 'build/z3/build')
         res = subprocess.run(['build/z3/build/z3', '--version'], stdout=subprocess.PIPE)
         if res.stdout.decode().find(f'hashcode {commit}') == -1:
