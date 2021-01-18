@@ -59,6 +59,18 @@ def setup_ddsmt_dev():
         subprocess.run(['git', 'pull'], cwd = 'build/ddsmt-dev')
 
 
+def setup_delta():
+    """Download and build SMT-RAT's delta"""
+    if not os.path.isdir('build/delta'):
+        subprocess.run(['git', 'clone', 'https://github.com/smtrat/smtrat', 'build/delta'])
+        subprocess.run(['git', 'apply', '../../stuff/delta-progress.patch'], cwd = 'build/delta')
+        os.makedirs('build/delta/build')
+        subprocess.run(['cmake', '..'], cwd='build/delta/build')
+        subprocess.run(['make', f'-j{COMPILE_JOBS}', 'delta'], cwd='build/delta/build')
+    else:
+        subprocess.run(['git', 'pull'], cwd = 'build/delta')
+
+
 def setup_pydelta():
     """Download pydelta"""
     if not os.path.isdir('build/pydelta'):
@@ -324,6 +336,30 @@ def run_ddsmt_dev_naive_j1(input, output, binary, opts):
     run_ddsmt_dev_naive(input, output, binary, opts, 1)
 
 
+def run_delta(input, output, binary, opts):
+    solver = [binary]
+    if 'args' in opts:
+        solver = solver + ['--lang', 'smt2'] + opts['args']
+    matcher = []
+    if opts['match'] == 'incorrect':
+        solver = ['stuff/result_differs.py', *solver]
+    elif opts['match'] == 'stderr':
+        timeout = get_timeout(solver, input)
+        solver = ['stuff/match_err.py', str(timeout), f'"{opts["stderr"]}"', *solver]
+    
+    # Execute in a separate directory to avoid file name conflicts
+    os.makedirs(f'{output}.dir', exist_ok=True)
+    solver = list(map(lambda a: os.path.abspath(a) if os.path.isfile(a) else a, solver))
+
+    wrapper = f'{output}.dir/wrapper.sh'
+    open(wrapper, 'w').write(f'''#!/bin/sh
+{' '.join(solver)} $*
+''')
+    os.chmod(wrapper, 0o744)
+    cmd = [os.path.abspath('build/delta/build/delta'), *matcher, os.path.abspath(input), '-o', os.path.abspath(output), '--solver', './wrapper.sh']
+    run_debugger(cmd, output, cwd=f'{output}.dir/')
+
+
 def run_deltasmt(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
@@ -404,6 +440,7 @@ def setup():
     setup_ddsexpr()
     setup_ddsmt_master()
     setup_ddsmt_dev()
+    setup_delta()
     setup_pydelta()
     setup_yices()
     setup_z3()

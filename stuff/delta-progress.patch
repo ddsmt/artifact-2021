@@ -1,0 +1,41 @@
+diff --git a/src/delta/Producer.h b/src/delta/Producer.h
+index a5ceeaf4..feccf0d4 100644
+--- a/src/delta/Producer.h
++++ b/src/delta/Producer.h
+@@ -69,15 +69,12 @@ public:
+ 		if (settings.has("skip")) skip = settings.as<std::size_t>("skip");
+ 		for (std::size_t i = 1; ; i++) {
+ 			consumer.reset();
+-			progress(0, root.complexity());
+ 			std::size_t num = 0;
+ 			if (skip > 0) skip--;
+ 			if (settings.has("useDFS")) dfs(root, &root, num, skip);
+ 			else bfs(root, num, skip);
+ 			if (verbose) {
+ 				std::cout << GRAY << "Waiting for processes to terminate..." << END << std::endl << std::endl;
+-				while (!consumer.wait()) progress(consumer.getProgress());
+-				progress(consumer.getProgress());
+ 			} else {
+ 				while (!consumer.wait());
+ 			}
+@@ -115,7 +112,6 @@ private:
+ 	 */
+ 	void dfs(const Node& root, const Node* n, std::size_t& num, std::size_t skip) {
+ 		if (consumer.hasResult()) return;
+-		progress();
+ 		if (skip < num) process(root, *n, num);
+ 		num++;
+ 		for (const auto& child: n->children) {
+@@ -134,12 +130,10 @@ private:
+ 		q.push(&root);
+ 		while (!q.empty()) {
+ 			if (consumer.hasResult()) return;
+-			progress();
+ 			if (skip < num) process(root, *q.front(), num);
+ 			num++;
+ 			for (const auto& child: q.front()->children) {
+ 				if (child.immutable()) {
+-					progress(child.complexity());
+ 					continue;
+ 				}
+ 				q.push(&child);
