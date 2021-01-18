@@ -423,11 +423,12 @@ def run_pydelta(input, output, binary, opts):
 
 solvers = {
     'ddsexpr': run_ddsexpr,
-    'ddsmt-master': run_ddsmt_master,
     'ddsmt-dev-ddmin': run_ddsmt_dev_ddmin,
     'ddsmt-dev-ddmin-j1': run_ddsmt_dev_ddmin_j1,
     'ddsmt-dev-naive': run_ddsmt_dev_naive,
     'ddsmt-dev-naive-j1': run_ddsmt_dev_naive_j1,
+    'ddsmt-master': run_ddsmt_master,
+    'delta': run_delta,
     #'deltasmt': run_deltasmt,
     'pydelta': run_pydelta,
 }
