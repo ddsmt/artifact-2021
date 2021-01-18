@@ -236,7 +236,7 @@ def run_debugger(cmd, output, cwd=None):
                     stderr=open(f'{output}.err', 'w'),
                     cwd=cwd)
         duration = time.time() - start
-        open(f'{outfile}.time', 'w').write(str(duration))
+        open(f'{output}.time', 'w').write(str(duration))
 
 
 def run_ddsexpr(input, output, binary, opts):
@@ -269,6 +269,8 @@ def run_ddsmt_master(input, output, binary, opts):
     if SUBMIT_TO_SLURM:
         return
 
+    if not os.path.isfile(f'{output}.err'):
+        return
     err = open(f'{output}.err').read()
 
     m = re.search('unknown command (\'[^\']+\')', err)
@@ -434,8 +436,6 @@ def run_experiments(prefix = ''):
 
 def sanitize_results():
     subprocess.run(['grep', '-Inri', 'does not match', 'out/pydelta/'])
-    subprocess.run(['grep', '-Inri', 'Expected stdout to match', 'out/'])
-    subprocess.run(['grep', '-Inri', 'Expected stderr to match', 'out/'])
     subprocess.run(['grep', '-Inri', 'ddSMT ERROR', 'out/'])
 
 
