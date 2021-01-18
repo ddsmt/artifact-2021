@@ -450,11 +450,6 @@
         "match": "stderr",
         "stderr": "is_finite_type"
     },
-    "z3-4899.smt2": {
-        "z3-commit": "11477f1",
-        "match": "stderr",
-        "stderr": "ASSERTION VIOLATION"
-    },
     "z3-4690.smt2": {
         "z3-commit": "79734f2",
         "match": "stderr",
