@@ -63,11 +63,13 @@ def setup_delta():
     """Download and build SMT-RAT's delta"""
     if not os.path.isdir('build/delta'):
         subprocess.run(['git', 'clone', 'https://github.com/smtrat/smtrat', 'build/delta'])
+        subprocess.run(['git', 'apply', '../../stuff/delta-gcc.patch'], cwd = 'build/delta')
         subprocess.run(['git', 'apply', '../../stuff/delta-progress.patch'], cwd = 'build/delta')
         os.makedirs('build/delta/build')
-        my_env = os.environ.copy()
-        my_env['CXX'] = '/usr/bin/g++-7'
-        subprocess.run(['cmake', '..'], cwd='build/delta/build', env=my_env)
+        subprocess.run(['cmake', '..'], cwd='build/delta/build')
+        if os.path.isdir('build/delta/build/resources/src/CArL-EP'):
+            subprocess.run(['git', 'apply', '../../../../../../stuff/delta-gcc.patch'], cwd='build/delta/build/resources/src/CArL-EP')
+            subprocess.run(['cmake', '..'], cwd='build/delta/build')
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'delta'], cwd='build/delta/build')
     else:
         subprocess.run(['git', 'pull'], cwd = 'build/delta')
