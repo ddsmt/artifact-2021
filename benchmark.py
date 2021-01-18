@@ -269,10 +269,6 @@ def run_ddsmt_master(input, output, binary, opts):
 
     err = open(f'{output}.err').read()
 
-    if re.search('unable to minimize input file', err) != None:
-        print('ERROR: unable to minimize input file')
-        shutil.copy(input, output)
-        return
     m = re.search('unknown command (\'[^\']+\')', err)
     if m is not None:
         print('ERROR: unknown command {}'.format(m.group(1)))
@@ -438,6 +434,7 @@ def sanitize_results():
     subprocess.run(['grep', '-Inri', 'does not match', 'out/pydelta/'])
     subprocess.run(['grep', '-Inri', 'Expected stdout to match', 'out/'])
     subprocess.run(['grep', '-Inri', 'Expected stderr to match', 'out/'])
+    subprocess.run(['grep', '-Inri', '[ddSMT ERROR]', 'out/'])
 
 
 if __name__ == '__main__':
