@@ -450,6 +450,13 @@
         "match": "stderr",
         "stderr": "is_finite_type"
     },
+    "yices-regress1.smt2": {
+        "yices-commit": "3a3c3a1",
+        "yices-mode": "debug",
+        "args": ["--mcsat"],
+        "match": "stderr",
+        "stderr": "can_explain_conflict"
+    },
     "z3-4690.smt2": {
         "z3-commit": "79734f2",
         "match": "stderr",
