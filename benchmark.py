@@ -95,8 +95,8 @@ def setup_z3():
     if not os.path.isdir('build/z3'):
         subprocess.run(['git', 'clone', 'https://github.com/Z3Prover/z3.git', 'build/z3'])
         subprocess.run(['mkdir', 'build/z3/build'])
-        subprocess.run(['cmake', '-DCMAKE_POSITION_INDEPENDENT_CODE=ON', '-DCMAKE_BUILD_TYPE=Debug', '..'], cwd = 'build/z3/build')
     else:
+        subprocess.run(['git', 'checkout', '.'], cwd = 'build/z3')
         subprocess.run(['git', 'checkout', 'master'], cwd='build/z3')
         subprocess.run(['git', 'pull'], cwd = 'build/z3')
 
@@ -163,7 +163,13 @@ def build_z3(commit, opts):
         subprocess.run(['git', 'checkout', '.'], cwd = 'build/z3')
         subprocess.run(['git', 'checkout', commit], cwd = 'build/z3')
         subprocess.run(['git', 'apply', '../../stuff/z3-githash.patch'], cwd = 'build/z3')
-        subprocess.run(['cmake', '-DCMAKE_POSITION_INDEPENDENT_CODE=ON', '-DCMAKE_BUILD_TYPE=Release', '-DZ3_INCLUDE_GIT_HASH=ON', '..'], cwd = 'build/z3/build')
+        cmakeopts = {
+            'CMAKE_POSITION_INDEPENDENT_CODE': 'ON',
+            'CMAKE_BUILD_TYPE': 'Release',
+            'Z3_INCLUDE_GIT_HASH': 'ON',
+        }
+        opts = [f'-D{k}={v}' for k,v in cmakeopts.items()]
+        subprocess.run(['cmake', *opts, '..'], cwd = 'build/z3/build')
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'CXX_FLAGS=-std=c++11 -DNO_Z3_DEBUGGER=1', 'shell'], cwd = 'build/z3/build')
         res = subprocess.run(['build/z3/build/z3', '--version'], stdout=subprocess.PIPE)
         if res.stdout.decode().find(f'hashcode {commit}') == -1:
