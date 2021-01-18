@@ -122,6 +122,7 @@ setup_database()
 
 inputs = load_inputs()
 for solver in os.listdir('out/'):
-    load_solver(inputs, solver)
+    if os.path.isdir(f'out/{solver}'):
+        load_solver(inputs, solver)
 
 do_analysis()
