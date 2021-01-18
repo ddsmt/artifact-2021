@@ -436,7 +436,7 @@ def sanitize_results():
     subprocess.run(['grep', '-Inri', 'does not match', 'out/pydelta/'])
     subprocess.run(['grep', '-Inri', 'Expected stdout to match', 'out/'])
     subprocess.run(['grep', '-Inri', 'Expected stderr to match', 'out/'])
-    subprocess.run(['grep', '-Inri', '[ddSMT ERROR]', 'out/'])
+    subprocess.run(['grep', '-Inri', 'ddSMT ERROR', 'out/'])
 
 
 if __name__ == '__main__':
