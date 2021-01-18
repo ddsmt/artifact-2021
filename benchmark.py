@@ -167,6 +167,7 @@ def build_z3(commit, opts):
             'CMAKE_POSITION_INDEPENDENT_CODE': 'ON',
             'CMAKE_BUILD_TYPE': 'Release',
             'Z3_INCLUDE_GIT_HASH': 'ON',
+            'INCLUDE_GIT_HASH': 'ON',
         }
         opts = [f'-D{k}={v}' for k,v in cmakeopts.items()]
         subprocess.run(['cmake', *opts, '..'], cwd = 'build/z3/build')
