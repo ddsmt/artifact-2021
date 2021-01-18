@@ -242,21 +242,21 @@ f"""#!/bin/bash
 
 source {os.getcwd()}/slurm/venv/bin/activate
 START=$(date +%s.%N)
+pushd {cwd}
 {' '.join(cmd)}
+popd
 END=$(date +%s.%N)
 echo | awk "{{ print $END - $START }}" > {output}.time
 """)
 
     cmd = ['sbatch', scriptfile]
-    if cwd:
-        cmd += ['--chdir', cwd]
     subprocess.run(cmd)
 
 
 def run_debugger(cmd, output, cwd=None):
     """Actually run the command and redirect stdout and stderr."""
     if SUBMIT_TO_SLURM:
-        submit_slurm_job(cmd, output, cwd)
+        submit_slurm_job(cmd, output, cwd=cwd)
     else:
         start = time.time()
         subprocess.run(cmd,
