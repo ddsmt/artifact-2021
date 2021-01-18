@@ -65,7 +65,9 @@ def setup_delta():
         subprocess.run(['git', 'clone', 'https://github.com/smtrat/smtrat', 'build/delta'])
         subprocess.run(['git', 'apply', '../../stuff/delta-progress.patch'], cwd = 'build/delta')
         os.makedirs('build/delta/build')
-        subprocess.run(['cmake', '..'], cwd='build/delta/build')
+        my_env = os.environ.copy()
+        my_env['CXX'] = '/usr/bin/g++-7'
+        subprocess.run(['cmake', '..'], cwd='build/delta/build', env=my_env)
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'delta'], cwd='build/delta/build')
     else:
         subprocess.run(['git', 'pull'], cwd = 'build/delta')
