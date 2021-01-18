@@ -47,7 +47,8 @@ def load_solver(inputs, solver):
         add_result(filename, solver, insize, outsize, runtime)
 
 
-os.unlink('db.db')
+if os.path.isfile('db.db'):
+    os.unlink('db.db')
 db = sqlite3.connect('db.db')
 setup_database()
 
