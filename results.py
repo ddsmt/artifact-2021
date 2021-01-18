@@ -114,9 +114,9 @@ def do_analysis():
     subprocess.run(['pdflatex', 'table.tex'], cwd='out/')
 
 
-if os.path.isfile('db.db'):
-    os.unlink('db.db')
-db = sqlite3.connect('db.db')
+if os.path.isfile('out/db.db'):
+    os.unlink('out/db.db')
+db = sqlite3.connect('out/db.db')
 db.row_factory = sqlite3.Row
 setup_database()
 
