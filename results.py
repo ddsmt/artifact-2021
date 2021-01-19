@@ -16,7 +16,7 @@ jenv = jinja2.Environment(
 
 
 class ResultLoader:
-    TIMEOUT = 60*30
+    TIMEOUT = 60*60
 
     def __init__(self, dbname):
         if os.path.isfile(dbname):

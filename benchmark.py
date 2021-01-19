@@ -235,7 +235,7 @@ def submit_slurm_job(cmd, output, cwd=None):
     scriptfile = f'slurm/script-{SLURM_JOB_ID}.sh'
     open(scriptfile, 'w').write(
 f"""#!/bin/bash
-#SBATCH --time=00:30:00
+#SBATCH --time=01:00:00
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --partition=octa
