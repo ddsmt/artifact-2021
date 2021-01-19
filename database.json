@@ -457,11 +457,6 @@
         "match": "stderr",
         "stderr": "can_explain_conflict"
     },
-    "z3-4690.smt2": {
-        "z3-commit": "79734f2",
-        "match": "stderr",
-        "stderr": "ASSERTION VIOLATION"
-    },
     "z3-4737.smt2": {
         "z3-commit": "79734f2",
         "match": "exitcode"
@@ -478,10 +473,6 @@
         "z3-commit": "6f2b569",
         "match": "exitcode"
     },
-    "z3-3275.smt2": {
-        "z3-commit": "7bcd345",
-        "match": "exitcode"
-    },
     "z3-2874.smt2": {
         "z3-commit": "30e7c22",
         "match": "exitcode"
@@ -489,10 +480,5 @@
     "z3-2468.smt2": {
         "z3-commit": "e79542c",
         "match": "exitcode"
-    },
-    "z3-2201.smt2": {
-        "z3-commit": "604c9d3",
-        "match": "stderr",
-        "stderr": "Overflow"
     }
 }
