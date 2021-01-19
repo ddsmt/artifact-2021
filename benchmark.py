@@ -333,7 +333,7 @@ def run_ddsmt_dev_ddmin_j1(input, output, binary, opts):
     run_ddsmt_dev_ddmin(input, output, binary, opts, 1)
 
 
-def run_ddsmt_dev_naive(input, output, binary, opts, jobs=DEBUGGER_JOBS):
+def run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=DEBUGGER_JOBS):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -345,11 +345,11 @@ def run_ddsmt_dev_naive(input, output, binary, opts, jobs=DEBUGGER_JOBS):
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'naive', *matcher, input, output, *solver], output)
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'hierarchical', *matcher, input, output, *solver], output)
 
 
-def run_ddsmt_dev_naive_j1(input, output, binary, opts):
-    run_ddsmt_dev_naive(input, output, binary, opts, 1)
+def run_ddsmt_dev_hierarchical_j1(input, output, binary, opts):
+    run_ddsmt_dev_hierarchical(input, output, binary, opts, 1)
 
 
 def run_delta(input, output, binary, opts):
@@ -425,8 +425,8 @@ solvers = {
     'ddsexpr': run_ddsexpr,
     'ddsmt-dev-ddmin': run_ddsmt_dev_ddmin,
     'ddsmt-dev-ddmin-j1': run_ddsmt_dev_ddmin_j1,
-    'ddsmt-dev-naive': run_ddsmt_dev_naive,
-    'ddsmt-dev-naive-j1': run_ddsmt_dev_naive_j1,
+    'ddsmt-dev-hierarchical': run_ddsmt_dev_hierarchical,
+    'ddsmt-dev-hierarchical-j1': run_ddsmt_dev_hierarchical_j1,
     'ddsmt-master': run_ddsmt_master,
     'delta': run_delta,
     #'deltasmt': run_deltasmt,

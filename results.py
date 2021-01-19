@@ -135,8 +135,8 @@ def solver_name(s):
         'ddsmt-master': 'ddsmt',
         'ddsmt-dev-ddmin': 'ddmin',
         'ddsmt-dev-ddmin-j1': 'ddmin-j1',
-        'ddsmt-dev-naive': 'ddnaive',
-        'ddsmt-dev-naive-j1': 'ddnaive-j1',
+        'ddsmt-dev-hierarchical': 'hierarchical',
+        'ddsmt-dev-hierarchical-j1': 'hierarchical-j1',
     }
     return d.get(s, s)
 
@@ -209,21 +209,56 @@ def overview_data(solvers):
 def get_overview_results():
     total = loader.db.execute('SELECT COUNT(DISTINCT input) FROM data').fetchone()[0]
     datanames = {'parse': 'can parse', 'reduce': 'can reduce', 'avg': 'average reduction', 'avg300': 'average reduction ($>$300 bytes)' }
+    slv = [s for s in solvers if s not in ['ddsmt-dev-ddmin-j1', 'ddsmt-dev-hierarchical-j1']]
     return {
         'total': total,
-        'solvers': solvers,
-        'solvernames': {s: solver_name(s) for s in solvers},
+        'solvers': slv,
+        'solvernames': {s: solver_name(s) for s in slv if s not in ['ddsmt-dev-ddmin-j1', 'ddsmt-dev-hierarchical-j1']},
         'data': overview_data(solvers),
         'datanames': datanames,
     }
 
 
+
+def scatter(filename_size, filename_time, A, B):
+    res = loader.db.execute('''
+    SELECT a.insize AS insize, a.outsize AS aout, b.outsize AS bout, a.time AS atime, b.time AS btime
+    FROM data AS a
+    LEFT JOIN data AS b ON (a.input = b.input AND b.solver = ?)
+    WHERE a.solver = ?
+
+    UNION ALL
+
+    SELECT b.insize AS insize, a.outsize AS aout, b.outsize AS bout, a.time AS atime, b.time AS btime
+    FROM data AS b
+    LEFT JOIN data AS a ON (a.input = b.input AND a.solver = ?)
+    WHERE b.solver = ? AND a.input IS NULL
+    ''', [B, A, A, B])
+    f = open(filename_size, 'w')
+    res = res.fetchall()
+    for r in res:
+        r = dict(r)
+        if r['aout'] is None:
+            r['aout'] = r['insize'] * 1.15
+        if r['bout'] is None:
+            r['bout'] = r['insize'] * 1.15
+        f.write('{}\t{}\n'.format(r['aout'] / r['insize'] * 100, r['bout'] / r['insize'] * 100))
+    f.close()
+    f = open(filename_time, 'w')
+    for r in res:
+        r = dict(r)
+        if r['aout'] is None: continue
+        if r['bout'] is None: continue
+        if r['aout'] == r['insize']: continue
+        if r['bout'] == r['insize']: continue
+        f.write('{}\t{}\n'.format(r['atime'], r['btime']))
+    f.close()
+
+
 def do_analysis():
     render_to_file('out/table.tex', 'table-complete.tpl', **get_all_results())
-    subprocess.run(['pdflatex', 'table.tex'], cwd='out/')
     render_to_file('out/table-overview.tex', 'table-overview.tpl', **get_overview_results())
-    subprocess.run(['pdflatex', 'table-overview.tex'], cwd='out/')
-
+    scatter('out/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical')
 
 
 loader = ResultLoader('out/db.db')
