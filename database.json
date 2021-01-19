@@ -437,13 +437,6 @@
         "match": "stderr",
         "stderr": "ERRORS SATISFYING"
     },
-    "yices-273.smt2": {
-        "yices-commit": "22f948f",
-        "yices-mode": "debug",
-        "args": ["--mcsat"],
-        "match": "stderr",
-        "stderr": "Assertion failed"
-    },
     "yices-287.smt2": {
         "yices-commit": "0f9e45f",
         "yices-mode": "debug",
