@@ -1,0 +1,9 @@
+diff --git a/ddsmt/progress.py b/ddsmt/progress.py
+index 00e27e6..b43c53f 100644
+--- a/ddsmt/progress.py
++++ b/ddsmt/progress.py
+@@ -1,4 +1,3 @@
+-import progressbar
+ import sys
+ 
+ __BAR = None
