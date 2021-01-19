@@ -3,6 +3,7 @@
 import glob
 import jinja2
 import os
+import re
 import sqlite3
 import subprocess
 
@@ -12,6 +13,121 @@ jenv = jinja2.Environment(
 	variable_start_string='\VAR{',
 	variable_end_string='}',
 )
+
+
+class ResultLoader:
+    TIMEOUT = 60*30
+
+    def __init__(self, dbname):
+        if os.path.isfile(dbname):
+            os.unlink(dbname)
+        self.db = sqlite3.connect(dbname)
+        self.db.row_factory = sqlite3.Row
+        self.__setup_database()
+
+    def __setup_database(self):
+        """Create the database"""
+        self.db.execute('''
+CREATE TABLE IF NOT EXISTS data (
+    input TEXT, solver TEXT, insize INT, outsize INT, time INT,
+    UNIQUE(input, solver)
+)
+''')
+
+    def __add_result(self, input, solver, insize, outsize, time):
+        """Add one result to the database"""
+        self.db.execute('INSERT INTO data (input,solver,insize,outsize,time) VALUES (?,?,?,?,?)', [input, solver, insize, outsize, time])
+        self.db.commit()
+
+    def __has_parser_error(self, err, out):
+        """Check whether the err/out outputs indicate a debugger parser error"""
+        
+        # ddSMT errors
+        m = re.search('\[ddsmt\] .* unknown command (\'[^\']+\')', err)
+        if m is not None:
+            print('ddSMT parser error: unknown command {}'.format(m.group(1)))
+            return True
+        m = re.search('\[ddsmt\] .* function (\'[^\']+\') undeclared', err)
+        if m is not None:
+            print('ddSMT parser error: unknown function {}'.format(m.group(1)))
+            return True
+        m = re.search('\[ddsmt\] .* function argument (\'[^\']+\') undeclared', err)
+        if m is not None:
+            print('ddSMT parser error: unknown function argument {}'.format(m.group(1)))
+            return True
+        m = re.search('\[ddsmt\] .* \'\)\' expected', err)
+        if m is not None:
+            print('ddSMT parser error: expected ")"')
+            return True
+        m = re.search('AssertionError', err)
+        if m is not None:
+            print('ddSMT error: assertion')
+            return True
+        
+        # delta errors
+        m = re.search('Parsing error in line', err)
+        if m is not None:
+            print('delta parser error')
+            return True
+        m = re.search('Segmentation fault.*build/delta/build/delta', err)
+        if m is not None:
+            print('delta error: segfault')
+            return True
+        
+        return False
+    
+    def __get_result_size(self, fullname, insize, err, out):
+        if os.path.isfile(fullname):
+            return os.stat(fullname).st_size
+        m = re.search('unable to minimize input file', err)
+        if m is not None:
+            return insize
+        if os.path.isfile(f'{fullname}.dir/delta.last.smt2'):
+            return os.stat(f'{fullname}.dir/delta.last.smt2').st_size
+        print(f'Warning: {fullname} does not exist, assume it could not be minimized')
+        return insize
+
+
+    def __get_runtime(self, fullname, err):
+        if os.path.isfile(f'{fullname}.time'):
+            return float(open(f'{fullname}.time').read())
+        elif re.search('CANCELLED AT .* DUE TO TIME LIMIT', err) is not None:
+            return self.TIMEOUT
+        else:
+            print(f'Warning: {fullname}.time does not exist, but was not cancelled')
+            return None
+
+    def load_inputs(self):
+        """Load all input files"""
+        res = {}
+        for filename in sorted(glob.iglob('inputs/*.smt2')):
+            size = os.stat(filename).st_size
+            res[os.path.basename(filename)] = size
+        return res
+
+    def load_solver(self, inputs, solver):
+        """Load all results for one solver"""
+        for filename in inputs:
+            fullname = f'out/{solver}/{filename}'
+            insize = inputs[filename]
+            if not os.path.isfile(f'{fullname}.err'):
+                print(f'ERROR: {fullname}.err does not exist')
+                continue
+            if not os.path.isfile(f'{fullname}.out'):
+                print(f'ERROR: {fullname}.out does not exist')
+                continue
+            err = open(f'{fullname}.err').read()
+            out = open(f'{fullname}.out').read()
+            if self.__has_parser_error(err, out):
+                continue
+        
+            outsize = self.__get_result_size(fullname, insize, err, out)
+
+            runtime = self.__get_runtime(fullname, err)
+            if runtime is None:
+                continue
+
+            self.__add_result(filename, solver, insize, outsize, runtime)
 
 
 def solver_name(s):
@@ -31,50 +147,9 @@ def render_to_file(filename, tplfile, **kwargs):
         file.write(tpl.render(**kwargs))
 
 
-def setup_database():
-    """Create the database"""
-    db.execute('''
-CREATE TABLE IF NOT EXISTS data (
-    input TEXT, solver TEXT, insize INT, outsize INT, time INT,
-    UNIQUE(input, solver)
-)
-''')
-
-
-def add_result(input, solver, insize, outsize, time):
-    """Add one result to the database"""
-    db.execute('INSERT INTO data (input,solver,insize,outsize,time) VALUES (?,?,?,?,?)', [input, solver, insize, outsize, time])
-    db.commit()
-
-
-def load_inputs():
-    """Load all input files"""
-    res = {}
-    for filename in sorted(glob.iglob('inputs/*.smt2')):
-        size = os.stat(filename).st_size
-        res[os.path.basename(filename)] = size
-    return res
-
-
-def load_solver(inputs, solver):
-    """Load all results for one solver"""
-    for filename in inputs:
-        fullname = f'out/{solver}/{filename}'
-        insize = inputs[filename]
-        outsize = insize
-        if os.path.isfile(fullname):
-            outsize = os.stat(fullname).st_size
-        else:
-            print(f'Warning: {fullname} does not exist, assume it could not be minimized')
-        if not os.path.isfile(f'{fullname}.time'):
-            print(f'Warning: {fullname}.time does not exist')
-            continue
-        runtime = float(open(f'{fullname}.time').read())
-        add_result(filename, solver, insize, outsize, runtime)
-
 
 def get_all_results():
-    cur = db.execute('''
+    cur = loader.db.execute('''
 SELECT input, solver, insize, outsize, time FROM data
 ''')
     data = {}
@@ -108,20 +183,56 @@ SELECT input, solver, insize, outsize, time FROM data
     }
 
 
+def ffloat(f):
+    return '--' if f is None else f'{f:.2f}'
+
+
+def fint(i):
+    return '--' if i is None else f'{i}'
+
+
+def overview_data(solvers):
+    res = {
+        'parse': {},
+        'reduce': {},
+        'avg': {},
+        'avg300': {},
+    }
+    for s in solvers:
+        res['parse'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ?', [s]).fetchone()[0])
+        res['reduce'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND outsize < insize', [s]).fetchone()[0])
+        res['avg'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ?', [s]).fetchone()[0])
+        res['avg300'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND insize>300', [s]).fetchone()[0])
+    return res
+
+
+def get_overview_results():
+    total = loader.db.execute('SELECT COUNT(DISTINCT input) FROM data').fetchone()[0]
+    datanames = {'parse': 'can parse', 'reduce': 'can reduce', 'avg': 'average reduction', 'avg300': 'average reduction ($>$300 bytes)' }
+    return {
+        'total': total,
+        'solvers': solvers,
+        'solvernames': {s: solver_name(s) for s in solvers},
+        'data': overview_data(solvers),
+        'datanames': datanames,
+    }
+
+
 def do_analysis():
-    render_to_file('out/table.tex', 'table-overview.tpl', **get_all_results())
+    render_to_file('out/table.tex', 'table-complete.tpl', **get_all_results())
     subprocess.run(['pdflatex', 'table.tex'], cwd='out/')
+    render_to_file('out/table-overview.tex', 'table-overview.tpl', **get_overview_results())
+    subprocess.run(['pdflatex', 'table-overview.tex'], cwd='out/')
 
 
-if os.path.isfile('out/db.db'):
-    os.unlink('out/db.db')
-db = sqlite3.connect('out/db.db')
-db.row_factory = sqlite3.Row
-setup_database()
 
-inputs = load_inputs()
-for solver in os.listdir('out/'):
-    if os.path.isdir(f'out/{solver}'):
-        load_solver(inputs, solver)
+loader = ResultLoader('out/db.db')
+
+inputs = loader.load_inputs()
+solvers = sorted([
+    s for s in os.listdir('out/') if os.path.isdir(f'out/{s}')
+])
+for solver in solvers:
+    loader.load_solver(inputs, solver)
 
 do_analysis()
