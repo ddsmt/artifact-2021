@@ -50,7 +50,7 @@ def add_result(input, solver, insize, outsize, time):
 def load_inputs():
     """Load all input files"""
     res = {}
-    for filename in glob.iglob('inputs/*.smt2'):
+    for filename in sorted(glob.iglob('inputs/*.smt2')):
         size = os.stat(filename).st_size
         res[os.path.basename(filename)] = size
     return res
@@ -91,7 +91,6 @@ SELECT input, solver, insize, outsize, time FROM data
         inputs.append(c['input'])
         solvers.append(solver_name(c['solver']))
     for i in data:
-        print(data[i])
         best = data[i]['insize']
         for s in data[i]:
             if s == 'insize':
