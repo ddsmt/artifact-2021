@@ -465,9 +465,11 @@ def setup():
     setup_confidential()
 
 
-def run_experiments(prefix = ''):
+def run_experiments(prefix = '', single = None):
     data = json.load(open(f'{prefix}database.json'))
     for input,opts in data.items():
+        if single and not input.startswith(single[0]):
+            continue
         print(f'{input}: {opts}')
         if 'binary' in opts:
             binary = f'{prefix}bin/{opts["binary"]}'
@@ -482,6 +484,8 @@ def run_experiments(prefix = ''):
         insize = os.stat(infile).st_size
 
         for s in solvers:
+            if single and s != single[1]:
+                continue
             outfile = f'{prefix}out/{s}/{input}'
             if not os.path.isfile(outfile):
                 print('Running {} on {}'.format(s, input))
@@ -494,8 +498,11 @@ def sanitize_results():
 
 
 if __name__ == '__main__':
+    single = None
+    #single = (<file prefix>, <solver>)
+    #single = ('z3-4572', 'ddsmt-dev-ddmin')
     setup()
-    run_experiments()
+    run_experiments(single = single)
     if os.path.isdir('confidential/'):
-        run_experiments('confidential/')
+        run_experiments('confidential/', single = single)
     sanitize_results()
