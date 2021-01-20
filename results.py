@@ -39,39 +39,46 @@ CREATE TABLE IF NOT EXISTS data (
         self.db.execute('INSERT INTO data (input,solver,insize,outsize,time) VALUES (?,?,?,?,?)', [input, solver, insize, outsize, time])
         self.db.commit()
 
-    def __has_parser_error(self, err, out):
+    def __has_parser_error(self, fullname, err, out):
         """Check whether the err/out outputs indicate a debugger parser error"""
         
         # ddSMT errors
         m = re.search('\[ddsmt\] .* unknown command (\'[^\']+\')', err)
         if m is not None:
-            print('ddSMT parser error: unknown command {}'.format(m.group(1)))
+            if not fullname.startswith('out/ddsmt-master'):
+                print(f'ddSMT parser error: unknown command {m.group(1)} in {fullname}')
             return True
         m = re.search('\[ddsmt\] .* function (\'[^\']+\') undeclared', err)
         if m is not None:
-            print('ddSMT parser error: unknown function {}'.format(m.group(1)))
+            if not fullname.startswith('out/ddsmt-master'):
+                print(f'ddSMT parser error: unknown function{m.group(1)} in {fullname}')
             return True
         m = re.search('\[ddsmt\] .* function argument (\'[^\']+\') undeclared', err)
         if m is not None:
-            print('ddSMT parser error: unknown function argument {}'.format(m.group(1)))
+            if not fullname.startswith('out/ddsmt-master'):
+                print(f'ddSMT parser error: unknown function argument {m.group(1)} in {fullname}')
             return True
         m = re.search('\[ddsmt\] .* \'\)\' expected', err)
         if m is not None:
-            print('ddSMT parser error: expected ")"')
+            if not fullname.startswith('out/ddsmt-master'):
+                print(f'ddSMT parser error: expected ")" in {fullname}')
             return True
         m = re.search('AssertionError', err)
         if m is not None:
-            print('ddSMT error: assertion')
+            if not fullname.startswith('out/ddsmt-master'):
+                print(f'ddSMT error: assertion in {fullname}')
             return True
         
         # delta errors
         m = re.search('Parsing error in line', err)
         if m is not None:
-            print('delta parser error')
+            if not fullname.startswith('out/delta/'):
+                print(f'delta parser error in {fullname}')
             return True
         m = re.search('Segmentation fault.*build/delta/build/delta', err)
         if m is not None:
-            print('delta error: segfault')
+            if not fullname.startswith('out/delta/'):
+                print(f'delta error: segfault in {fullname}')
             return True
         
         return False
@@ -118,7 +125,7 @@ CREATE TABLE IF NOT EXISTS data (
                 continue
             err = open(f'{fullname}.err').read()
             out = open(f'{fullname}.out').read()
-            if self.__has_parser_error(err, out):
+            if self.__has_parser_error(fullname, err, out):
                 continue
         
             outsize = self.__get_result_size(fullname, insize, err, out)
@@ -135,8 +142,8 @@ def solver_name(s):
         'ddsmt-master': 'ddsmt',
         'ddsmt-dev-ddmin': 'ddmin',
         'ddsmt-dev-ddmin-j1': 'ddmin-j1',
-        'ddsmt-dev-hierarchical': 'hierarchical',
-        'ddsmt-dev-hierarchical-j1': 'hierarchical-j1',
+        'ddsmt-dev-hierarchical': 'hier',
+        'ddsmt-dev-hierarchical-j1': 'hier-j1',
     }
     return d.get(s, s)
 
