@@ -2,10 +2,14 @@
 
 import glob
 import jinja2
+import json
 import os
 import re
 import sqlite3
 import subprocess
+import sys
+
+import benchmark
 
 
 jenv = jinja2.Environment(
@@ -13,6 +17,43 @@ jenv = jinja2.Environment(
 	variable_start_string='\VAR{',
 	variable_end_string='}',
 )
+
+
+def do_test_run(dbentry, filename):
+    binary = benchmark.get_binary(dbentry, dbentry['prefix'])
+    cmd = [binary] + dbentry.get('args', [])
+
+    if dbentry['match'] == 'incorrect':
+        cmd = ['stuff/result_differs.py'] + cmd
+    elif dbentry['match'] == 'incorrect-unknown':
+        cmd = ['stuff/result_differs_unknown.py'] + cmd
+    cmd = cmd + [filename]
+    
+    print(f'Running {cmd}')
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out = res.stdout.decode()
+    err = res.stderr.decode()
+    exitcode = res.returncode
+
+    return out, err, exitcode
+
+
+def do_check_run(dbentry, filename):
+    out, err, exitcode = do_test_run(dbentry, filename)
+
+    if dbentry['match'] == 'incorrect':
+        return exitcode == 1
+    elif dbentry['match'] == 'incorrect-unknown':
+        return exitcode == 1
+    elif dbentry['match'] == 'stderr':
+        return dbentry['stderr'] in err
+    elif dbentry['match'] == 'stdout':
+        return dbentry['stdout'] in out
+    elif dbentry['match'] == 'exitcode':
+        return exitcode == dbentry['exitcode']
+    else:
+        print("Unknown matcher")
+        sys.exit(1)
 
 
 class ResultLoader:
@@ -24,6 +65,7 @@ class ResultLoader:
         self.db = sqlite3.connect(dbname)
         self.db.row_factory = sqlite3.Row
         self.__setup_database()
+        self.database = {}
 
     def __setup_database(self):
         """Create the database"""
@@ -106,17 +148,21 @@ CREATE TABLE IF NOT EXISTS data (
 
     def load_inputs(self, basedir=''):
         """Load all input files"""
-        res = {}
-        for filename in sorted(glob.iglob(f'{basedir}inputs/*.smt2')):
-            size = os.stat(filename).st_size
-            res[os.path.basename(filename)] = size
-        return res
+        database = json.load(open(f'{basedir}database.json'))
+        for filename in database:
+            fullname = f'{basedir}inputs/{filename}'
+            database[filename]['prefix'] = basedir
+            size = os.stat(fullname).st_size
+            database[filename]['insize'] = size
+            out, err, exitcode = do_test_run(database[filename], fullname)
+            database[filename]['exitcode'] = exitcode
+        self.database.update(database)
 
-    def load_solver(self, inputs, solver):
+    def load_solver(self, solver):
         """Load all results for one solver"""
-        for filename in inputs:
+        for filename in self.database:
             fullname = f'out/{solver}/{filename}'
-            insize = inputs[filename]
+            insize = self.database[filename]['insize']
             if not os.path.isfile(f'{fullname}.err'):
                 print(f'ERROR: {fullname}.err does not exist')
                 continue
@@ -126,6 +172,10 @@ CREATE TABLE IF NOT EXISTS data (
             err = open(f'{fullname}.err').read()
             out = open(f'{fullname}.out').read()
             if self.__has_parser_error(fullname, err, out):
+                continue
+        
+            if not do_test_run(self.database[filename], fullname):
+                print(f'ERROR: {fullname} does not trigger the issue')
                 continue
         
             outsize = self.__get_result_size(fullname, insize, err, out)
@@ -270,13 +320,13 @@ def do_analysis():
 
 loader = ResultLoader('out/db.db')
 
-inputs = loader.load_inputs()
+loader.load_inputs()
 if os.path.isdir('confidential'):
-    inputs.update(loader.load_inputs('confidential/'))
+    loader.load_inputs('confidential/')
 solvers = sorted([
     s for s in os.listdir('out/') if os.path.isdir(f'out/{s}')
 ])
 for solver in solvers:
-    loader.load_solver(inputs, solver)
+    loader.load_solver(solver)
 
 do_analysis()
