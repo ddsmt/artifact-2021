@@ -1,4 +1,9 @@
 {
+    "andy-1.smt2": {
+        "cvc4-commit": "b212e645",
+        "args": ["-q", "--full-saturate-quant", "--full-saturate-quant-limit=1"],
+        "match": "incorrect-unknown"
+    },
     "issue5187.smt2": {
         "cvc4-commit": "13cf418",
         "args": ["--strings-exp", "-i"],

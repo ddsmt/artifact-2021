@@ -126,6 +126,7 @@ def setup_z3_ref():
         subprocess.run(['git', 'checkout', 'z3-4.8.9'], cwd='build/z3-ref')
         subprocess.run(['mkdir', 'build/z3-ref/build'])
         subprocess.run(['cmake', '..'], cwd = 'build/z3-ref/build')
+    if not os.path.isfile('bin/z3-ref'):
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'shell'], cwd = 'build/z3-ref/build')
         shutil.copy('build/z3-ref/build/z3', 'bin/z3-ref')
 
@@ -241,6 +242,7 @@ f"""#!/bin/bash
 #SBATCH --partition=octa
 #SBATCH --output={output}.out
 #SBATCH --error={output}.err
+#SBATCH --qos=max2
 
 source {os.getcwd()}/slurm/venv/bin/activate
 START=$(date +%s.%N)
@@ -276,6 +278,8 @@ def run_ddsexpr(input, output, binary, opts):
     matcher = []
     if opts['match'] == 'incorrect':
         solver = ['stuff/result_differs.py', *solver]
+    elif opts['match'] == 'incorrect-unknown':
+        solver = ['stuff/result_differs_unknown.py', *solver]
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_err.py', str(timeout), f'"{opts["stderr"]}"', *solver]
@@ -290,6 +294,8 @@ def run_ddsmt_master(input, output, binary, opts):
     matcher = []
     if opts['match'] == 'incorrect':
         solver = ['stuff/result_differs.py', *solver]
+    elif opts['match'] == 'incorrect-unknown':
+        solver = ['stuff/result_differs_unknown.py', *solver]
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_err.py', str(timeout), opts['stderr'], *solver]
@@ -323,6 +329,8 @@ def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=DEBUGGER_JOBS):
     matcher = []
     if opts['match'] == 'incorrect':
         solver = ['stuff/result_differs.py', *solver]
+    elif opts['match'] == 'incorrect-unknown':
+        solver = ['stuff/result_differs_unknown.py', *solver]
     elif opts['match'] == 'stderr':
         matcher = ['--match-err', opts['stderr']]
     elif opts['match'] == 'exitcode':
@@ -342,6 +350,8 @@ def run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=DEBUGGER_JOBS):
     matcher = []
     if opts['match'] == 'incorrect':
         solver = ['stuff/result_differs.py', *solver]
+    elif opts['match'] == 'incorrect-unknown':
+        solver = ['stuff/result_differs_unknown.py', *solver]
     elif opts['match'] == 'stderr':
         matcher = ['--match-err', opts['stderr']]
     elif opts['match'] == 'exitcode':
@@ -361,6 +371,8 @@ def run_delta(input, output, binary, opts):
     matcher = []
     if opts['match'] == 'incorrect':
         solver = ['stuff/result_differs.py', *solver]
+    elif opts['match'] == 'incorrect-unknown':
+        solver = ['stuff/result_differs_unknown.py', *solver]
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_err.py', str(timeout), f'"{opts["stderr"]}"', *solver]
@@ -385,6 +397,8 @@ def run_deltasmt(input, output, binary, opts):
     matcher = []
     if opts['match'] == 'incorrect':
         solver = ['../stuff/result_differs.py', *solver]
+    elif opts['match'] == 'incorrect-unknown':
+        solver = ['stuff/result_differs_unknown.py', *solver]
         print(solver)
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
@@ -415,6 +429,8 @@ def run_pydelta(input, output, binary, opts):
     matcher = []
     if opts['match'] == 'incorrect':
         solver = ['stuff/result_differs.py', *solver]
+    elif opts['match'] == 'incorrect-unknown':
+        solver = ['stuff/result_differs_unknown.py', *solver]
     elif opts['match'] == 'stderr':
         matcher = ['--match-err', opts['stderr']]
     elif opts['match'] == 'exitcode':
@@ -486,7 +502,7 @@ def run_experiments(prefix = '', single = None):
         insize = os.stat(infile).st_size
 
         for s in solvers:
-            if single and s != single[1]:
+            if single and single[1] is not None and s != single[1]:
                 continue
             outfile = f'{prefix}out/{s}/{input}'
             if not os.path.isfile(outfile):
