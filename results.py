@@ -165,23 +165,29 @@ CREATE TABLE IF NOT EXISTS data (
             insize = self.database[filename]['insize']
             if not os.path.isfile(f'{fullname}.err'):
                 print(f'ERROR: {fullname}.err does not exist')
+                self.__add_result(filename, solver, insize, insize, -4)
                 continue
             if not os.path.isfile(f'{fullname}.out'):
                 print(f'ERROR: {fullname}.out does not exist')
+                self.__add_result(filename, solver, insize, insize, -4)
                 continue
             err = open(f'{fullname}.err').read()
             out = open(f'{fullname}.out').read()
+
             if self.__has_parser_error(fullname, err, out):
-                continue
-        
-            if not do_test_run(self.database[filename], fullname):
-                print(f'ERROR: {fullname} does not trigger the issue')
+                self.__add_result(filename, solver, insize, insize, -1)
                 continue
         
             outsize = self.__get_result_size(fullname, insize, err, out)
 
+            if not do_test_run(self.database[filename], fullname):
+                print(f'ERROR: {fullname} does not trigger the issue')
+                self.__add_result(filename, solver, insize, outsize, -2)
+                continue
+
             runtime = self.__get_runtime(fullname, err)
             if runtime is None:
+                self.__add_result(filename, solver, insize, outsize, -3)
                 continue
 
             self.__add_result(filename, solver, insize, outsize, runtime)
@@ -209,6 +215,12 @@ def get_all_results():
     cur = loader.db.execute('''
 SELECT input, solver, insize, outsize, time FROM data
 ''')
+    errors = {
+        -1: 'PE',  # parser error
+        -2: 'IO',  # incorrect output
+        -3: 'C',  # cancelled by slurm
+        -4: 'AB',  # aborted, no output files
+    }
     data = {}
     solvers = []
     inputs = []
@@ -227,12 +239,20 @@ SELECT input, solver, insize, outsize, time FROM data
         for s in data[i]:
             if s == 'insize':
                 continue
+            if data[i][s]['time'] < 0:
+                continue
             best = min(best, data[i][s]['outsize'])
         for s in data[i]:
             if s == 'insize':
                 continue
             if data[i][s]['outsize'] == best:
                 data[i][s]['best'] = True
+            t = data[i][s]['time']
+            if t in errors:
+                data[i][s]['time'] = errors[t]
+                data[i][s]['outsize'] = '--'
+            else:
+                data[i][s]['time'] = f'{t:0.2f}'
     return {
         'data': data,
         'inputs': sorted(list(set(inputs))),
@@ -282,14 +302,14 @@ def scatter(filename_size, filename_time, A, B):
     SELECT a.insize AS insize, a.outsize AS aout, b.outsize AS bout, a.time AS atime, b.time AS btime
     FROM data AS a
     LEFT JOIN data AS b ON (a.input = b.input AND b.solver = ?)
-    WHERE a.solver = ?
+    WHERE a.solver = ? AND a.time >= 0
 
     UNION ALL
 
     SELECT b.insize AS insize, a.outsize AS aout, b.outsize AS bout, a.time AS atime, b.time AS btime
     FROM data AS b
     LEFT JOIN data AS a ON (a.input = b.input AND a.solver = ?)
-    WHERE b.solver = ? AND a.input IS NULL
+    WHERE b.solver = ? AND b.time >= 0 AND a.input IS NULL
     ''', [B, A, A, B])
     f = open(filename_size, 'w')
     res = res.fetchall()
