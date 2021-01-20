@@ -104,10 +104,10 @@ CREATE TABLE IF NOT EXISTS data (
             print(f'Warning: {fullname}.time does not exist, but was not cancelled')
             return None
 
-    def load_inputs(self):
+    def load_inputs(self, basedir=''):
         """Load all input files"""
         res = {}
-        for filename in sorted(glob.iglob('inputs/*.smt2')):
+        for filename in sorted(glob.iglob(f'{basedir}inputs/*.smt2')):
             size = os.stat(filename).st_size
             res[os.path.basename(filename)] = size
         return res
@@ -271,6 +271,8 @@ def do_analysis():
 loader = ResultLoader('out/db.db')
 
 inputs = loader.load_inputs()
+if os.path.isdir('confidential'):
+    inputs = loader.load_inputs('confidential/')
 solvers = sorted([
     s for s in os.listdir('out/') if os.path.isdir(f'out/{s}')
 ])

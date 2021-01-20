@@ -505,7 +505,7 @@ def run_experiments(prefix = '', single = None):
         for s in solvers:
             if single and single[1] is not None and s != single[1]:
                 continue
-            outfile = f'{prefix}out/{s}/{input}'
+            outfile = f'out/{s}/{input}'
             if not os.path.isfile(outfile):
                 print('Running {} on {}'.format(s, input))
                 solvers[s](infile, outfile, binary, opts)
