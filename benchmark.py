@@ -458,8 +458,6 @@ def setup_confidential():
         subprocess.run(['git', 'clone', 'git@github.com:ddsmt/artifact-2021-confidential.git', 'confidential'])
     else:
         subprocess.run(['git', 'pull'], cwd='confidential')
-    for s in solvers:
-        os.makedirs(f'confidential/out/{s}', exist_ok = True)
 
 
 def setup():
