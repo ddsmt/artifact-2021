@@ -502,9 +502,9 @@ def get_binary(dbentry, prefix):
     elif 'cvc4-commit' in dbentry:
         dbentry['args'] = dbentry.get('args', []) + ['--lang', 'smt2']
         return build_cvc4(dbentry['cvc4-commit'])
-    elif 'yices-commit' in opts:
+    elif 'yices-commit' in dbentry:
         return build_yices(dbentry['yices-commit'], dbentry)
-    elif 'z3-commit' in opts:
+    elif 'z3-commit' in dbentry:
         return build_z3(dbentry['z3-commit'], dbentry)
 
 
