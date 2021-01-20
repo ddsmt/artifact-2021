@@ -463,10 +463,6 @@
         "z3-commit": "ad55a1f",
         "match": "exitcode"
     },
-    "z3-3974.smt2": {
-        "z3-commit": "30e7c22",
-        "match": "exitcode"
-    },
     "z3-3293.smt2": {
         "z3-commit": "6f2b569",
         "match": "exitcode"
