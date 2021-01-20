@@ -283,6 +283,9 @@ def run_ddsexpr(input, output, binary, opts):
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_err.py', str(timeout), f'"{opts["stderr"]}"', *solver]
+    elif opts['match'] == 'stdout':
+        timeout = get_timeout(solver, input)
+        solver = ['stuff/match_out.py', str(timeout), f'"{opts["stdout"]}"', *solver]
 
     run_debugger(['build/ddsexpr/ddsexpr', '-l', '-s', *matcher, input, output, *solver], output)
 
@@ -299,6 +302,9 @@ def run_ddsmt_master(input, output, binary, opts):
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_err.py', str(timeout), opts['stderr'], *solver]
+    elif opts['match'] == 'stdout':
+        timeout = get_timeout(solver, input)
+        solver = ['stuff/match_out.py', str(timeout), opts['stdout'], *solver]
 
     run_debugger(['build/ddsmt-master/ddsmt.py', '-v', *matcher, input, output, *solver], output)
 
@@ -333,6 +339,8 @@ def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=DEBUGGER_JOBS):
         solver = ['stuff/result_differs_unknown.py', *solver]
     elif opts['match'] == 'stderr':
         matcher = ['--match-err', opts['stderr']]
+    elif opts['match'] == 'stdout':
+        matcher = ['--match-out', opts['stdout']]
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
@@ -354,6 +362,8 @@ def run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=DEBUGGER_JOBS):
         solver = ['stuff/result_differs_unknown.py', *solver]
     elif opts['match'] == 'stderr':
         matcher = ['--match-err', opts['stderr']]
+    elif opts['match'] == 'stdout':
+        matcher = ['--match-out', opts['stdout']]
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
@@ -403,6 +413,9 @@ def run_deltasmt(input, output, binary, opts):
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
         solver = ['../stuff/match_err.py', str(timeout), opts['stderr'], *solver]
+    elif opts['match'] == 'stdout':
+        timeout = get_timeout(solver, input)
+        solver = ['../stuff/match_out.py', str(timeout), opts['stdout'], *solver]
 
     run_debugger(['./deltasmt', *matcher, '../' + input, '../' + output, *solver], output, cwd = 'deltasmtV2')
 
@@ -433,6 +446,8 @@ def run_pydelta(input, output, binary, opts):
         solver = ['stuff/result_differs_unknown.py', *solver]
     elif opts['match'] == 'stderr':
         matcher = ['--match-err', opts['stderr']]
+    elif opts['match'] == 'stdout':
+        matcher = ['--match-out', opts['stdout']]
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
