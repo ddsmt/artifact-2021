@@ -274,7 +274,7 @@ def run_debugger(cmd, output, cwd=None):
 def run_ddsexpr(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
-        solver = solver + ['--lang', 'smt2'] + opts['args']
+        solver = solver + opts['args']
     matcher = []
     if opts['match'] == 'incorrect':
         solver = ['stuff/result_differs.py', *solver]
@@ -367,7 +367,7 @@ def run_ddsmt_dev_hierarchical_j1(input, output, binary, opts):
 def run_delta(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
-        solver = solver + ['--lang', 'smt2'] + opts['args']
+        solver = solver + opts['args']
     matcher = []
     if opts['match'] == 'incorrect':
         solver = ['stuff/result_differs.py', *solver]
@@ -493,6 +493,7 @@ def run_experiments(prefix = '', single = None):
             binary = f'{prefix}bin/{opts["binary"]}'
         elif 'cvc4-commit' in opts:
             binary = build_cvc4(opts['cvc4-commit'])
+            opts['args'] = opts.get('args', []) + ['--lang', 'smt2']
         elif 'yices-commit' in opts:
             binary = build_yices(opts['yices-commit'], opts)
         elif 'z3-commit' in opts:
