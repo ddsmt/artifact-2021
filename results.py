@@ -14,8 +14,8 @@ import benchmark
 
 jenv = jinja2.Environment(
     loader=jinja2.FileSystemLoader('stuff/'),
-	variable_start_string='\VAR{',
-	variable_end_string='}',
+    variable_start_string='\\VAR{',
+    variable_end_string='}',
 )
 
 
@@ -105,26 +105,31 @@ CREATE TABLE IF NOT EXISTS data (
             if not fullname.startswith('out/ddsmt-master'):
                 print(f'ddSMT parser error: expected ")" in {fullname}')
             return True
-        m = re.search('AssertionError', err)
-        if m is not None:
-            if not fullname.startswith('out/ddsmt-master'):
-                print(f'ddSMT error: assertion in {fullname}')
-            return True
-        
+
         # delta errors
         m = re.search('Parsing error in line', err)
         if m is not None:
             if not fullname.startswith('out/delta/'):
                 print(f'delta parser error in {fullname}')
             return True
+
+        return False
+
+    def __has_error(self, fullname, err, out):
+        m = re.search('AssertionError', err)
+        if m is not None:
+            if not fullname.startswith('out/ddsmt-master'):
+                print(f'ddSMT error: assertion in {fullname}')
+            return True
+
         m = re.search('Segmentation fault.*build/delta/build/delta', err)
         if m is not None:
             if not fullname.startswith('out/delta/'):
                 print(f'delta error: segfault in {fullname}')
             return True
-        
+
         return False
-    
+
     def __get_result_size(self, fullname, insize, err, out):
         if os.path.isfile(fullname):
             return os.stat(fullname).st_size
@@ -136,16 +141,6 @@ CREATE TABLE IF NOT EXISTS data (
         print(f'Warning: {fullname} does not exist, assume it could not be minimized')
         return insize
 
-
-    def __get_runtime(self, fullname, err):
-        if os.path.isfile(f'{fullname}.time'):
-            return float(open(f'{fullname}.time').read())
-        elif re.search('CANCELLED AT .* DUE TO TIME LIMIT', err) is not None:
-            return self.TIMEOUT
-        else:
-            print(f'Warning: {fullname}.time does not exist, but was not cancelled')
-            return None
-
     def load_inputs(self, basedir=''):
         """Load all input files"""
         database = json.load(open(f'{basedir}database.json'))
@@ -154,8 +149,8 @@ CREATE TABLE IF NOT EXISTS data (
             database[filename]['prefix'] = basedir
             size = os.stat(fullname).st_size
             database[filename]['insize'] = size
-            out, err, exitcode = do_test_run(database[filename], fullname)
-            database[filename]['exitcode'] = exitcode
+            #out, err, exitcode = do_test_run(database[filename], fullname)
+            #database[filename]['exitcode'] = exitcode
         self.database.update(database)
 
     def load_solver(self, solver):
@@ -165,11 +160,11 @@ CREATE TABLE IF NOT EXISTS data (
             insize = self.database[filename]['insize']
             if not os.path.isfile(f'{fullname}.err'):
                 print(f'ERROR: {fullname}.err does not exist')
-                self.__add_result(filename, solver, insize, insize, -4)
+                self.__add_result(filename, solver, insize, insize, -5)
                 continue
             if not os.path.isfile(f'{fullname}.out'):
                 print(f'ERROR: {fullname}.out does not exist')
-                self.__add_result(filename, solver, insize, insize, -4)
+                self.__add_result(filename, solver, insize, insize, -5)
                 continue
             err = open(f'{fullname}.err').read()
             out = open(f'{fullname}.out').read()
@@ -177,17 +172,27 @@ CREATE TABLE IF NOT EXISTS data (
             if self.__has_parser_error(fullname, err, out):
                 self.__add_result(filename, solver, insize, insize, -1)
                 continue
+
+            if self.__has_error(fullname, err, out):
+                self.__add_result(filename, solver, insize, insize, -2)
+                continue
         
             outsize = self.__get_result_size(fullname, insize, err, out)
 
-            if not do_test_run(self.database[filename], fullname):
-                print(f'ERROR: {fullname} does not trigger the issue')
-                self.__add_result(filename, solver, insize, outsize, -2)
-                continue
+            #if not do_test_run(self.database[filename], fullname):
+            #    print(f'ERROR: {fullname} does not trigger the issue')
+            #    self.__add_result(filename, solver, insize, outsize, -3)
+            #    continue
 
-            runtime = self.__get_runtime(fullname, err)
-            if runtime is None:
-                self.__add_result(filename, solver, insize, outsize, -3)
+            
+            if os.path.isfile(f'{fullname}.time'):
+                runtime = float(open(f'{fullname}.time').read())
+            elif re.search('CANCELLED AT .* DUE TO TIME LIMIT', err) is not None:
+                self.__add_result(filename, solver, insize, outsize, -4)
+                continue
+            else:
+                print(f'Warning: {fullname}.time does not exist, but was not cancelled')
+                self.__add_result(filename, solver, insize, outsize, -5)
                 continue
 
             self.__add_result(filename, solver, insize, outsize, runtime)
@@ -217,9 +222,12 @@ SELECT input, solver, insize, outsize, time FROM data
 ''')
     errors = {
         -1: 'PE',  # parser error
-        -2: 'IO',  # incorrect output
-        -3: 'C',  # cancelled by slurm
-        -4: 'AB',  # aborted, no output files
+        -2: 'SEG',  # assertion / segfault
+        -3: 'IO',  # incorrect output
+        -5: 'AB',  # aborted, no output files
+    }
+    soft_errors = {
+        -4: 'TO',  # timeout enforced by slurm
     }
     data = {}
     solvers = []
@@ -245,14 +253,17 @@ SELECT input, solver, insize, outsize, time FROM data
         for s in data[i]:
             if s == 'insize':
                 continue
-            if data[i][s]['outsize'] == best:
-                data[i][s]['best'] = True
             t = data[i][s]['time']
             if t in errors:
                 data[i][s]['time'] = errors[t]
                 data[i][s]['outsize'] = '--'
+                continue
+            if t in soft_errors:
+                data[i][s]['time'] = soft_errors[t]
             else:
-                data[i][s]['time'] = f'{t:0.2f}'
+                data[i][s]['time'] = f'{t:0.1f}'
+            if data[i][s]['outsize'] == best:
+                data[i][s]['best'] = True
     return {
         'data': data,
         'inputs': sorted(list(set(inputs))),
