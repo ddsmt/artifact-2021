@@ -272,7 +272,7 @@ loader = ResultLoader('out/db.db')
 
 inputs = loader.load_inputs()
 if os.path.isdir('confidential'):
-    inputs = loader.load_inputs('confidential/')
+    inputs.update(loader.load_inputs('confidential/'))
 solvers = sorted([
     s for s in os.listdir('out/') if os.path.isdir(f'out/{s}')
 ])
