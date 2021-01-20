@@ -496,21 +496,25 @@ def setup():
     setup_confidential()
 
 
-def run_experiments(prefix = '', single = None):
+def get_binary(dbentry, prefix):
+    if 'binary' in dbentry:
+        return f'{prefix}bin/{dbentry["binary"]}'
+    elif 'cvc4-commit' in dbentry:
+        dbentry['args'] = dbentry.get('args', []) + ['--lang', 'smt2']
+        return build_cvc4(dbentry['cvc4-commit'])
+    elif 'yices-commit' in opts:
+        return build_yices(dbentry['yices-commit'], dbentry)
+    elif 'z3-commit' in opts:
+        return build_z3(dbentry['z3-commit'], dbentry)
+
+
+def run_experiments(prefix='', single = None):
     data = json.load(open(f'{prefix}database.json'))
     for input,opts in data.items():
         if single and not input.startswith(single[0]):
             continue
         print(f'{input}: {opts}')
-        if 'binary' in opts:
-            binary = f'{prefix}bin/{opts["binary"]}'
-        elif 'cvc4-commit' in opts:
-            binary = build_cvc4(opts['cvc4-commit'])
-            opts['args'] = opts.get('args', []) + ['--lang', 'smt2']
-        elif 'yices-commit' in opts:
-            binary = build_yices(opts['yices-commit'], opts)
-        elif 'z3-commit' in opts:
-            binary = build_z3(opts['z3-commit'], opts)
+        binary = get_binary(opts, prefix)
 
         infile = f'{prefix}inputs/{input}'
         insize = os.stat(infile).st_size
