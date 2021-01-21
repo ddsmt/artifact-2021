@@ -115,17 +115,15 @@ CREATE TABLE IF NOT EXISTS data (
         return False
 
     def __has_error(self, fullname, err, out):
-        m = re.search('Traceback', err)
-        if m is not None:
+        if 'Traceback' in err:
+            if 'ddsmt-master' in fullname and 'AssertionError' in err:
+                return True
             print(f'ERROR: traceback in {fullname}.err')
             return True
-        m = re.search('AssertionError', err)
-        if m is not None:
+        if 'AssertionError' in err:
             print(f'ERROR: assertion in {fullname}.err')
             return True
-
-        m = re.search('Segmentation fault', err)
-        if m is not None:
+        if 'Segmentation fault' in err:
             print(f'ERROR: segfault in {fullname}.err')
             return True
 
@@ -168,33 +166,38 @@ CREATE TABLE IF NOT EXISTS data (
             if self.__has_error(fullname, err, out):
                 self.__add_result(filename, solver, insize, insize, -2)
                 continue
+        
+            cancelled = re.search('CANCELLED AT .* DUE TO TIME LIMIT', err) is not None
 
             resfile = None
             if os.path.isfile(fullname):
-                outsize = os.stat(fullname).st_size
                 resfile = fullname
+                outsize = os.stat(resfile).st_size
+            elif os.path.isfile(f'{fullname}.dir/delta.last.smt2'):
+                resfile = f'{fullname}.dir/delta.last.smt2'
+                outsize = os.stat(resfile).st_size
             else:
-                if os.path.isfile(f'{fullname}.dir/delta.last.smt2'):
-                    resfile = f'{fullname}.dir/delta.last.smt2'
-                    outsize = os.stat(resfile).st_size
+                m = re.search('unable to minimize input file', err)
+                if m is not None:
+                    outsize = insize
                 else:
-                    m = re.search('unable to minimize input file', err)
-                    if m is not None:
-                        outsize = insize
-                    else:
-                        print(f'Warning: {fullname} does not exist, assume it could not be minimized')
-                        outsize = insize
+                    print(f'Warning: {fullname} does not exist, assume it could not be minimized')
+                    outsize = insize
 
             if resfile is not None:
-                if not do_check_run(self.database[filename], fullname):
-                    print(f'ERROR: {fullname} does not trigger the issue')
-                    self.__add_result(filename, solver, insize, outsize, -3)
+                if not do_check_run(self.database[filename], resfile):
+                    if cancelled:
+                        print(f'WARN: {resfile} does not trigger, but was cancelled')
+                        self.__add_result(filename, solver, insize, insize, -4)
+                    else:
+                        print(f'ERROR: {resfile} does not trigger the issue')
+                        self.__add_result(filename, solver, insize, outsize, -3)
                     continue
 
             
             if os.path.isfile(f'{fullname}.time'):
                 runtime = float(open(f'{fullname}.time').read())
-            elif re.search('CANCELLED AT .* DUE TO TIME LIMIT', err) is not None:
+            elif cancelled:
                 self.__add_result(filename, solver, insize, outsize, -4)
                 continue
             else:
@@ -254,7 +257,7 @@ SELECT input, solver, insize, outsize, time FROM data
         for s in data[i]:
             if s == 'insize':
                 continue
-            if data[i][s]['time'] < 0:
+            if data[i][s]['time'] in errors:
                 continue
             best = min(best, data[i][s]['outsize'])
         for s in data[i]:
