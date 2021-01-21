@@ -144,6 +144,7 @@ CREATE TABLE IF NOT EXISTS data (
 
     def load_inputs(self, basedir=''):
         """Load all input files"""
+        print('Loading inputs...')
         database = json.load(open(f'{basedir}database.json'))
         for filename in database:
             fullname = f'{basedir}inputs/{filename}'
@@ -156,6 +157,7 @@ CREATE TABLE IF NOT EXISTS data (
 
     def load_solver(self, solver):
         """Load all results for one solver"""
+        print(f'Loading results from {solver}...')
         for filename in self.database:
             fullname = f'out/{solver}/{filename}'
             insize = self.database[filename]['insize']
