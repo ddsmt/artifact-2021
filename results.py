@@ -29,7 +29,6 @@ def do_test_run(dbentry, filename):
         cmd = ['stuff/result_differs_unknown.py'] + cmd
     cmd = cmd + [filename]
     
-    print(f'Running {cmd}')
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out = res.stdout.decode()
     err = res.stderr.decode()
@@ -116,16 +115,18 @@ CREATE TABLE IF NOT EXISTS data (
         return False
 
     def __has_error(self, fullname, err, out):
+        m = re.search('Traceback', err)
+        if m is not None:
+            print(f'ERROR: traceback in {fullname}')
+            return True
         m = re.search('AssertionError', err)
         if m is not None:
-            if not fullname.startswith('out/ddsmt-master'):
-                print(f'ddSMT error: assertion in {fullname}')
+            print(f'ERROR: assertion in {fullname}')
             return True
 
-        m = re.search('Segmentation fault.*build/delta/build/delta', err)
+        m = re.search('Segmentation fault', err)
         if m is not None:
-            if not fullname.startswith('out/delta/'):
-                print(f'delta error: segfault in {fullname}')
+            print(f'ERROR: segfault in {fullname}')
             return True
 
         return False
@@ -149,8 +150,8 @@ CREATE TABLE IF NOT EXISTS data (
             database[filename]['prefix'] = basedir
             size = os.stat(fullname).st_size
             database[filename]['insize'] = size
-            #out, err, exitcode = do_test_run(database[filename], fullname)
-            #database[filename]['exitcode'] = exitcode
+            out, err, exitcode = do_test_run(database[filename], fullname)
+            database[filename]['exitcode'] = exitcode
         self.database.update(database)
 
     def load_solver(self, solver):
@@ -179,10 +180,10 @@ CREATE TABLE IF NOT EXISTS data (
         
             outsize = self.__get_result_size(fullname, insize, err, out)
 
-            #if not do_test_run(self.database[filename], fullname):
-            #    print(f'ERROR: {fullname} does not trigger the issue')
-            #    self.__add_result(filename, solver, insize, outsize, -3)
-            #    continue
+            if not do_check_run(self.database[filename], fullname):
+                print(f'ERROR: {fullname} does not trigger the issue')
+                self.__add_result(filename, solver, insize, outsize, -3)
+                continue
 
             
             if os.path.isfile(f'{fullname}.time'):
