@@ -123,7 +123,7 @@ def setup_z3_ref():
     """Download and compile z3 reference version"""
     if not os.path.isdir('build/z3-ref'):
         subprocess.run(['git', 'clone', 'https://github.com/Z3Prover/z3.git', 'build/z3-ref'])
-        subprocess.run(['git', 'checkout', 'z3-4.8.9'], cwd='build/z3-ref')
+        subprocess.run(['git', 'checkout', 'z3-4.8.10'], cwd='build/z3-ref')
         subprocess.run(['mkdir', 'build/z3-ref/build'])
         subprocess.run(['cmake', '..'], cwd = 'build/z3-ref/build')
     if not os.path.isfile('bin/z3-ref'):
