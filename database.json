@@ -64,7 +64,7 @@
         "cvc4-commit": "e6c9674",
         "args": ["--uf-ss-totality", "-i"],
         "match": "stderr",
-        "stderr": "d_nv->d_rc > 0"
+        "stderr": "d_nv"
     },
     "issue5269.smt2": {
         "cvc4-commit": "42dd10f",
