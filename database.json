@@ -4,6 +4,13 @@
         "args": ["-q", "--full-saturate-quant", "--full-saturate-quant-limit=1"],
         "match": "incorrect-unknown"
     },
+    "cvc4-regress1.smt2": {
+        "original": "./regress2/bv/opStructure_MBA_6.scrambled.min.smt2",
+        "cvc4-commit": "3b50dfe",
+        "args": ["--preprocess-only"],
+        "match": "stderr",
+        "stderr": "r2.d_node == response.d_node"
+    },
     "issue5187.smt2": {
         "cvc4-commit": "13cf418",
         "args": ["--strings-exp", "-i"],
