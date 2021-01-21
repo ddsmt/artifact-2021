@@ -44,6 +44,34 @@
         "match": "stderr",
         "stderr": "r2.d_node == response.d_node"
     },
+    "issue5370.smt2": {
+        "cvc4-commit": "42fe4ae",
+        "match": "stderr",
+        "stderr": "d_modelBuiltSuccess"
+    },
+    "issue5462.smt2": {
+        "cvc4-commit": "83a502c",
+        "args": ["--check-models"],
+        "match": "stderr",
+        "stderr": "ERRORS SATISFYING"
+    },
+    "issue5507-1.smt2": {
+        "cvc4-commit": "36af095",
+        "args": ["-i"],
+        "match": "stderr",
+        "stderr": "CVC4::Subs::add"
+    },
+    "issue5507-2.smt2": {
+        "cvc4-commit": "36af095",
+        "args": ["-i"],
+        "match": "stderr",
+        "stderr": "isComparableTo"
+    },
+    "issue5515.smt2": {
+        "cvc4-commit": "2b4d699",
+        "match": "stderr",
+        "stderr": "TheoryEngineModelBuilder"
+    },
     "issue5187.smt2": {
         "cvc4-commit": "13cf418",
         "args": ["--strings-exp", "-i"],
@@ -216,11 +244,6 @@
         "match": "stderr",
         "stderr": "expr::hasClosure"
     },
-    "issue5370.smt2": {
-        "cvc4-commit": "42fe4ae",
-        "match": "stderr",
-        "stderr": "d_modelBuiltSuccess"
-    },
     "issue5371.smt2": {
         "cvc4-commit": "42fe4ae",
         "args": ["--uf-ho"],
@@ -329,12 +352,6 @@
         "match": "stderr",
         "stderr": "ERRORS SATISFYING"
     },
-    "issue5462.smt2": {
-        "cvc4-commit": "83a502c",
-        "args": ["--check-models"],
-        "match": "stderr",
-        "stderr": "ERRORS SATISFYING"
-    },
     "issue5463.smt2": {
         "cvc4-commit": "83a502c",
         "args": ["--check-models"],
@@ -391,18 +408,6 @@
         "cvc4-commit": "36af095",
         "match": "incorrect"
     },
-    "issue5507-1.smt2": {
-        "cvc4-commit": "36af095",
-        "args": ["-i"],
-        "match": "stderr",
-        "stderr": "CVC4::Subs::add"
-    },
-    "issue5507-2.smt2": {
-        "cvc4-commit": "36af095",
-        "args": ["-i"],
-        "match": "stderr",
-        "stderr": "isComparableTo"
-    },
     "issue5508.smt2": {
         "cvc4-commit": "36af095",
         "args": ["--strings-exp"],
@@ -429,11 +434,6 @@
         "cvc4-commit": "36af095",
         "match": "stderr",
         "stderr": "eqNotifyDisequal"
-    },
-    "issue5515.smt2": {
-        "cvc4-commit": "2b4d699",
-        "match": "stderr",
-        "stderr": "TheoryEngineModelBuilder"
     },
     "issue5534.smt2": {
         "cvc4-commit": "d0c352e",

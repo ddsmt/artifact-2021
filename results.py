@@ -225,7 +225,6 @@ def render_to_file(filename, tplfile, **kwargs):
         file.write(tpl.render(**kwargs))
 
 
-
 def get_all_results():
     cur = loader.db.execute('''
 SELECT input, solver, insize, outsize, time FROM data
@@ -291,22 +290,30 @@ def fint(i):
 
 def overview_data(solvers):
     res = {
-        'parse': {},
+        'parsererror': {},
+        'segfault': {},
+        'incorrect': {},
         'reduce': {},
         'avg': {},
         'avg300': {},
     }
     for s in solvers:
-        res['parse'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ?', [s]).fetchone()[0])
-        res['reduce'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND outsize < insize', [s]).fetchone()[0])
-        res['avg'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ?', [s]).fetchone()[0])
-        res['avg300'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND insize>300', [s]).fetchone()[0])
+        res['parsererror'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -1', [s]).fetchone()[0])
+        res['segfault'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -2', [s]).fetchone()[0])
+        res['incorrect'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -3', [s]).fetchone()[0])
+        res['reduce'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND outsize < insize AND (time = -4 OR time >= 0)', [s]).fetchone()[0])
+        res['avg'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND (time = -4 OR time >= 0)', [s]).fetchone()[0])
+        res['avg300'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND insize>300 AND (time = -4 OR time >= 0)', [s]).fetchone()[0])
     return res
 
 
 def get_overview_results():
     total = loader.db.execute('SELECT COUNT(DISTINCT input) FROM data').fetchone()[0]
-    datanames = {'parse': 'can parse', 'reduce': 'can reduce', 'avg': 'average reduction', 'avg300': 'average reduction ($>$300 bytes)' }
+    datanames = {
+        'parsererror': 'parser error',
+        'segfault': 'segfault',
+        'incorrect': 'incorrect output',
+        'reduce': 'gets reduction', 'avg': 'average reduction', 'avg300': 'average reduction ($>$300 bytes)' }
     slv = [s for s in solvers if s not in ['ddsmt-dev-ddmin-j1', 'ddsmt-dev-hierarchical-j1']]
     return {
         'total': total,
