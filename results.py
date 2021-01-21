@@ -117,34 +117,23 @@ CREATE TABLE IF NOT EXISTS data (
     def __has_error(self, fullname, err, out):
         m = re.search('Traceback', err)
         if m is not None:
-            print(f'ERROR: traceback in {fullname}')
+            print(f'ERROR: traceback in {fullname}.err')
             return True
         m = re.search('AssertionError', err)
         if m is not None:
-            print(f'ERROR: assertion in {fullname}')
+            print(f'ERROR: assertion in {fullname}.err')
             return True
 
         m = re.search('Segmentation fault', err)
         if m is not None:
-            print(f'ERROR: segfault in {fullname}')
+            print(f'ERROR: segfault in {fullname}.err')
             return True
 
         return False
 
-    def __get_result_size(self, fullname, insize, err, out):
-        if os.path.isfile(fullname):
-            return os.stat(fullname).st_size
-        m = re.search('unable to minimize input file', err)
-        if m is not None:
-            return insize
-        if os.path.isfile(f'{fullname}.dir/delta.last.smt2'):
-            return os.stat(f'{fullname}.dir/delta.last.smt2').st_size
-        print(f'Warning: {fullname} does not exist, assume it could not be minimized')
-        return insize
-
     def load_inputs(self, basedir=''):
         """Load all input files"""
-        print('Loading inputs...')
+        print(f'Loading inputs{f" from {basedir}" if basedir else ""}...')
         database = json.load(open(f'{basedir}database.json'))
         for filename in database:
             fullname = f'{basedir}inputs/{filename}'
@@ -179,13 +168,28 @@ CREATE TABLE IF NOT EXISTS data (
             if self.__has_error(fullname, err, out):
                 self.__add_result(filename, solver, insize, insize, -2)
                 continue
-        
-            outsize = self.__get_result_size(fullname, insize, err, out)
 
-            if not do_check_run(self.database[filename], fullname):
-                print(f'ERROR: {fullname} does not trigger the issue')
-                self.__add_result(filename, solver, insize, outsize, -3)
-                continue
+            resfile = None
+            if os.path.isfile(fullname):
+                outsize = os.stat(fullname).st_size
+                resfile = fullname
+            else:
+                if os.path.isfile(f'{fullname}.dir/delta.last.smt2'):
+                    resfile = f'{fullname}.dir/delta.last.smt2'
+                    outsize = os.stat(resfile).st_size
+                else:
+                    m = re.search('unable to minimize input file', err)
+                    if m is not None:
+                        outsize = insize
+                    else:
+                        print(f'Warning: {fullname} does not exist, assume it could not be minimized')
+                        outsize = insize
+
+            if resfile is not None:
+                if not do_check_run(self.database[filename], fullname):
+                    print(f'ERROR: {fullname} does not trigger the issue')
+                    self.__add_result(filename, solver, insize, outsize, -3)
+                    continue
 
             
             if os.path.isfile(f'{fullname}.time'):
