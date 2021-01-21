@@ -542,7 +542,7 @@ if __name__ == '__main__':
     #single = (<file prefix>, <solver>)
     #single = ('z3-4572', 'ddsmt-dev-ddmin')
     setup()
-    run_experiments(single = single)
     if os.path.isdir('confidential/'):
         run_experiments('confidential/', single = single)
+    run_experiments(single = single)
     sanitize_results()

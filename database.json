@@ -4,6 +4,39 @@
         "args": ["-q", "--full-saturate-quant", "--full-saturate-quant-limit=1"],
         "match": "incorrect-unknown"
     },
+    "yices-287.smt2": {
+        "yices-commit": "0f9e45f",
+        "yices-mode": "debug",
+        "match": "stderr",
+        "stderr": "is_finite_type"
+    },
+    "yices-regress1.smt2": {
+        "yices-commit": "3a3c3a1",
+        "yices-mode": "debug",
+        "args": ["--mcsat"],
+        "match": "stderr",
+        "stderr": "can_explain_conflict"
+    },
+    "z3-4737.smt2": {
+        "z3-commit": "79734f2",
+        "match": "exitcode"
+    },
+    "z3-4572.smt2": {
+        "z3-commit": "ad55a1f",
+        "match": "exitcode"
+    },
+    "z3-3293.smt2": {
+        "z3-commit": "6f2b569",
+        "match": "exitcode"
+    },
+    "z3-2874.smt2": {
+        "z3-commit": "30e7c22",
+        "match": "exitcode"
+    },
+    "z3-2468.smt2": {
+        "z3-commit": "e79542c",
+        "match": "exitcode"
+    },
     "cvc4-regress1.smt2": {
         "original": "./regress2/bv/opStructure_MBA_6.scrambled.min.smt2",
         "cvc4-commit": "3b50dfe",
@@ -448,38 +481,5 @@
         "args": ["--check-models"],
         "match": "stderr",
         "stderr": "ERRORS SATISFYING"
-    },
-    "yices-287.smt2": {
-        "yices-commit": "0f9e45f",
-        "yices-mode": "debug",
-        "match": "stderr",
-        "stderr": "is_finite_type"
-    },
-    "yices-regress1.smt2": {
-        "yices-commit": "3a3c3a1",
-        "yices-mode": "debug",
-        "args": ["--mcsat"],
-        "match": "stderr",
-        "stderr": "can_explain_conflict"
-    },
-    "z3-4737.smt2": {
-        "z3-commit": "79734f2",
-        "match": "exitcode"
-    },
-    "z3-4572.smt2": {
-        "z3-commit": "ad55a1f",
-        "match": "exitcode"
-    },
-    "z3-3293.smt2": {
-        "z3-commit": "6f2b569",
-        "match": "exitcode"
-    },
-    "z3-2874.smt2": {
-        "z3-commit": "30e7c22",
-        "match": "exitcode"
-    },
-    "z3-2468.smt2": {
-        "z3-commit": "e79542c",
-        "match": "exitcode"
     }
 }
