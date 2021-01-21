@@ -217,10 +217,10 @@ def get_timeout(cmd, input):
     """Obtain an appropriate timeout for the given command"""
     start = time.time()
     try:
-        subprocess.run(cmd + [input], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout = 10)
+        subprocess.run(cmd + [input], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout = 20)
     except subprocess.TimeoutExpired:
-        return 12
-    return min((int(time.time() - start) + 1) * 2, 12)
+        return 25
+    return min((int(time.time() - start) + 1) * 2, 25)
 
 
 SLURM_JOB_ID = 0
