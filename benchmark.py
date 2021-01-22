@@ -226,7 +226,7 @@ def get_timeout(cmd, input):
 SLURM_JOB_ID = 0
 
 
-def submit_slurm_job(cmd, output, cwd=None, cpus):
+def submit_slurm_job(cmd, output, cwd=None, cpus=DEBUGGER_JOBS):
     """Submit the given command to slurm"""
 
     global SLURM_JOB_ID
