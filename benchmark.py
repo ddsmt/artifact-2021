@@ -226,7 +226,7 @@ def get_timeout(cmd, input):
 SLURM_JOB_ID = 0
 
 
-def submit_slurm_job(cmd, output, cwd=None):
+def submit_slurm_job(cmd, output, cwd=None, cpus):
     """Submit the given command to slurm"""
 
     global SLURM_JOB_ID
@@ -238,7 +238,7 @@ def submit_slurm_job(cmd, output, cwd=None):
     open(scriptfile, 'w').write(
 f"""#!/bin/bash
 #SBATCH --time=01:00:00
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task={cpus}
 #SBATCH --mem=32G
 #SBATCH --partition=octa
 #SBATCH --output={output}.out
@@ -258,10 +258,10 @@ echo | awk "{{ print $END - $START }}" > {output}.time
     subprocess.run(cmd)
 
 
-def run_debugger(cmd, output, cwd=None):
+def run_debugger(cmd, output, cwd=None, cpus=DEBUGGER_JOBS):
     """Actually run the command and redirect stdout and stderr."""
     if SUBMIT_TO_SLURM:
-        submit_slurm_job(cmd, output, cwd=cwd)
+        submit_slurm_job(cmd, output, cwd=cwd, cpus=cpus)
     else:
         start = time.time()
         subprocess.run(cmd,
@@ -288,7 +288,7 @@ def run_ddsexpr(input, output, binary, opts):
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_out.py', str(timeout), f'"{opts["stdout"]}"', *solver]
 
-    run_debugger(['build/ddsexpr/ddsexpr', '-l', '-s', *matcher, input, output, *solver], output)
+    run_debugger(['build/ddsexpr/ddsexpr', '-l', '-s', *matcher, input, output, *solver], output, cpus=2)
 
 
 def run_ddsmt_master(input, output, binary, opts):
@@ -307,7 +307,7 @@ def run_ddsmt_master(input, output, binary, opts):
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_out.py', str(timeout), opts['stdout'], *solver]
 
-    run_debugger(['build/ddsmt-master/ddsmt.py', '-v', *matcher, input, output, *solver], output)
+    run_debugger(['build/ddsmt-master/ddsmt.py', '-v', *matcher, input, output, *solver], output, cpus=2)
 
     if SUBMIT_TO_SLURM:
         return
@@ -329,7 +329,7 @@ def run_ddsmt_master(input, output, binary, opts):
         return
 
 
-def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=DEBUGGER_JOBS):
+def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOBS):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -349,10 +349,10 @@ def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=DEBUGGER_JOBS):
 
 
 def run_ddsmt_dev_ddmin_j1(input, output, binary, opts):
-    run_ddsmt_dev_ddmin(input, output, binary, opts, 1)
+    run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=1, cpus=2)
 
 
-def run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=DEBUGGER_JOBS):
+def run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOBS):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -372,7 +372,7 @@ def run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=DEBUGGER_JOBS):
 
 
 def run_ddsmt_dev_hierarchical_j1(input, output, binary, opts):
-    run_ddsmt_dev_hierarchical(input, output, binary, opts, 1)
+    run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=1, cpus=2)
 
 
 def run_delta(input, output, binary, opts):
@@ -418,7 +418,7 @@ def run_deltasmt(input, output, binary, opts):
         timeout = get_timeout(solver, input)
         solver = ['../stuff/match_out.py', str(timeout), opts['stdout'], *solver]
 
-    run_debugger(['./deltasmt', *matcher, '../' + input, '../' + output, *solver], output, cwd = 'deltasmtV2')
+    run_debugger(['./deltasmt', *matcher, '../' + input, '../' + output, *solver], output, cwd='deltasmtV2', cpus=2)
 
     if SUBMIT_TO_SLURM:
         return
