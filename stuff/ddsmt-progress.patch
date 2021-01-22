@@ -1,23 +1,24 @@
 diff --git a/ddsmt/progress.py b/ddsmt/progress.py
-index c4e1b2b..21654b1 100644
+index 2c36c06..90fe8bf 100644
 --- a/ddsmt/progress.py
 +++ b/ddsmt/progress.py
-@@ -18,7 +18,6 @@
- # You should have received a copy of the GNU General Public License
+@@ -19,7 +19,6 @@
  # along with ddSMT.  If not, see <https://www.gnu.org/licenses/>.
  
+ import logging
 -import progressbar
  import sys
  
  __BAR = None
-@@ -29,10 +28,6 @@ def start(max):
-     global __BAR
-     if not sys.stdout.isatty():
+@@ -36,11 +35,6 @@ def start(max):
+         return
+     if logging.getLogger().level > logging.INFO:
          return
 -    widgets = [progressbar.Bar(), ' ', progressbar.Counter(), ' / ', str(max)]
 -    __BAR = progressbar.ProgressBar(maxval=max, widgets=widgets)
 -    __BAR.start()
 -    __BAR.update_interval = 1
- 
+-
  
  def update(newval=None):
+     """Update the current progress bar.
