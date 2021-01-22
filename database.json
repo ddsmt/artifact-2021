@@ -481,5 +481,317 @@
         "args": ["--check-models"],
         "match": "stderr",
         "stderr": "ERRORS SATISFYING"
+    },
+    "btor4-bug-1428-13899.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-1430-14711.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-1440-12370.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-1443-3296.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-15812-459.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-16708-10241.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-16708-3566.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-16971-10680.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-16971-13678.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-18253-4427.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-18961-3303.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-18962-13252.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-19583-3937.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-19585-6913.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-21209-3797.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-21754-12412.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-21754-12748.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-22058-7657.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-2226-11463.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-2226-1628.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-2227-11773.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-23313-1691.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-2569-12673.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-25887-1279.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-25887-12917.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-25960-1910.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-26072-2532.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-26526-10074.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-26720-6514.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-27425-12341.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-27426-12453.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-27504-7625.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-27506-10500.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-27748-12051.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-29800-10218.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-29801-3787.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-29933-6674.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-30416-2872.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-30417-10250.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-30554-11099.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-30554-11247.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-31064-14116.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-31134-12777.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-32068-11277.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-32068-9948.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-32504-11615.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-4287-5527.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-4287-8537.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-4417-13386.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-4419-6130.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-5434-11106.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
+    },
+    "btor4-bug-6011-5723.smt2": {
+        "binary": "boolector4",
+        "args": ["-rww", "-rwa", "-rwr"],
+        "match": "stderr",
+        "stderr": "boolector: btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion `kind == BTOR_MUL_NODE' failed."
     }
 }
