@@ -482,6 +482,528 @@
         "match": "stderr",
         "stderr": "ERRORS SATISFYING"
     },
+    "btor2-bug-10564-550.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-10565-1107.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-10566-1439.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-12207-2998.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-12207-3560.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-12207-3581.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-12208-547.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-12210-466.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-12856-524.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-12858-1484.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-12976-1525.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-12976-695.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-12977-297.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-12978-347.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-15390-191.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-15391-1331.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-15391-640.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-15391-647.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-15392-92.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-15393-526.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-1672-1237.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-1672-1519.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-1673-81.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-1674-134.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-16965-103.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-16965-104.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-16965-2498.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-16965-3625.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-16966-2139.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-16966-2397.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-16966-2630.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-16967-425.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-17752-171.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-17753-2258.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-18416-2036.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-19025-698.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-19028-109.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-21432-1432.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-21433-924.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-21435-1032.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-21435-185.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-21435-399.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-21435-401.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-21512-599.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-21587-1587.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-21587-161.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-21587-505.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-22169-775.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-22171-324.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-22172-177.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-22193-189.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-22195-527.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-22196-207.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-23549-317.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-23550-213.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-23993-1111.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-23996-205.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-23996-263.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-25139-140.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-25139-192.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-25139-855.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-25141-1358.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-25141-2722.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-25861-1660.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-25861-1956.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-25861-2312.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-25862-101.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-26929-179.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-27284-1303.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-27363-1142.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-27364-1760.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-28461-1944.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-28462-320.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-29157-1509.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-29158-488.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-29250-1555.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-29250-468.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-29252-414.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-32639-278.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-32641-849.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-5844-2343.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-5844-677.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-8467-1652.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-8467-1924.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-8467-642.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-8469-1005.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
+    "btor2-bug-8469-193.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "boolector: btorexp.c:2267: encode_lemma: Assertion `!val' failed."
+    },
     "btor4-bug-1428-13899.smt2": {
         "binary": "boolector4",
         "args": ["-rww", "-rwa", "-rwr"],
