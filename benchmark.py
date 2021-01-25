@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import json
 import os
 import re
@@ -18,6 +19,25 @@ DEBUGGER_JOBS = 8
 SUBMIT_TO_SLURM = False
 
 
+is_set_up_cvc4         = False
+is_set_up_ddsexpr      = False
+is_set_up_ddsmt_master = False
+is_set_up_ddsmt_dev    = False
+is_set_up_delta        = False
+is_set_up_pydelta      = False
+is_set_up_yices        = False
+is_set_up_z3           = False
+is_set_up_z3_ref       = False
+
+
+def setup_confidential():
+    """Integrate confidential benchmarks"""
+    if not os.path.isdir('confidential'):
+        subprocess.run(['git', 'clone', 'git@github.com:ddsmt/artifact-2021-confidential.git', 'confidential'])
+    else:
+        subprocess.run(['git', 'pull'], cwd='confidential')
+
+
 def setup_cvc4():
     """Prepare a cvc4 checkout for compilation"""
     if not os.path.isdir('build/cvc4'):
@@ -31,6 +51,7 @@ def setup_cvc4():
         subprocess.run(['./contrib/get-poly', 'cvc4'], cwd = 'build/cvc4')
     if not os.path.isdir('build/cvc4/deps/symfpu-CVC4'):
         subprocess.run(['./contrib/get-symfpu', 'cvc4'], cwd = 'build/cvc4')
+    is_set_up_cvc4 = True
 
 
 def setup_ddsexpr():
@@ -42,12 +63,14 @@ def setup_ddsexpr():
         subprocess.run(['mv', 'ddsexpr1', 'build/ddsexpr'])
         subprocess.run(['./configure.sh'], cwd = 'build/ddsexpr')
         subprocess.run(['make'], cwd = 'build/ddsexpr')
+    is_set_up_ddsexpr = True
 
 
 def setup_ddsmt_master():
     """Download ddsmt-master"""
     if not os.path.isdir('build/ddsmt-master'):
         subprocess.run(['git', 'clone', 'https://github.com/aniemetz/ddSMT', 'build/ddsmt-master'])
+    is_set_up_ddsmt_master = True
 
 
 def setup_ddsmt_dev():
@@ -60,6 +83,7 @@ def setup_ddsmt_dev():
         subprocess.run(['git', 'checkout', '.'], cwd = 'build/ddsmt-dev')
         subprocess.run(['git', 'pull'], cwd = 'build/ddsmt-dev')
         subprocess.run(['git', 'apply', '../../stuff/ddsmt-progress.patch'], cwd = 'build/ddsmt-dev')
+    is_set_up_ddsmt_dev = True
 
 
 def setup_delta():
@@ -76,6 +100,7 @@ def setup_delta():
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'delta'], cwd='build/delta/build')
     else:
         subprocess.run(['git', 'pull'], cwd = 'build/delta')
+    is_set_up_delta = True
 
 
 def setup_pydelta():
@@ -83,6 +108,7 @@ def setup_pydelta():
     if not os.path.isdir('build/pydelta'):
         subprocess.run(['git', 'clone', 'https://github.com/nafur/pydelta.git', 'build/pydelta'])
         subprocess.run(['git', 'apply', '../../stuff/pydelta.patch'], cwd = 'build/pydelta')
+    is_set_up_pydelta = True
 
 
 def setup_yices():
@@ -107,6 +133,7 @@ def setup_yices():
         subprocess.run("grep -rlZ aclocal-1.14 . | xargs -0 sed -i 's/aclocal-1.14/aclocal/g'", shell = True, cwd = 'build/yices/cudd')
         subprocess.run("grep -rlZ automake-1.14 . | xargs -0 sed -i 's/automake-1.14/automake/g'", shell = True, cwd = 'build/yices/cudd')
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'install'], cwd = 'build/yices/cudd')
+    is_set_up_yices = True
 
 
 def setup_z3():
@@ -118,6 +145,7 @@ def setup_z3():
         subprocess.run(['git', 'checkout', '.'], cwd = 'build/z3')
         subprocess.run(['git', 'checkout', 'master'], cwd='build/z3')
         subprocess.run(['git', 'pull'], cwd = 'build/z3')
+    is_set_up_z3 = True
 
 
 def setup_z3_ref():
@@ -130,6 +158,28 @@ def setup_z3_ref():
     if not os.path.isfile('bin/z3-ref'):
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'shell'], cwd = 'build/z3-ref/build')
         shutil.copy('build/z3-ref/build/z3', 'bin/z3-ref')
+    is_set_up_z3_ref = True
+
+
+def setup():
+    """Setup all tools and output folders"""
+    os.makedirs('bin', exist_ok = True)
+    os.makedirs('build', exist_ok = True)
+    if SUBMIT_TO_SLURM:
+        os.makedirs('slurm/venv', exist_ok = True)
+        subprocess.run(['python3.6', '-m', 'venv', 'slurm/venv'])
+    for d in ddebuggers:
+        os.makedirs(f'out/{d}', exist_ok = True)
+    #setup_cvc4()
+    #setup_ddsexpr()
+    #setup_ddsmt_master()
+    #setup_ddsmt_dev()
+    #setup_delta()
+    #setup_pydelta()
+    #setup_yices()
+    #setup_z3()
+    #setup_z3_ref()
+    #setup_confidential()
 
 
 def build_cvc4(commit):
@@ -457,7 +507,7 @@ def run_pydelta(input, output, binary, opts):
     run_debugger(['build/pydelta/bin/pydelta', '--max-threads', str(DEBUGGER_JOBS), *matcher, '--mode-beautify', '--outputfile', output, input, *solver], output)
 
 
-solvers = {
+ddebuggers = {
     'ddsexpr': run_ddsexpr,
     'ddsmt-dev-ddmin': run_ddsmt_dev_ddmin,
     'ddsmt-dev-ddmin-j1': run_ddsmt_dev_ddmin_j1,
@@ -468,35 +518,6 @@ solvers = {
     #'deltasmt': run_deltasmt,
     'pydelta': run_pydelta,
 }
-
-
-def setup_confidential():
-    """Integrate confidential benchmarks"""
-    if not os.path.isdir('confidential'):
-        subprocess.run(['git', 'clone', 'git@github.com:ddsmt/artifact-2021-confidential.git', 'confidential'])
-    else:
-        subprocess.run(['git', 'pull'], cwd='confidential')
-
-
-def setup():
-    """Setup all tools and output folders"""
-    os.makedirs('bin', exist_ok = True)
-    os.makedirs('build', exist_ok = True)
-    if SUBMIT_TO_SLURM:
-        os.makedirs('slurm/venv', exist_ok = True)
-        subprocess.run(['python3.6', '-m', 'venv', 'slurm/venv'])
-    for s in solvers:
-        os.makedirs(f'out/{s}', exist_ok = True)
-    setup_cvc4()
-    setup_ddsexpr()
-    setup_ddsmt_master()
-    setup_ddsmt_dev()
-    setup_delta()
-    setup_pydelta()
-    setup_yices()
-    setup_z3()
-    setup_z3_ref()
-    setup_confidential()
 
 
 def get_binary(dbentry, prefix):
@@ -514,24 +535,39 @@ def get_binary(dbentry, prefix):
         return build_z3(dbentry['z3-commit'], dbentry)
 
 
-def run_experiments(prefix='', single = None):
+def run_experiments(prefix='', regex = None, dd = None):
     data = json.load(open(f'{prefix}database.json'))
+    if not is_set_up_ddsexpr and (dd is None or dd == 'ddsexpr'):
+        setup_ddsexpr()
+    if not is_set_up_ddsmt_dev and (dd is None or dd.startswith('ddsmt-dev')):
+        setup_ddsmt_dev()
+    if not is_set_up_ddsmt_master and (dd is None or dd == 'ddsmt-master'):
+        setup_ddsmt_master()
+    if not is_set_up_delta and (dd is None or dd == 'delta'):
+        setup_delta()
+    if not is_set_up_pydelta and (dd is None or dd == 'pydelta'):
+        setup_pydelta()
     for input,opts in data.items():
-        if single and not input.startswith(single[0]):
+        if regex and not re.match(regex, input):
             continue
+        if not is_set_up_cvc4 and 'cvc4-commit' in opts: setup_cvc4()
+        if not is_set_up_yices and 'yices-commit' in opts: setup_yices()
+        if not is_set_up_z3:
+            if 'z3-commit' in opts:
+                setup_z3()
+                setup_z3_ref()
         print(f'{input}: {opts}')
         binary = get_binary(opts, prefix)
 
         infile = f'{prefix}inputs/{input}'
         insize = os.stat(infile).st_size
 
-        for s in solvers:
-            if single and single[1] is not None and s != single[1]:
-                continue
-            outfile = f'out/{s}/{input}'
+        for d in ddebuggers:
+            if dd and d != dd: continue
+            outfile = f'out/{d}/{input}'
             if not os.path.isfile(outfile):
-                print('Running {} on {}'.format(s, input))
-                solvers[s](infile, outfile, binary, opts)
+                print('Running {} on {}'.format(d, input))
+                ddebuggers[d](infile, outfile, binary, opts)
 
 
 def sanitize_results():
@@ -540,11 +576,24 @@ def sanitize_results():
 
 
 if __name__ == '__main__':
-    single = None
-    #single = (<file prefix>, <solver>)
-    #single = ('z3-4572', 'ddsmt-dev-ddmin')
+    ap = argparse.ArgumentParser()
+    ap.add_argument('-f',
+                    metavar='regex',
+                    dest='regex',
+                    default=None,
+                    help='only run files that match given regex')
+    ap.add_argument('-d',
+                    dest='dd',
+                    choices=[
+                        'ddsexpr', 'ddsmt-dev-ddmin', 'ddsmt-dev-ddmin-j1',
+                        'ddsmt-dev-hierarchical', 'ddsmt-dev-hierarchical-j1',
+                        'ddsmt-master', 'delta', 'pydelta'],
+                    default=None,
+                    help='delta debugger configuration')
+    args = ap.parse_args()
     setup()
     if os.path.isdir('confidential/'):
-        run_experiments('confidential/', single = single)
-    run_experiments(single = single)
+        setup_confidential()
+        run_experiments('confidential/', regex = args.regex, dd = args.dd)
+    run_experiments(regex = args.regex, dd = args.dd)
     sanitize_results()
