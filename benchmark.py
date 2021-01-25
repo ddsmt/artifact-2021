@@ -555,6 +555,9 @@ def run_experiments(prefix='', regex = None, dd = None):
         if not is_set_up_z3:
             if 'z3-commit' in opts:
                 setup_z3()
+        if not is_set_up_z3_ref \
+           and 'match' in opts \
+           and opts['match'].startswith('incorrect'):
                 setup_z3_ref()
         print(f'{input}: {opts}')
         binary = get_binary(opts, prefix)

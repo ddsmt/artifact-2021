@@ -3,6 +3,7 @@
 import signal
 import subprocess
 import sys
+import os
 
 def handler(sig, frame):
     print("Aborted")
@@ -13,8 +14,14 @@ signal.signal(signal.SIGTERM, handler)
 def run(cmd):
     return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode('utf8').strip()
 
+z3 = 'bin/z3-ref'
+
+if not os.path.exists(z3):
+    print(f'Binary {z3} not found')
+    sys.exit(2)
+
 A = run(sys.argv[1:])
-B = run(['bin/z3-ref', sys.argv[-1]])
+B = run([z3, sys.argv[-1]])
 
 if A == 'sat':
     if B == 'sat':
