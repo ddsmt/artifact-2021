@@ -283,9 +283,11 @@ def run_ddsexpr(input, output, binary, opts):
         solver = ['stuff/result_differs_unknown.py', *solver]
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
+        opts['stderr'] = opts['stderr'].replace('`', '\\`')
         solver = ['stuff/match_err.py', str(timeout), f'"{opts["stderr"]}"', *solver]
     elif opts['match'] == 'stdout':
         timeout = get_timeout(solver, input)
+        opts['stdout'] = opts['stdout'].replace('`', '\\`')
         solver = ['stuff/match_out.py', str(timeout), f'"{opts["stdout"]}"', *solver]
 
     run_debugger(['build/ddsexpr/ddsexpr', '-l', '-s', *matcher, input, output, *solver], output, cpus=2)
