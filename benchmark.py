@@ -51,6 +51,7 @@ def setup_cvc4():
         subprocess.run(['./contrib/get-poly', 'cvc4'], cwd = 'build/cvc4')
     if not os.path.isdir('build/cvc4/deps/symfpu-CVC4'):
         subprocess.run(['./contrib/get-symfpu', 'cvc4'], cwd = 'build/cvc4')
+    global is_set_up_cvc4
     is_set_up_cvc4 = True
 
 
@@ -63,6 +64,7 @@ def setup_ddsexpr():
         subprocess.run(['mv', 'ddsexpr1', 'build/ddsexpr'])
         subprocess.run(['./configure.sh'], cwd = 'build/ddsexpr')
         subprocess.run(['make'], cwd = 'build/ddsexpr')
+    global is_set_up_ddsexpr
     is_set_up_ddsexpr = True
 
 
@@ -70,6 +72,7 @@ def setup_ddsmt_master():
     """Download ddsmt-master"""
     if not os.path.isdir('build/ddsmt-master'):
         subprocess.run(['git', 'clone', 'https://github.com/aniemetz/ddSMT', 'build/ddsmt-master'])
+    global is_set_up_ddsmt_master
     is_set_up_ddsmt_master = True
 
 
@@ -83,6 +86,7 @@ def setup_ddsmt_dev():
         subprocess.run(['git', 'checkout', '.'], cwd = 'build/ddsmt-dev')
         subprocess.run(['git', 'pull'], cwd = 'build/ddsmt-dev')
         subprocess.run(['git', 'apply', '../../stuff/ddsmt-progress.patch'], cwd = 'build/ddsmt-dev')
+    global is_set_up_ddsmt_dev
     is_set_up_ddsmt_dev = True
 
 
@@ -100,6 +104,7 @@ def setup_delta():
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'delta'], cwd='build/delta/build')
     else:
         subprocess.run(['git', 'pull'], cwd = 'build/delta')
+    global is_set_up_delta
     is_set_up_delta = True
 
 
@@ -108,6 +113,7 @@ def setup_pydelta():
     if not os.path.isdir('build/pydelta'):
         subprocess.run(['git', 'clone', 'https://github.com/nafur/pydelta.git', 'build/pydelta'])
         subprocess.run(['git', 'apply', '../../stuff/pydelta.patch'], cwd = 'build/pydelta')
+    global is_set_up_pydelta
     is_set_up_pydelta = True
 
 
@@ -133,6 +139,7 @@ def setup_yices():
         subprocess.run("grep -rlZ aclocal-1.14 . | xargs -0 sed -i 's/aclocal-1.14/aclocal/g'", shell = True, cwd = 'build/yices/cudd')
         subprocess.run("grep -rlZ automake-1.14 . | xargs -0 sed -i 's/automake-1.14/automake/g'", shell = True, cwd = 'build/yices/cudd')
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'install'], cwd = 'build/yices/cudd')
+    global is_set_up_yices
     is_set_up_yices = True
 
 
@@ -145,6 +152,7 @@ def setup_z3():
         subprocess.run(['git', 'checkout', '.'], cwd = 'build/z3')
         subprocess.run(['git', 'checkout', 'master'], cwd='build/z3')
         subprocess.run(['git', 'pull'], cwd = 'build/z3')
+    global is_set_up_z3
     is_set_up_z3 = True
 
 
@@ -158,6 +166,7 @@ def setup_z3_ref():
     if not os.path.isfile('bin/z3-ref'):
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'shell'], cwd = 'build/z3-ref/build')
         shutil.copy('build/z3-ref/build/z3', 'bin/z3-ref')
+    global is_set_up_z3_ref
     is_set_up_z3_ref = True
 
 
@@ -170,16 +179,6 @@ def setup():
         subprocess.run(['python3.6', '-m', 'venv', 'slurm/venv'])
     for d in ddebuggers:
         os.makedirs(f'out/{d}', exist_ok = True)
-    #setup_cvc4()
-    #setup_ddsexpr()
-    #setup_ddsmt_master()
-    #setup_ddsmt_dev()
-    #setup_delta()
-    #setup_pydelta()
-    #setup_yices()
-    #setup_z3()
-    #setup_z3_ref()
-    #setup_confidential()
 
 
 def build_cvc4(commit):
@@ -535,7 +534,7 @@ def get_binary(dbentry, prefix):
         return build_z3(dbentry['z3-commit'], dbentry)
 
 
-def run_experiments(prefix='', regex = None, dd = None):
+def run_experiments(prefix='', regex=None, dd=None):
     data = json.load(open(f'{prefix}database.json'))
     if not is_set_up_ddsexpr and (dd is None or dd == 'ddsexpr'):
         setup_ddsexpr()
@@ -550,8 +549,10 @@ def run_experiments(prefix='', regex = None, dd = None):
     for input,opts in data.items():
         if regex and not re.match(regex, input):
             continue
-        if not is_set_up_cvc4 and 'cvc4-commit' in opts: setup_cvc4()
-        if not is_set_up_yices and 'yices-commit' in opts: setup_yices()
+        if not is_set_up_cvc4 and 'cvc4-commit' in opts:
+            setup_cvc4()
+        if not is_set_up_yices and 'yices-commit' in opts:
+            setup_yices()
         if not is_set_up_z3:
             if 'z3-commit' in opts:
                 setup_z3()
