@@ -482,6 +482,16 @@
         "match": "stderr",
         "stderr": "ERRORS SATISFYING"
     },
+    "btor0-bug-0.smt2": {
+        "binary": "boolector0",
+        "args": ["-rww",  "-rwr"],
+        "match": "incorrect"
+    },
+    "btor0-bug-1.smt2": {
+        "binary": "boolector0",
+        "args": ["-rww",  "-rwr"],
+        "match": "incorrect"
+    },
     "btor2-bug-10564-550.smt2": {
         "binary": "boolector2",
         "args": ["-rww"],
@@ -1003,6 +1013,31 @@
         "args": ["-rww"],
         "match": "stderr",
         "stderr": "btorexp.c:2267: encode_lemma: Assertion"
+    },
+    "btor3-bug-14814-36310.smt2": {
+        "binary": "boolector3",
+        "args": ["-rww"],
+        "match": "incorrect"
+    },
+    "btor3-bug-19557-22801.smt2": {
+        "binary": "boolector3",
+        "args": ["-rww"],
+        "match": "incorrect"
+    },
+    "btor3-bug-29674-38243.smt2": {
+        "binary": "boolector3",
+        "args": ["-rww"],
+        "match": "incorrect"
+    },
+    "btor3-bug-3791-19467.smt2": {
+        "binary": "boolector3",
+        "args": ["-rww"],
+        "match": "incorrect"
+    },
+    "btor3-bug-8222-10721.smt2": {
+        "binary": "boolector3",
+        "args": ["-rww"],
+        "match": "incorrect"
     },
     "btor4-bug-1428-13899.smt2": {
         "binary": "boolector4",
