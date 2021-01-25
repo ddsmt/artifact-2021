@@ -335,9 +335,9 @@ def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DE
         solver = solver + opts['args']
     matcher = []
     if opts['match'] == 'incorrect':
-        solver = ['stuff/result_differs.py', *solver]
+        matcher = ['--cross-check', 'bin/z3-ref']
     elif opts['match'] == 'incorrect-unknown':
-        solver = ['stuff/result_differs_unknown.py', *solver]
+        matcher = ['--cross-check', 'bin/z3-ref']
     elif opts['match'] == 'stderr':
         matcher = ['--match-err', opts['stderr']]
     elif opts['match'] == 'stdout':
@@ -358,9 +358,9 @@ def run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=DEBUGGER_JOBS, 
         solver = solver + opts['args']
     matcher = []
     if opts['match'] == 'incorrect':
-        solver = ['stuff/result_differs.py', *solver]
+        matcher = ['--cross-check', 'bin/z3-ref']
     elif opts['match'] == 'incorrect-unknown':
-        solver = ['stuff/result_differs_unknown.py', *solver]
+        matcher = ['--cross-check', 'bin/z3-ref']
     elif opts['match'] == 'stderr':
         matcher = ['--match-err', opts['stderr']]
     elif opts['match'] == 'stdout':
