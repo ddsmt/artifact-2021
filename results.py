@@ -12,6 +12,9 @@ import sys
 import benchmark
 
 
+LOAD_TIMES = True
+
+
 jenv = jinja2.Environment(
     loader=jinja2.FileSystemLoader('stuff/'),
     variable_start_string='\\VAR{',
@@ -56,8 +59,6 @@ def do_check_run(dbentry, filename):
 
 
 class ResultLoader:
-    TIMEOUT = 60*60
-
     def __init__(self, dbname):
         if os.path.isfile(dbname):
             os.unlink(dbname)
@@ -138,8 +139,9 @@ CREATE TABLE IF NOT EXISTS data (
             database[filename]['prefix'] = basedir
             size = os.stat(fullname).st_size
             database[filename]['insize'] = size
-            out, err, exitcode = do_test_run(database[filename], fullname)
-            database[filename]['exitcode'] = exitcode
+            if LOAD_TIMES:
+                out, err, exitcode = do_test_run(database[filename], fullname)
+                database[filename]['exitcode'] = exitcode
         self.database.update(database)
 
     def load_solver(self, solver):
@@ -184,7 +186,7 @@ CREATE TABLE IF NOT EXISTS data (
                     print(f'Warning: {fullname} does not exist, assume it could not be minimized')
                     outsize = insize
 
-            if resfile is not None:
+            if LOAD_TIMES and resfile is not None:
                 if not do_check_run(self.database[filename], resfile):
                     if cancelled:
                         print(f'WARN: {resfile} does not trigger, but was cancelled')
