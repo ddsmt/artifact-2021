@@ -1350,5 +1350,35 @@
         "args": ["-rww", "-rwa", "-rwr"],
         "match": "stderr",
         "stderr": "btorrewrite.c:1298: normalize_binary_comm_ass_exp: Assertion"
+    },
+    "gauss_init_0030.fof.smt2": {
+        "binary": "cvc4-oldsvn-r4261-debug",
+        "args": ["--segv-nospin"],
+        "match": "stderr",
+        "stderr": "The exception is unknown"
+    },
+    "piVC_5581bd.smt2": {
+        "binary": "cvc4-oldsvn-r4261-debug",
+        "args": ["--segv-nospin"],
+        "match": "stderr",
+        "stderr": "The exception is unknown"
+    },
+    "smtlib384a03.smt2": {
+        "binary": "cvc4-oldsvn-r4261-debug",
+        "args": ["--segv-nospin"],
+        "match": "stderr",
+        "stderr": "The exception is unknown"
+    },
+    "smtlib46f14a.smt2": {
+        "binary": "cvc4-oldsvn-r4261-debug",
+        "args": ["--segv-nospin"],
+        "match": "stderr",
+        "stderr": "The exception is unknown"
+    },
+    "smtlibf957ea.smt2": {
+        "binary": "cvc4-oldsvn-r4261-debug",
+        "args": ["--segv-nospin"],
+        "match": "stderr",
+        "stderr": "The exception is unknown"
     }
 }
