@@ -359,7 +359,6 @@ def scatter(filename_size, filename_time, A, B):
     f = open(filename_time, 'w')
     for r in res:
         r = dict(r)
-        print(r)
         if r['aout'] is None: continue
         if r['bout'] is None: continue
         if r['aout'] == r['insize']: continue
