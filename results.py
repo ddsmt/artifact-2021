@@ -59,8 +59,8 @@ def do_check_run(dbentry, filename):
 
 
 class ResultLoader:
-    def __init__(self, dbname):
-        if os.path.isfile(dbname):
+    def __init__(self, dbname, reset_db):
+        if reset_db and os.path.isfile(dbname):
             os.unlink(dbname)
         self.db = sqlite3.connect(dbname)
         self.db.row_factory = sqlite3.Row
@@ -273,7 +273,7 @@ SELECT input, solver, insize, outsize, time FROM data
             if t in soft_errors:
                 data[i][s]['time'] = soft_errors[t]
             else:
-                data[i][s]['time'] = f'{t:0.1f}'
+                data[i][s]['time'] = f'{t:0.0f}'
             if data[i][s]['outsize'] == best:
                 data[i][s]['best'] = True
                 if s in ['ddmin', 'ddmin-j1', 'hier', 'hier-j1']:
@@ -376,10 +376,10 @@ def do_analysis():
     scatter('out/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical')
 
 
-PARSE_RESULTS = True
+PARSE_RESULTS = False
 
 
-loader = ResultLoader('out/db.db')
+loader = ResultLoader('out/db.db', PARSE_RESULTS)
 
 solvers = sorted([
     s for s in os.listdir('out/') if os.path.isdir(f'out/{s}')
