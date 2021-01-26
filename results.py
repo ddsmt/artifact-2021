@@ -252,6 +252,7 @@ SELECT input, solver, insize, outsize, time FROM data
         inputs.append(c['input'])
         solvers.append(solver_name(c['solver']))
     for i in data:
+        newisbest = False
         best = data[i]['insize']
         for s in data[i]:
             if s == 'insize':
@@ -273,6 +274,10 @@ SELECT input, solver, insize, outsize, time FROM data
                 data[i][s]['time'] = f'{t:0.1f}'
             if data[i][s]['outsize'] == best:
                 data[i][s]['best'] = True
+                if s in ['ddmin', 'ddmin-j1', 'hier', 'hier-j1']:
+                    newisbest = True
+        data[i]['newisbest'] = newisbest
+        
     return {
         'data': data,
         'inputs': sorted(list(set(inputs))),
@@ -327,17 +332,17 @@ def get_overview_results():
 
 def scatter(filename_size, filename_time, A, B):
     res = loader.db.execute('''
-    SELECT a.insize AS insize, a.outsize AS aout, b.outsize AS bout, a.time AS atime, b.time AS btime
+    SELECT a.input, a.insize AS insize, a.outsize AS aout, b.outsize AS bout, a.time AS atime, b.time AS btime
     FROM data AS a
     LEFT JOIN data AS b ON (a.input = b.input AND b.solver = ?)
-    WHERE a.solver = ? AND a.time >= 0
+    WHERE a.solver = ?
 
     UNION ALL
 
-    SELECT b.insize AS insize, a.outsize AS aout, b.outsize AS bout, a.time AS atime, b.time AS btime
+    SELECT a.input, b.insize AS insize, a.outsize AS aout, b.outsize AS bout, a.time AS atime, b.time AS btime
     FROM data AS b
     LEFT JOIN data AS a ON (a.input = b.input AND a.solver = ?)
-    WHERE b.solver = ? AND b.time >= 0 AND a.input IS NULL
+    WHERE b.solver = ? AND a.input IS NULL
     ''', [B, A, A, B])
     f = open(filename_size, 'w')
     res = res.fetchall()
@@ -352,29 +357,37 @@ def scatter(filename_size, filename_time, A, B):
     f = open(filename_time, 'w')
     for r in res:
         r = dict(r)
+        print(r)
         if r['aout'] is None: continue
         if r['bout'] is None: continue
         if r['aout'] == r['insize']: continue
         if r['bout'] == r['insize']: continue
+        if r['atime'] == -4: r['atime'] = 7200
+        if r['btime'] == -4: r['btime'] = 7200
         f.write('{}\t{}\n'.format(r['atime'], r['btime']))
     f.close()
 
 
 def do_analysis():
-    render_to_file('out/table.tex', 'table-complete.tpl', **get_all_results())
-    render_to_file('out/table-overview.tex', 'table-overview.tpl', **get_overview_results())
+    render_to_file('out/table.tex', 'table-complete.j2', **get_all_results())
+    render_to_file('out/table-overview.tex', 'table-overview.j2', **get_overview_results())
     scatter('out/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical')
+
+
+PARSE_RESULTS = True
 
 
 loader = ResultLoader('out/db.db')
 
-loader.load_inputs()
-if os.path.isdir('confidential'):
-    loader.load_inputs('confidential/')
 solvers = sorted([
     s for s in os.listdir('out/') if os.path.isdir(f'out/{s}')
 ])
-for solver in solvers:
-    loader.load_solver(solver)
+
+if PARSE_RESULTS:
+    loader.load_inputs()
+    if os.path.isdir('confidential'):
+        loader.load_inputs('confidential/')
+    for solver in solvers:
+        loader.load_solver(solver)
 
 do_analysis()

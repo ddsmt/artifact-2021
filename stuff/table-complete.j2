@@ -12,6 +12,9 @@ Input & size
 {% endfor %}
 \\
 {% for i in inputs -%}
+{% if not data[i]['newisbest'] %}
+    \cdot
+{% endif %}
 \VAR{i} & \VAR{data[i]['insize']}
 {% for s in solvers -%}
     {% if s in data[i] %}
