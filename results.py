@@ -375,7 +375,7 @@ def do_analysis():
     scatter('out/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical')
 
 
-PARSE_RESULTS = False
+PARSE_RESULTS = True
 
 
 loader = ResultLoader('out/db.db', PARSE_RESULTS)
