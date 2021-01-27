@@ -217,6 +217,8 @@ def solver_name(s):
         'ddsmt-dev-ddmin-j1': 'ddmin-j1',
         'ddsmt-dev-hierarchical': 'hier',
         'ddsmt-dev-hierarchical-j1': 'hier-j1',
+        'ddsmt-dev-hybrid': 'hybrid',
+        'ddsmt-dev-hybrid-j1': 'hybrid-j1',
     }
     return d.get(s, s)
 
