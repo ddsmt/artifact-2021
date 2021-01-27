@@ -391,6 +391,8 @@ if PARSE_RESULTS:
     if os.path.isdir('confidential'):
         loader.load_inputs('confidential/')
     for solver in solvers:
+        if solver in ['ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical', 'ddsmt-dev-hybrid', 'delta', 'pydelta']:
+            continue
         loader.load_solver(solver)
 
 do_analysis()
