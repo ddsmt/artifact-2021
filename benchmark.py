@@ -404,7 +404,7 @@ def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DE
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'ddmin', *matcher, input, output, *solver], output)
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'ddmin', *matcher, input, output, *solver], output, cpus=cpus)
 
 
 def run_ddsmt_dev_ddmin_j1(input, output, binary, opts):
@@ -427,7 +427,7 @@ def run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=DEBUGGER_JOBS, 
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'hierarchical', *matcher, input, output, *solver], output)
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'hierarchical', *matcher, input, output, *solver], output, cpus=cpus)
 
 
 def run_ddsmt_dev_hierarchical_j1(input, output, binary, opts):
@@ -450,14 +450,14 @@ def run_ddsmt_dev_hybrid(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=D
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'hybrid', *matcher, input, output, *solver], output)
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'hybrid', *matcher, input, output, *solver], output, cpus=cpus)
 
 
 def run_ddsmt_dev_hybrid_j1(input, output, binary, opts):
     run_ddsmt_dev_hybrid(input, output, binary, opts, jobs=1, cpus=2)
 
 
-def run_delta(input, output, binary, opts):
+def run_delta(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOBS):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -478,9 +478,11 @@ def run_delta(input, output, binary, opts):
 {' '.join(solver)} $*
 ''')
     os.chmod(wrapper, 0o744)
-    cmd = [os.path.abspath('build/delta/build/delta'), os.path.abspath(input), '-o', os.path.abspath(output), '--solver', './wrapper.sh']
-    run_debugger(cmd, output, cwd=f'{output}.dir/')
+    cmd = [os.path.abspath('build/delta/build/delta'), '--threads', str(jobs), os.path.abspath(input), '-o', os.path.abspath(output), '--solver', './wrapper.sh']
+    run_debugger(cmd, output, cwd=f'{output}.dir/', cpus=cpus)
 
+def run_delta_j1(input, output, binary, opts):
+    run_delta(input, output, binary, opts, jobs=1, cpus=2)
 
 def run_deltasmt(input, output, binary, opts):
     solver = [binary]
@@ -536,7 +538,7 @@ def run_linedd(input, output, binary, opts):
     run_debugger(['build/linedd/linedd', input, output, *solver], output, cpus=2)
 
 
-def run_pydelta(input, output, binary, opts):
+def run_pydelta(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOBS):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -552,8 +554,10 @@ def run_pydelta(input, output, binary, opts):
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/pydelta/bin/pydelta', '--max-threads', str(DEBUGGER_JOBS), *matcher, '--mode-beautify', '--outputfile', output, input, *solver], output)
+    run_debugger(['build/pydelta/bin/pydelta', '--max-threads', str(jobs), *matcher, '--mode-beautify', '--outputfile', output, input, *solver], output, cpus=cpus)
 
+def run_pydelta_j1(input, output, binary, opts):
+    run_ddsmt_dev_hybrid(input, output, binary, opts, jobs=1, cpus=2)
 
 ddebuggers = {
     'ddsexpr': run_ddsexpr,
@@ -565,9 +569,11 @@ ddebuggers = {
     'ddsmt-dev-hybrid-j1': run_ddsmt_dev_hybrid_j1,
     'ddsmt-master': run_ddsmt_master,
     'delta': run_delta,
+    'delta-j1': run_delta_j1,
     #'deltasmt': run_deltasmt,
     'linedd': run_linedd,
     'pydelta': run_pydelta,
+    'pydelta-j1': run_pydelta_j1,
 }
 
 
