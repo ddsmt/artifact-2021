@@ -24,6 +24,7 @@ is_set_up_ddsexpr      = False
 is_set_up_ddsmt_master = False
 is_set_up_ddsmt_dev    = False
 is_set_up_delta        = False
+is_set_up_linedd       = False
 is_set_up_pydelta      = False
 is_set_up_yices        = False
 is_set_up_z3           = False
@@ -106,6 +107,15 @@ def setup_delta():
         subprocess.run(['git', 'pull'], cwd = 'build/delta')
     global is_set_up_delta
     is_set_up_delta = True
+
+
+def setup_linedd():
+    """Download linedd"""
+    if not os.path.isdir('build/linedd'):
+        subprocess.run(['git', 'clone', 'https://github.com/sambayless/linedd', 'build/linedd'])
+        subprocess.run(['git', 'apply', '../../stuff/pydelta.patch'], cwd = 'build/linedd')
+    global is_set_up_linedd
+    is_set_up_linedd = True
 
 
 def setup_pydelta():
@@ -483,6 +493,26 @@ def run_deltasmt(input, output, binary, opts):
         return
 
 
+def run_linedd(input, output, binary, opts):
+    solver = [binary]
+    if 'args' in opts:
+        solver = solver + opts['args']
+    if opts['match'] == 'incorrect':
+        solver = ['stuff/result_differs.py', *solver]
+    elif opts['match'] == 'incorrect-unknown':
+        solver = ['stuff/result_differs_unknown.py', *solver]
+    elif opts['match'] == 'stderr':
+        timeout = get_timeout(solver, input)
+        opts['stderr'] = opts['stderr'].replace('`', '\\`')
+        solver = ['stuff/match_err.py', str(timeout), f'"{opts["stderr"]}"', *solver]
+    elif opts['match'] == 'stdout':
+        timeout = get_timeout(solver, input)
+        opts['stdout'] = opts['stdout'].replace('`', '\\`')
+        solver = ['stuff/match_out.py', str(timeout), f'"{opts["stdout"]}"', *solver]
+
+    run_debugger(['build/linedd/linedd', input, output, *solver], output, cpus=2)
+
+
 def run_pydelta(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
@@ -511,6 +541,7 @@ ddebuggers = {
     'ddsmt-master': run_ddsmt_master,
     'delta': run_delta,
     #'deltasmt': run_deltasmt,
+    'linedd': run_linedd,
     'pydelta': run_pydelta,
 }
 
@@ -540,6 +571,8 @@ def run_experiments(prefix='', regex=None, dd=None):
         setup_ddsmt_master()
     if not is_set_up_delta and (dd is None or dd == 'delta'):
         setup_delta()
+    if not is_set_up_linedd and (dd is None or dd == 'linedd'):
+        setup_linedd()
     if not is_set_up_pydelta and (dd is None or dd == 'pydelta'):
         setup_pydelta()
     for input,opts in data.items():
@@ -584,10 +617,7 @@ if __name__ == '__main__':
                     help='only run files that match given regex')
     ap.add_argument('-d',
                     dest='dd',
-                    choices=[
-                        'ddsexpr', 'ddsmt-dev-ddmin', 'ddsmt-dev-ddmin-j1',
-                        'ddsmt-dev-hierarchical', 'ddsmt-dev-hierarchical-j1',
-                        'ddsmt-master', 'delta', 'pydelta'],
+                    choices=ddebuggers.keys(),
                     default=None,
                     help='delta debugger configuration')
     args = ap.parse_args()
