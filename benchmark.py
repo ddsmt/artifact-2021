@@ -434,6 +434,29 @@ def run_ddsmt_dev_hierarchical_j1(input, output, binary, opts):
     run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=1, cpus=2)
 
 
+def run_ddsmt_dev_hybrid(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOBS):
+    solver = [binary]
+    if 'args' in opts:
+        solver = solver + opts['args']
+    matcher = []
+    if opts['match'] == 'incorrect':
+        matcher = ['--cross-check', 'bin/z3-ref']
+    elif opts['match'] == 'incorrect-unknown':
+        matcher = ['--cross-check', 'bin/z3-ref']
+    elif opts['match'] == 'stderr':
+        matcher = ['--match-err', opts['stderr']]
+    elif opts['match'] == 'stdout':
+        matcher = ['--match-out', opts['stdout']]
+    elif opts['match'] == 'exitcode':
+        matcher = ['--ignore-output']
+
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'hybrid', *matcher, input, output, *solver], output)
+
+
+def run_ddsmt_dev_hybrid_j1(input, output, binary, opts):
+    run_ddsmt_dev_hybrid(input, output, binary, opts, jobs=1, cpus=2)
+
+
 def run_delta(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
@@ -538,6 +561,8 @@ ddebuggers = {
     'ddsmt-dev-ddmin-j1': run_ddsmt_dev_ddmin_j1,
     'ddsmt-dev-hierarchical': run_ddsmt_dev_hierarchical,
     'ddsmt-dev-hierarchical-j1': run_ddsmt_dev_hierarchical_j1,
+    'ddsmt-dev-hybrid': run_ddsmt_dev_hierarchical,
+    'ddsmt-dev-hybrid-j1': run_ddsmt_dev_hierarchical_j1,
     'ddsmt-master': run_ddsmt_master,
     'delta': run_delta,
     #'deltasmt': run_deltasmt,
