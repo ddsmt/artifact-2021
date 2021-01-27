@@ -561,7 +561,7 @@ ddebuggers = {
     'ddsmt-dev-ddmin-j1': run_ddsmt_dev_ddmin_j1,
     'ddsmt-dev-hierarchical': run_ddsmt_dev_hierarchical,
     'ddsmt-dev-hierarchical-j1': run_ddsmt_dev_hierarchical_j1,
-    'ddsmt-dev-hybrid': run_ddsmt_dev_bybrid,
+    'ddsmt-dev-hybrid': run_ddsmt_dev_hybrid,
     'ddsmt-dev-hybrid-j1': run_ddsmt_dev_hybrid_j1,
     'ddsmt-master': run_ddsmt_master,
     'delta': run_delta,
