@@ -1,0 +1,44 @@
+(set-logic SLIA)
+(declare-datatype JSIdentifier ((JSInt (jsInt Int)) (JSString (jsString String)) (JSBool (jsBool Bool)) (JS_NaN )))
+(define-fun add1 ((x1_ String) (x2_ String)) String (str.++ x1_ x2_))
+(define-fun add3 ((x1_ Int) (x2_ String)) String (str.++ (int.to.str x1_) x2_))
+(define-fun add4 ((x1_ String) (x2_ Int)) String (str.++ x1_ (int.to.str x2_)))
+(define-fun plusOne2 ((x1_ String)) String (str.++ x1_ (int.to.str 1)))
+(define-fun plusTwo2 ((x1_ String)) String (str.++ x1_ (int.to.str 2)))
+(define-fun space1 () String " ")
+(define-fun space2 ((x0 Int)) String " ")
+(define-fun space3 ((x0 Int)) String " ")
+(define-fun space4 ((x0 Int)) String " ")
+(synth-fun results1 ((x1_ Int))String
+((Start String (ntString))
+(ntString String
+( 
+(plusTwo2 ntString)
+(space1)
+;(space1 ntInt)
+(plusOne2 ntString)
+(add3 ntInt ntString)
+(add1 ntString ntString)
+(jsString ntJSIdentifier)
+(add4 ntString ntInt)
+
+))
+(ntInt Int
+( x1_
+(+ 1 ntInt)
+(+ 2 ntInt)
+(+ ntInt ntInt)
+(jsInt ntJSIdentifier)
+
+))
+(ntJSIdentifier JSIdentifier
+( 
+(JSString ntString)
+(JSInt ntInt)
+JS_NaN
+
+))
+))
+(constraint (= (results1 1) "1 2 3"))
+(constraint (= (results1 19) "19 20 21"))
+(check-synth)

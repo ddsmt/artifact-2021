@@ -1380,5 +1380,19 @@
         "args": ["--segv-nospin"],
         "match": "stderr",
         "stderr": "The exception is unknown"
-    }
+    },
+    "issue2914.sy": {
+        "cvc4-commit": "8a9ffdb",
+        "match": "stderr",
+        "stderr": "CVC4 suffered a segfault"
+    },
+    "issue2935.sy": {
+        "cvc4-commit": "afc70ac",
+        "match": "incorrect-unknown"
+    },
+    "issue3490.sy": {
+        "cvc4-commit": "42d1c64",
+        "match": "stderr",
+        "stderr": "CVC4 suffered a segfault"
+    },
 }
