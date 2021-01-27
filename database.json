@@ -1394,5 +1394,5 @@
         "cvc4-commit": "42d1c64",
         "match": "stderr",
         "stderr": "CVC4 suffered a segfault"
-    },
+    }
 }
