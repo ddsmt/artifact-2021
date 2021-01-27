@@ -325,7 +325,6 @@ def run_ddsexpr(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
-    matcher = []
     if opts['match'] == 'incorrect':
         solver = ['stuff/result_differs.py', *solver]
     elif opts['match'] == 'incorrect-unknown':
@@ -339,14 +338,13 @@ def run_ddsexpr(input, output, binary, opts):
         opts['stdout'] = opts['stdout'].replace('`', '\\`')
         solver = ['stuff/match_out.py', str(timeout), f'"{opts["stdout"]}"', *solver]
 
-    run_debugger(['build/ddsexpr/ddsexpr', '-l', '-s', *matcher, input, output, *solver], output, cpus=2)
+    run_debugger(['build/ddsexpr/ddsexpr', '-l', '-s', input, output, *solver], output, cpus=2)
 
 
 def run_ddsmt_master(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
-    matcher = []
     if opts['match'] == 'incorrect':
         solver = ['stuff/result_differs.py', *solver]
     elif opts['match'] == 'incorrect-unknown':
@@ -358,7 +356,7 @@ def run_ddsmt_master(input, output, binary, opts):
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_out.py', str(timeout), opts['stdout'], *solver]
 
-    run_debugger(['build/ddsmt-master/ddsmt.py', '-v', *matcher, input, output, *solver], output, cpus=2)
+    run_debugger(['build/ddsmt-master/ddsmt.py', '-vv', input, output, *solver], output, cpus=2)
 
     if SUBMIT_TO_SLURM:
         return
@@ -430,7 +428,6 @@ def run_delta(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
-    matcher = []
     if opts['match'] == 'incorrect':
         solver = ['stuff/result_differs.py', *solver]
     elif opts['match'] == 'incorrect-unknown':
@@ -448,7 +445,7 @@ def run_delta(input, output, binary, opts):
 {' '.join(solver)} $*
 ''')
     os.chmod(wrapper, 0o744)
-    cmd = [os.path.abspath('build/delta/build/delta'), *matcher, os.path.abspath(input), '-o', os.path.abspath(output), '--solver', './wrapper.sh']
+    cmd = [os.path.abspath('build/delta/build/delta'), os.path.abspath(input), '-o', os.path.abspath(output), '--solver', './wrapper.sh']
     run_debugger(cmd, output, cwd=f'{output}.dir/')
 
 
@@ -456,7 +453,6 @@ def run_deltasmt(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
-    matcher = []
     if opts['match'] == 'incorrect':
         solver = ['../stuff/result_differs.py', *solver]
     elif opts['match'] == 'incorrect-unknown':
@@ -469,7 +465,7 @@ def run_deltasmt(input, output, binary, opts):
         timeout = get_timeout(solver, input)
         solver = ['../stuff/match_out.py', str(timeout), opts['stdout'], *solver]
 
-    run_debugger(['./deltasmt', *matcher, '../' + input, '../' + output, *solver], output, cwd='deltasmtV2', cpus=2)
+    run_debugger(['./deltasmt', '../' + input, '../' + output, *solver], output, cwd='deltasmtV2', cpus=2)
 
     if SUBMIT_TO_SLURM:
         return
