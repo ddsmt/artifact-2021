@@ -334,7 +334,7 @@ echo | awk "{{ print $END - $START }}" > {output}.time
 def run_debugger(cmd, output, tmpout, cwd=None, cpus=DEBUGGER_JOBS):
     """Actually run the command and redirect stdout and stderr."""
     if SUBMIT_TO_SLURM:
-        submit_slurm_job(cmd, tmpout, output, cwd=cwd, cpus=cpus)
+        submit_slurm_job(cmd, output, tmpout, cwd=cwd, cpus=cpus)
     else:
         start = time.time()
         subprocess.run(cmd,
