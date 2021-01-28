@@ -1384,15 +1384,16 @@
     "issue2914.sy": {
         "cvc4-commit": "8a9ffdb",
         "match": "stderr",
-        "stderr": "CVC4 suffered a segfault"
+        "stderr": "getExplanationForEnumeratorExclude"
     },
     "issue2935.sy": {
         "cvc4-commit": "afc70ac",
-        "match": "incorrect-unknown"
+        "match": "stderr",
+        "stderr": "constructBestConditional"
     },
     "issue3490.sy": {
         "cvc4-commit": "42d1c64",
         "match": "stderr",
-        "stderr": "CVC4 suffered a segfault"
+        "stderr": "getEnumTypeInfo"
     }
 }
