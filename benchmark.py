@@ -319,8 +319,8 @@ timeout_pid=$!
 
 {' '.join(cmd)}
 
-kill -- -${timeout_pid} >/dev/null 2>/dev/null
-wait -- -${timeout_pid} >/dev/null 2>/dev/null
+kill -- -${{timeout_pid}} >/dev/null 2>/dev/null
+wait -- -${{timeout_pid}} >/dev/null 2>/dev/null
 
 popd
 END=$(date +%s.%N)
