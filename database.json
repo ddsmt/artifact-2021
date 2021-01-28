@@ -1383,13 +1383,13 @@
     },
     "issue2914.sy": {
         "cvc4-commit": "8a9ffdb",
-        "match": "stderr",
-        "stderr": "getExplanationForEnumeratorExclude"
+        "match": "stdout",
+        "stdout": "getExplanationForEnumeratorExclude"
     },
     "issue2935.sy": {
         "cvc4-commit": "afc70ac",
-        "match": "stderr",
-        "stderr": "constructBestConditional"
+        "match": "stdout",
+        "stdout": "constructBestConditional"
     },
     "issue3490.sy": {
         "cvc4-commit": "42d1c64",
