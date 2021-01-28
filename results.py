@@ -22,8 +22,8 @@ jenv = jinja2.Environment(
 )
 
 
-def do_test_run(dbentry, filename):
-    binary = benchmark.get_binary(dbentry, dbentry['prefix'])
+def do_test_run(input, dbentry, filename):
+    binary = benchmark.get_binary(input, dbentry, dbentry['prefix'])
     cmd = [binary] + dbentry.get('args', [])
 
     if dbentry['match'] == 'incorrect':
@@ -32,16 +32,21 @@ def do_test_run(dbentry, filename):
         cmd = ['stuff/result_differs_unknown.py'] + cmd
     cmd = cmd + [filename]
     
-    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out = res.stdout.decode()
-    err = res.stderr.decode()
-    exitcode = res.returncode
+    try:
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
+        out = res.stdout.decode()
+        err = res.stderr.decode()
+        exitcode = res.returncode
+    except:
+        out = ""
+        err = ""
+        exitcode = None
 
     return out, err, exitcode
 
 
-def do_check_run(dbentry, filename):
-    out, err, exitcode = do_test_run(dbentry, filename)
+def do_check_run(input, dbentry, filename):
+    out, err, exitcode = do_test_run(input, dbentry, filename)
 
     if dbentry['match'] == 'incorrect':
         return exitcode == 1
@@ -140,7 +145,7 @@ CREATE TABLE IF NOT EXISTS data (
             size = os.stat(fullname).st_size
             database[filename]['insize'] = size
             if LOAD_TIMES:
-                out, err, exitcode = do_test_run(database[filename], fullname)
+                out, err, exitcode = do_test_run(fullname, database[filename], fullname)
                 database[filename]['exitcode'] = exitcode
         self.database.update(database)
 
@@ -187,7 +192,7 @@ CREATE TABLE IF NOT EXISTS data (
                     outsize = insize
 
             if LOAD_TIMES and resfile is not None:
-                if not do_check_run(self.database[filename], resfile):
+                if not do_check_run(filename, self.database[filename], resfile):
                     if cancelled:
                         print(f'WARN: {resfile} does not trigger, but was cancelled')
                         self.__add_result(filename, solver, insize, insize, -4)
@@ -217,6 +222,8 @@ def solver_name(s):
         'ddsmt-dev-ddmin-j1': 'ddmin-j1',
         'ddsmt-dev-hierarchical': 'hier',
         'ddsmt-dev-hierarchical-j1': 'hier-j1',
+        'ddsmt-dev-hierarchical-old': 'hier-old',
+        'ddsmt-dev-hierarchical-j1-old': 'hier-old-j1',
         'ddsmt-dev-hybrid': 'hybrid',
         'ddsmt-dev-hybrid-j1': 'hybrid-j1',
     }
@@ -278,7 +285,7 @@ SELECT input, solver, insize, outsize, time FROM data
                 data[i][s]['time'] = f'{t:0.0f}'
             if data[i][s]['outsize'] == best:
                 data[i][s]['best'] = True
-                if s in ['ddmin', 'ddmin-j1', 'hier', 'hier-j1']:
+                if s in ['ddmin', 'ddmin-j1', 'hier', 'hier-j1', 'hybrid', 'hybrid-j1']:
                     newisbest = True
         data[i]['newisbest'] = newisbest
         
@@ -302,6 +309,7 @@ def overview_data(solvers):
         'parsererror': {},
         'segfault': {},
         'incorrect': {},
+        'timeout': {},
         'reduce': {},
         'avg': {},
         'avg300': {},
@@ -310,9 +318,10 @@ def overview_data(solvers):
         res['parsererror'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -1', [s]).fetchone()[0])
         res['segfault'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -2', [s]).fetchone()[0])
         res['incorrect'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -3', [s]).fetchone()[0])
-        res['reduce'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND outsize < insize AND (time = -4 OR time >= 0)', [s]).fetchone()[0])
-        res['avg'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND (time = -4 OR time >= 0)', [s]).fetchone()[0])
-        res['avg300'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND insize>300 AND (time = -4 OR time >= 0)', [s]).fetchone()[0])
+        res['timeout'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -4', [s]).fetchone()[0])
+        res['reduce'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND outsize < insize AND time >= 0', [s]).fetchone()[0])
+        res['avg'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND time >= 0', [s]).fetchone()[0])
+        res['avg300'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND insize>300 AND time >= 0', [s]).fetchone()[0])
     return res
 
 
@@ -321,13 +330,14 @@ def get_overview_results():
     datanames = {
         'parsererror': 'parser error',
         'segfault': 'segfault',
+        'timeout': 'timeout',
         'incorrect': 'incorrect output',
         'reduce': 'gets reduction', 'avg': 'average reduction', 'avg300': 'average reduction ($>$300 bytes)' }
-    slv = [s for s in solvers if s not in ['ddsmt-dev-ddmin-j1', 'ddsmt-dev-hierarchical-j1']]
+    slv = [s for s in solvers if s not in ['ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical', 'ddsmt-dev-hybrid', 'pydelta']]
     return {
         'total': total,
         'solvers': slv,
-        'solvernames': {s: solver_name(s) for s in slv if s not in ['ddsmt-dev-ddmin-j1', 'ddsmt-dev-hierarchical-j1']},
+        'solvernames': {s: solver_name(s) for s in slv},
         'data': overview_data(solvers),
         'datanames': datanames,
     }
@@ -374,7 +384,7 @@ def scatter(filename_size, filename_time, A, B):
 def do_analysis():
     render_to_file('out/table.tex', 'table-complete.j2', **get_all_results())
     render_to_file('out/table-overview.tex', 'table-overview.j2', **get_overview_results())
-    scatter('out/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical')
+    scatter('out/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-dev-ddmin-j1', 'ddsmt-dev-hierarchical-j1')
 
 
 PARSE_RESULTS = True
@@ -391,7 +401,13 @@ if PARSE_RESULTS:
     if os.path.isdir('confidential'):
         loader.load_inputs('confidential/')
     for solver in solvers:
-        if solver in ['ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical', 'ddsmt-dev-hybrid', 'delta', 'pydelta']:
+        if solver in [
+            'ddsmt-dev-ddmin'
+            'ddsmt-dev-hierarchical-old', 'ddsmt-dev-hierarchical-j1-old',
+            'ddsmt-dev-hierarchical',
+            'ddsmt-dev-hybrid',
+            'delta',
+            'pydelta']:
             continue
         loader.load_solver(solver)
 
