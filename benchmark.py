@@ -571,7 +571,7 @@ def run_pydelta(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_J
     run_debugger(['build/pydelta/bin/pydelta', '--max-threads', str(jobs), *matcher, '--mode-beautify', '--outputfile', output, input, *solver], output, output, cpus=cpus)
 
 def run_pydelta_j1(input, output, binary, opts):
-    run_ddsmt_dev_hybrid(input, output, binary, opts, jobs=1, cpus=2)
+    run_pydelta(input, output, binary, opts, jobs=1, cpus=2)
 
 ddebuggers = {
     'ddsexpr': run_ddsexpr,
