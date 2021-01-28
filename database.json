@@ -29,10 +29,6 @@
         "z3-commit": "6f2b569",
         "match": "exitcode"
     },
-    "z3-2874.smt2": {
-        "z3-commit": "30e7c22",
-        "match": "exitcode"
-    },
     "z3-2468.smt2": {
         "z3-commit": "e79542c",
         "match": "exitcode"
