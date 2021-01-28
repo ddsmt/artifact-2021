@@ -285,7 +285,7 @@ def get_timeout(cmd, input):
 SLURM_JOB_ID = 0
 
 
-def submit_slurm_job(cmd, output, cwd=None, cpus=DEBUGGER_JOBS):
+def submit_slurm_job(cmd, output, tmpout, cwd=None, cpus=DEBUGGER_JOBS):
     """Submit the given command to slurm"""
 
     global SLURM_JOB_ID
@@ -307,7 +307,21 @@ f"""#!/bin/bash
 source {os.getcwd()}/slurm/venv/bin/activate
 START=$(date +%s.%N)
 pushd {cwd}
+
+set -m
+(
+    while inotifywait -e modify {output}
+    do
+        cp {tmpout} {output}.tmp
+    done
+) &
+timeout_pid=$!
+
 {' '.join(cmd)}
+
+kill -- -${timeout_pid} >/dev/null 2>/dev/null
+wait -- -${timeout_pid} >/dev/null 2>/dev/null
+
 popd
 END=$(date +%s.%N)
 echo | awk "{{ print $END - $START }}" > {output}.time
@@ -317,10 +331,10 @@ echo | awk "{{ print $END - $START }}" > {output}.time
     subprocess.run(cmd)
 
 
-def run_debugger(cmd, output, cwd=None, cpus=DEBUGGER_JOBS):
+def run_debugger(cmd, output, tmpout, cwd=None, cpus=DEBUGGER_JOBS):
     """Actually run the command and redirect stdout and stderr."""
     if SUBMIT_TO_SLURM:
-        submit_slurm_job(cmd, output, cwd=cwd, cpus=cpus)
+        submit_slurm_job(cmd, tmpout, output, cwd=cwd, cpus=cpus)
     else:
         start = time.time()
         subprocess.run(cmd,
@@ -348,7 +362,7 @@ def run_ddsexpr(input, output, binary, opts):
         opts['stdout'] = opts['stdout'].replace('`', '\\`')
         solver = ['stuff/match_out.py', str(timeout), f'"{opts["stdout"]}"', *solver]
 
-    run_debugger(['build/ddsexpr/ddsexpr', '-l', '-s', input, output, *solver], output, cpus=2)
+    run_debugger(['build/ddsexpr/ddsexpr', '-l', '-s', input, output, *solver], output, output, cpus=2)
 
 
 def run_ddsmt_master(input, output, binary, opts):
@@ -366,7 +380,7 @@ def run_ddsmt_master(input, output, binary, opts):
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_out.py', str(timeout), opts['stdout'], *solver]
 
-    run_debugger(['build/ddsmt-master/ddsmt.py', '-vv', input, output, *solver], output, cpus=2)
+    run_debugger(['build/ddsmt-master/ddsmt.py', '-vv', input, output, *solver], output, output, cpus=2)
 
     if SUBMIT_TO_SLURM:
         return
@@ -404,7 +418,7 @@ def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DE
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'ddmin', *matcher, input, output, *solver], output, cpus=cpus)
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'ddmin', *matcher, input, output, *solver], output, output, cpus=cpus)
 
 
 def run_ddsmt_dev_ddmin_j1(input, output, binary, opts):
@@ -427,7 +441,7 @@ def run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=DEBUGGER_JOBS, 
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'hierarchical', *matcher, input, output, *solver], output, cpus=cpus)
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'hierarchical', *matcher, input, output, *solver], output, output, cpus=cpus)
 
 
 def run_ddsmt_dev_hierarchical_j1(input, output, binary, opts):
@@ -450,7 +464,7 @@ def run_ddsmt_dev_hybrid(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=D
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'hybrid', *matcher, input, output, *solver], output, cpus=cpus)
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'hybrid', *matcher, input, output, *solver], output, output, cpus=cpus)
 
 
 def run_ddsmt_dev_hybrid_j1(input, output, binary, opts):
@@ -479,7 +493,7 @@ def run_delta(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOB
 ''')
     os.chmod(wrapper, 0o744)
     cmd = [os.path.abspath('build/delta/build/delta'), '--threads', str(jobs), os.path.abspath(input), '-o', os.path.abspath(output), '--solver', './wrapper.sh']
-    run_debugger(cmd, output, cwd=f'{output}.dir/', cpus=cpus)
+    run_debugger(cmd, output, 'delta.last.smt2', cwd=f'{output}.dir/', cpus=cpus)
 
 def run_delta_j1(input, output, binary, opts):
     run_delta(input, output, binary, opts, jobs=1, cpus=2)
@@ -500,7 +514,7 @@ def run_deltasmt(input, output, binary, opts):
         timeout = get_timeout(solver, input)
         solver = ['../stuff/match_out.py', str(timeout), opts['stdout'], *solver]
 
-    run_debugger(['./deltasmt', '../' + input, '../' + output, *solver], output, cwd='deltasmtV2', cpus=2)
+    run_debugger(['./deltasmt', '../' + input, '../' + output, *solver], output, output, cwd='deltasmtV2', cpus=2)
 
     if SUBMIT_TO_SLURM:
         return
@@ -535,7 +549,7 @@ def run_linedd(input, output, binary, opts):
         opts['stdout'] = opts['stdout'].replace('`', '\\`')
         solver = ['stuff/match_out.py', str(timeout), f'"{opts["stdout"]}"', *solver]
 
-    run_debugger(['build/linedd/linedd', input, output, *solver], output, cpus=2)
+    run_debugger(['build/linedd/linedd', input, output, *solver], output, output, cpus=2)
 
 
 def run_pydelta(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOBS):
@@ -554,7 +568,7 @@ def run_pydelta(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_J
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/pydelta/bin/pydelta', '--max-threads', str(jobs), *matcher, '--mode-beautify', '--outputfile', output, input, *solver], output, cpus=cpus)
+    run_debugger(['build/pydelta/bin/pydelta', '--max-threads', str(jobs), *matcher, '--mode-beautify', '--outputfile', output, input, *solver], output, output, cpus=cpus)
 
 def run_pydelta_j1(input, output, binary, opts):
     run_ddsmt_dev_hybrid(input, output, binary, opts, jobs=1, cpus=2)
@@ -637,11 +651,6 @@ def run_experiments(prefix='', regex=None, dd=None):
                 ddebuggers[d](infile, outfile, binary, opts)
 
 
-def sanitize_results():
-    subprocess.run(['grep', '-Inri', 'does not match', 'out/pydelta/'])
-    subprocess.run(['grep', '-Inri', 'ddSMT ERROR', 'out/'])
-
-
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('-f',
@@ -660,4 +669,3 @@ if __name__ == '__main__':
         setup_confidential()
         run_experiments('confidential/', regex = args.regex, dd = args.dd)
     run_experiments(regex = args.regex, dd = args.dd)
-    sanitize_results()
