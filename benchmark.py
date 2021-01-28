@@ -313,7 +313,7 @@ END=$(date +%s.%N)
 echo | awk "{{ print $END - $START }}" > {output}.time
 """)
 
-    cmd = ['sbatch', scriptfile]
+    cmd = ['sbatch', '--job-name', output, scriptfile]
     subprocess.run(cmd)
 
 
