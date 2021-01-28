@@ -577,13 +577,16 @@ ddebuggers = {
 }
 
 
-def get_binary(dbentry, prefix):
+def get_binary(input, dbentry, prefix):
     if 'binary' in dbentry:
         return f'{prefix}bin/{dbentry["binary"]}'
     elif 'cvc4-commit' in dbentry:
         curargs = dbentry.get('args', [])
         if not '--lang' in curargs:
-            curargs = curargs + ['--lang', 'smt2']
+            if input.endswith('.smt2'):
+                curargs = curargs + ['--lang', 'smt2']
+            elif input.endswith('.sy'):
+                curargs = curargs + ['--lang', 'sygus']
         dbentry['args'] = curargs
         return build_cvc4(dbentry['cvc4-commit'])
     elif 'yices-commit' in dbentry:
@@ -621,7 +624,7 @@ def run_experiments(prefix='', regex=None, dd=None):
            and opts['match'].startswith('incorrect'):
                 setup_z3_ref()
         print(f'{input}: {opts}')
-        binary = get_binary(opts, prefix)
+        binary = get_binary(input, opts, prefix)
 
         infile = f'{prefix}inputs/{input}'
         insize = os.stat(infile).st_size
