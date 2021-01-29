@@ -488,10 +488,10 @@ def run_delta(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOB
     
     # Execute in a separate directory to avoid file name conflicts
     os.makedirs(f'{output}.dir', exist_ok=True)
-    solver = list(map(lambda a: os.path.abspath(a) if os.path.isfile(a) else a, solver))
 
     wrapper = f'{output}.dir/wrapper.sh'
     open(wrapper, 'w').write(f'''#!/bin/sh
+cd {os.getcwd()}
 {' '.join(solver)} $*
 ''')
     os.chmod(wrapper, 0o744)
