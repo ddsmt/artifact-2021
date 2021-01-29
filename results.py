@@ -319,8 +319,9 @@ def overview_data(solvers):
         'timeout': {},
         'reduce': {},
         'bestreduce': {},
-        'avgbestruntime': {},
+        #'avgbestruntime': {},
         'avg': {},
+        'avgwoto': {},
         #'avg300': {},
     }
     for s in solvers:
@@ -328,7 +329,7 @@ def overview_data(solvers):
         res['segfault'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -2', [s]).fetchone()[0])
         res['incorrect'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -3', [s]).fetchone()[0])
         res['timeout'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -4', [s]).fetchone()[0])
-        res['reduce'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND outsize < insize AND (time >= 0 OR time = -4)', [s]).fetchone()[0])
+        res['reduce'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND outsize != insize AND (time >= 0 OR time = -4)', [s]).fetchone()[0])
         res['bestreduce'][s] = fint(loader.db.execute('''
 SELECT COUNT(*) FROM data
 LEFT JOIN (
@@ -336,14 +337,15 @@ LEFT JOIN (
 ) AS mins ON (data.input = mins.input)
 WHERE solver = ? AND data.outsize = mins.minsize
 ''', [s]).fetchone()[0])
-        res['avgbestruntime'][s] = ffloat(loader.db.execute('''
-SELECT AVG(time) FROM data
-LEFT JOIN (
-	SELECT MIN(outsize) AS minsize, input FROM data GROUP BY input
-) AS mins ON (data.input = mins.input)
-WHERE solver = ? AND data.outsize = mins.minsize
-''', [s]).fetchone()[0])
+#        res['avgbestruntime'][s] = ffloat(loader.db.execute('''
+#SELECT AVG(time) FROM data
+#LEFT JOIN (
+#	SELECT MIN(outsize) AS minsize, input FROM data GROUP BY input
+#) AS mins ON (data.input = mins.input)
+#WHERE solver = ? AND data.outsize = mins.minsize
+#''', [s]).fetchone()[0])
         res['avg'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND (time >= 0 OR time = -4)', [s]).fetchone()[0])
+        res['avgwoto'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND time >= 0', [s]).fetchone()[0])
         #res['avg300'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND insize>300 AND time >= 0', [s]).fetchone()[0])
     return res
 
@@ -351,17 +353,18 @@ WHERE solver = ? AND data.outsize = mins.minsize
 def get_overview_results():
     total = loader.db.execute('SELECT COUNT(DISTINCT input) FROM data').fetchone()[0]
     datanames = {
-        'parsererror': 'parser error',
-        'segfault': 'segfault',
-        'timeout': 'timeout',
-        'incorrect': 'incorrect output',
-        'reduce': 'gets reduction',
-        'bestreduce': 'best reduction',
-        'avgbestruntime': 'avg runtime on best',
-        'avg': 'average reduction',
+        'parsererror': 'Parse errors',
+        'segfault': 'Errors',
+        'timeout': 'Timeouts',
+        'incorrect': 'Incorrect output',
+        'reduce': 'Any Simplification',
+        'bestreduce': 'Best Result',
+        #'avgbestruntime': 'avg runtime on best',
+        'avg': 'Avg. Reduction',
+        'avgwoto': 'Avg. Reduction (w/o TO)',
         #'avg300': 'average reduction ($>$300 bytes)',
     }
-    slv = ['ddsexpr', 'ddsmt-dev-ddmin-j1', 'ddsmt-dev-hierarchical-j1', 'ddsmt-dev-hybrid-j1', 'ddsmt-master', 'delta-j1', 'linedd', 'pydelta-j1']
+    slv = ['ddsexpr', 'ddsmt-master', 'delta-j1', 'linedd', 'pydelta-j1', 'ddsmt-dev-ddmin-j1', 'ddsmt-dev-hierarchical-j1', 'ddsmt-dev-hybrid-j1']
     return {
         'total': total,
         'solvers': slv,
@@ -415,19 +418,22 @@ def scatter_best(filename_size, filename_time, A, B):
     FROM data
     WHERE solver = ?
     ''', [A])
-    adata = {a['input']: a for a in adata.fetchall()}
+    adata = {a['input']: dict(a) for a in adata.fetchall()}
     bquery = ', '.join(map(lambda s: f"'{s}'", B))
     bdata = loader.db.execute(f'''
     SELECT input, insize, MIN(outsize) AS outsize, MIN(time) as time
     FROM data
-    WHERE solver in {bquery}
+    WHERE solver in ({bquery}) and time >= 0
+    GROUP BY input
     ''')
-    bdata = {b['input']: b for b in bdata.fetchall()}
+    bdata = {b['input']: dict(b) for b in bdata.fetchall()}
 
     f = open(filename_size, 'w')
     for a in adata:
         ra = adata[a]
-        rb = adata[a]
+        if not a in bdata:
+            continue
+        rb = bdata[a]
         if ra['outsize'] is None or ra['outsize'] > ra['insize'] * 1.15:
             ra['outsize'] = ra['insize'] * 1.15
         if rb['outsize'] is None or rb['outsize'] > rb['insize'] * 1.15:
@@ -435,12 +441,15 @@ def scatter_best(filename_size, filename_time, A, B):
         f.write('{}\t{}\n'.format(ra['outsize'] / ra['insize'] * 100, rb['outsize'] / rb['insize'] * 100))
     f.close()
     f = open(filename_time, 'w')
-    for r in res:
-        r = dict(r)
+    for a in adata:
+        ra = adata[a]
+        if not a in bdata:
+            continue
+        rb = bdata[a]
         if ra['outsize'] is None: continue
         if rb['outsize'] is None: continue
-        if ra['outsize'] == r['insize']: continue
-        if rb['outsize'] == r['insize']: continue
+        if ra['outsize'] == ra['insize']: continue
+        if rb['outsize'] == rb['insize']: continue
         if ra['time'] == -4: ra['time'] = 7200
         if rb['time'] == -4: rb['time'] = 7200
         f.write('{}\t{}\n'.format(ra['time'], rb['time']))
