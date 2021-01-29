@@ -33,7 +33,7 @@ def do_test_run(input, dbentry, filename):
     cmd = cmd + [filename]
     
     try:
-        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=15)
         out = res.stdout.decode()
         err = res.stderr.decode()
         exitcode = res.returncode
