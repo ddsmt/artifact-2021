@@ -482,6 +482,9 @@ def run_delta(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOB
     elif opts['match'] == 'stderr':
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_err.py', str(timeout), f'"{opts["stderr"]}"', *solver]
+    elif opts['match'] == 'stdout':
+        timeout = get_timeout(solver, input)
+        solver = ['stuff/match_out.py', str(timeout), f'"{opts["stderr"]}"', *solver]
     
     # Execute in a separate directory to avoid file name conflicts
     os.makedirs(f'{output}.dir', exist_ok=True)
