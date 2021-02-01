@@ -317,7 +317,7 @@ set -m
 ) &
 timeout_pid=$!
 
-{' '.join(cmd)}
+runexec --walltimelimit 3600 --memlimit {32*1024*1024*1024} -- {' '.join(cmd)}
 
 kill -- -${{timeout_pid}} >/dev/null 2>/dev/null
 wait -- -${{timeout_pid}} >/dev/null 2>/dev/null
