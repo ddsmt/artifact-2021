@@ -177,7 +177,10 @@ CREATE TABLE IF NOT EXISTS data (
                 self.__add_result(filename, solver, insize, insize, -2)
                 continue
         
-            cancelled = re.search('CANCELLED AT .* DUE TO TIME LIMIT', err) is not None
+            cancelled = any([
+                re.search('CANCELLED AT .* DUE TO TIME LIMIT', err) is not None,
+                re.search('Killing process [0-9]+ due to wall time timeout.', err) is not None,
+            ])
 
             resfile = None
             if os.path.isfile(fullname):
