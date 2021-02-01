@@ -312,7 +312,7 @@ touch {tmpout}
 
 set -m
 (
-    while inotifywait -e modify {output}
+    while inotifywait -e modify {tmpout}
     do
         cp {tmpout} {output}.tmp
     done
