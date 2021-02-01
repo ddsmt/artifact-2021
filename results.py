@@ -110,6 +110,9 @@ CREATE TABLE IF NOT EXISTS data (
             if not fullname.startswith('out/ddsmt-master'):
                 print(f'ddSMT parser error: expected ")" in {fullname}')
             return True
+        if 'assert(sf.find_sort_and_scope (str(t_ident)))' in err:
+            assert fullname.startswith('out/ddsmt-master')
+            return True
 
         # delta errors
         m = re.search('Parsing error in line', err)
@@ -198,10 +201,10 @@ CREATE TABLE IF NOT EXISTS data (
                         self.__add_result(filename, solver, insize, insize, -4)
                     elif os.path.isfile(f'{fullname}.time'):
                         print(f'ERROR: {resfile} does not trigger the issue')
-                        self.__add_result(filename, solver, insize, outsize, -3)
+                        self.__add_result(filename, solver, insize, insize, -3)
                     else:
                         print(f'WARN: {resfile} does not trigger the issue, but may still be running')
-                        self.__add_result(filename, solver, insize, outsize, -3)
+                        self.__add_result(filename, solver, insize, insize, -3)
                     continue
 
             
@@ -353,12 +356,12 @@ WHERE solver = ? AND data.outsize = mins.minsize
 def get_overview_results():
     total = loader.db.execute('SELECT COUNT(DISTINCT input) FROM data').fetchone()[0]
     datanames = {
-        'parsererror': 'Parse errors',
+        'parsererror': 'Parse Errors',
         'segfault': 'Errors',
         'timeout': 'Timeouts',
-        'incorrect': 'Incorrect output',
+        'incorrect': 'Incorrect Output',
         'reduce': 'Any Simplification',
-        'bestreduce': 'Best Result',
+        'bestreduce': 'Smallest Output',
         #'avgbestruntime': 'avg runtime on best',
         'avg': 'Avg. Reduction',
         'avgwoto': 'Avg. Reduction (w/o TO)',
