@@ -317,7 +317,7 @@ set -m
 ) &
 timeout_pid=$!
 
-runexec --full-access-dir {os.path.dirname(output)} --output {output}.log --walltimelimit 3600 --memlimit {32*1024*1024*1024} -- {' '.join(cmd)}
+runexec --full-access-dir {os.path.abspath(os.path.dirname(output) + "../")} --output {output}.log --walltimelimit 3600 --memlimit {32*1024*1024*1024} -- {' '.join(cmd)}
 
 kill -- -${{timeout_pid}} >/dev/null 2>/dev/null
 wait -- -${{timeout_pid}} >/dev/null 2>/dev/null
