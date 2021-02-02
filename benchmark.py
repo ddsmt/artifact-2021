@@ -298,7 +298,7 @@ def submit_slurm_job(cmd, output, tmpout, cwd=None, cpus=DEBUGGER_JOBS):
 f"""#!/bin/bash
 #SBATCH --time=01:00:00
 #SBATCH --cpus-per-task={cpus}
-#SBATCH --mem=32G
+#SBATCH --mem={4*cpus}G
 #SBATCH --partition=octa
 #SBATCH --output={output}.out
 #SBATCH --error={output}.err
