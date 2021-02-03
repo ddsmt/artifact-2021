@@ -308,21 +308,7 @@ source {os.getcwd()}/slurm/venv/bin/activate
 START=$(date +%s.%N)
 pushd {cwd}
 
-touch {tmpout}
-
-set -m
-(
-    while inotifywait -e modify {tmpout}
-    do
-        cp {tmpout} {output}.tmp
-    done
-) &
-timeout_pid=$!
-
 runexec --full-access-dir {os.path.abspath(os.path.dirname(output) + "/../")} --output {os.path.abspath(output)}.log --walltimelimit 3600 --memlimit {32*1024*1024*1024} -- {' '.join(cmd)}
-
-kill -- -${{timeout_pid}} >/dev/null 2>/dev/null
-wait -- -${{timeout_pid}} >/dev/null 2>/dev/null
 
 popd
 END=$(date +%s.%N)
