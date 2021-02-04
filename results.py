@@ -226,19 +226,19 @@ CREATE TABLE IF NOT EXISTS data (
 
 def solver_name(s):
     d = {
-        'ddsmt-master': 'ddsmt',
-        'ddsmt-dev-ddmin': 'ddmin',
-        'ddsmt-dev-ddmin-j1': 'ddmin',
-        'ddsmt-dev-hierarchical': 'hier',
-        'ddsmt-dev-hierarchical-j1': 'hier',
+        'ddsmt-master': '\ddsmt',
+        'ddsmt-dev-ddmin': '\stratddmin',
+        'ddsmt-dev-ddmin-j1': '\stratddmin',
+        'ddsmt-dev-hierarchical': '\strathiershort',
+        'ddsmt-dev-hierarchical-j1': '\strathiershort',
         'ddsmt-dev-hierarchical-old': 'hier-old',
         'ddsmt-dev-hierarchical-j1-old': 'hier-old-j1',
-        'ddsmt-dev-hybrid': 'hybrid',
-        'ddsmt-dev-hybrid-j1': 'hybrid',
-        'delta': 'delta',
-        'delta-j1': 'delta',
-        'pydelta': 'pydelta',
-        'pydelta-j1': 'pydelta',
+        'ddsmt-dev-hybrid': '\strathybrid',
+        'ddsmt-dev-hybrid-j1': '\strathybrid',
+        'delta': '\deltadd',
+        'delta-j1': '\deltadd',
+        'pydelta': '\pydelta',
+        'pydelta-j1': '\pydelta',
     }
     return d.get(s, s)
 

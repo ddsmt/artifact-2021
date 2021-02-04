@@ -1,6 +1,8 @@
 \begin{tabularx}{\linewidth}{X@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}}
         \toprule
-{% for s in solvers %} & \rotatebox[origin=c]{60}{\texttt{\VAR{solvernames[s]}}}{% endfor %}
+{% for s in solvers %}
+        & \rotatebox[origin=l]{65}{\VAR{solvernames[s]}}
+{% endfor %}
         \\
         \midrule
 {% for d in data %}
