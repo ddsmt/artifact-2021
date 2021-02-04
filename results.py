@@ -166,8 +166,11 @@ CREATE TABLE IF NOT EXISTS data (
                 print(f'ERROR: {fullname}.out does not exist')
                 self.__add_result(filename, solver, insize, insize, -5)
                 continue
-            err = open(f'{fullname}.err').read()
-            out = open(f'{fullname}.out').read()
+            log = ''
+            if os.path.isfile(f'{fullname}.log'):
+                log = open(f'{fullname}.log').read()
+            err = open(f'{fullname}.err').read() + '\n' + log
+            out = open(f'{fullname}.out').read() + '\n' + log
 
             if self.__has_parser_error(fullname, err, out):
                 self.__add_result(filename, solver, insize, insize, -1)
@@ -180,21 +183,34 @@ CREATE TABLE IF NOT EXISTS data (
             cancelled = any([
                 re.search('CANCELLED AT .* DUE TO TIME LIMIT', err) is not None,
                 re.search('Killing process [0-9]+ due to wall time timeout.', err) is not None,
+                'terminationreason=memory' in out,
+                'terminationreason=walltime' in out,
             ])
 
             resfile = None
             if os.path.isfile(fullname):
-                resfile = fullname
-                outsize = os.stat(resfile).st_size
-            elif os.path.isfile(f'{fullname}.dir/delta.last.smt2'):
-                resfile = f'{fullname}.dir/delta.last.smt2'
-                outsize = os.stat(resfile).st_size
-            else:
+                outsize = os.stat(fullname).st_size
+                if outsize > 0:
+                    resfile = fullname
+                else:
+                    print(f'Warning: {fullname} has 0 bytes')
+            if not resfile and os.path.isfile(f'{fullname}.dir/delta.last.smt2'):
+                outsize = os.stat(f'{fullname}.dir/delta.last.smt2').st_size
+                if outsize > 0:
+                    resfile = f'{fullname}.dir/delta.last.smt2'
+                else:
+                    if re.search('the default timeout is set to [0-9]+ seconds\.$', log):
+                        # nothing was done
+                        outsize = insize
+                    else:
+                        print(f'Warning: {fullname}.dir/delta.last.smt2 has 0 bytes')
+            if not resfile:
                 m = re.search('unable to minimize input file', err)
                 if m is not None:
                     outsize = insize
                 else:
-                    print(f'Warning: {fullname} does not exist, assume it could not be minimized')
+                    if not cancelled:
+                        print(f'Warning: {fullname} does not exist, assume it could not be minimized, not cancelled yet')
                     outsize = insize
 
             if LOAD_TIMES and resfile is not None:
@@ -213,7 +229,11 @@ CREATE TABLE IF NOT EXISTS data (
             
             if os.path.isfile(f'{fullname}.time'):
                 runtime = float(open(f'{fullname}.time').read())
+                if runtime > 3600:
+                    self.__add_result(filename, solver, insize, outsize, -4)
+                    continue
             elif cancelled:
+                print(f'Warning: {fullname}.time does not exist, it was cancelled')
                 self.__add_result(filename, solver, insize, outsize, -4)
                 continue
             else:
@@ -226,19 +246,17 @@ CREATE TABLE IF NOT EXISTS data (
 
 def solver_name(s):
     d = {
-        'ddsmt-master': '\ddsmt',
-        'ddsmt-dev-ddmin': '\stratddmin',
-        'ddsmt-dev-ddmin-j1': '\stratddmin',
-        'ddsmt-dev-hierarchical': '\strathiershort',
-        'ddsmt-dev-hierarchical-j1': '\strathiershort',
-        'ddsmt-dev-hierarchical-old': 'hier-old',
-        'ddsmt-dev-hierarchical-j1-old': 'hier-old-j1',
-        'ddsmt-dev-hybrid': '\strathybrid',
-        'ddsmt-dev-hybrid-j1': '\strathybrid',
-        'delta': '\deltadd',
-        'delta-j1': '\deltadd',
-        'pydelta': '\pydelta',
-        'pydelta-j1': '\pydelta',
+        'ddsmt-master': '\\ddsmt',
+        'ddsmt-dev-ddmin': '\\stratddmin-j8',
+        'ddsmt-dev-ddmin-j1': '\\stratddmin',
+        'ddsmt-dev-hierarchical': '\\strathiershort-j8',
+        'ddsmt-dev-hierarchical-j1': '\\strathiershort',
+        'ddsmt-dev-hybrid': '\\strathybrid-j8',
+        'ddsmt-dev-hybrid-j1': '\\strathybrid',
+        'delta': '\\deltadd-j8',
+        'delta-j1': '\\deltadd',
+        'pydelta': '\\pydelta-j8',
+        'pydelta-j1': '\\pydelta',
     }
     return d.get(s, s)
 

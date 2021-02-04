@@ -1,4 +1,4 @@
-\begin{tabularx}{\linewidth}{X@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}r@{\hskip .75em}}
+\begin{tabularx}{\linewidth}{X{% for s in solvers %}@{\hskip .75em}r{% endfor %}}
         \toprule
 {% for s in solvers %}
         & \rotatebox[origin=l]{65}{\VAR{solvernames[s]}}
