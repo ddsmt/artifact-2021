@@ -24,7 +24,6 @@ is_set_up_ddsexpr      = False
 is_set_up_ddsmt_master = False
 is_set_up_ddsmt_dev    = False
 is_set_up_delta        = False
-is_set_up_deltasmt     = False
 is_set_up_linedd       = False
 is_set_up_pydelta      = False
 is_set_up_yices        = False
@@ -488,39 +487,6 @@ cd {os.getcwd()}
 def run_delta_j1(input, output, binary, opts):
     run_delta(input, output, binary, opts, jobs=1, cpus=2)
 
-def run_deltasmt(input, output, binary, opts):
-    solver = [binary]
-    if 'args' in opts:
-        solver = solver + opts['args']
-    if opts['match'] == 'incorrect':
-        solver = ['../stuff/result_differs.py', *solver]
-    elif opts['match'] == 'incorrect-unknown':
-        solver = ['stuff/result_differs_unknown.py', *solver]
-        print(solver)
-    elif opts['match'] == 'stderr':
-        timeout = get_timeout(solver, input)
-        solver = ['../stuff/match_err.py', str(timeout), opts['stderr'], *solver]
-    elif opts['match'] == 'stdout':
-        timeout = get_timeout(solver, input)
-        solver = ['../stuff/match_out.py', str(timeout), opts['stdout'], *solver]
-
-    run_debugger(['./deltasmt', '../' + input, '../' + output, *solver], output, output, cwd='deltasmtV2', cpus=2)
-
-    if SUBMIT_TO_SLURM:
-        return
-
-    out = open(f'{output}.out').read()
-    err = open(f'{output}.err').read()
-
-    if re.search('(Internal error|expected: |Expected <|expected identifier|logic must be declared|unsupported type|quantifiers unsupported|incompatible types)', out) != None:
-        print('ERROR: parser error')
-        os.unlink(output)
-        return
-    if re.search('(at Parser\.parseFormula)', err) != None:
-        print('ERROR: parser error')
-        os.unlink(output)
-        return
-
 
 def run_linedd(input, output, binary, opts):
     solver = [binary]
@@ -574,7 +540,6 @@ ddebuggers = {
     'ddsmt-master': run_ddsmt_master,
     'delta': run_delta,
     'delta-j1': run_delta_j1,
-    #'deltasmt': run_deltasmt,
     'linedd': run_linedd,
     'pydelta': run_pydelta,
     'pydelta-j1': run_pydelta_j1,
@@ -609,8 +574,6 @@ def run_experiments(prefix='', regex=None, dd=None):
         setup_ddsmt_master()
     if not is_set_up_delta and (dd is None or dd == 'delta'):
         setup_delta()
-    if not is_set_up_deltasmt and (dd is None or dd == 'deltasmt'):
-        setup_deltasmt()
     if not is_set_up_linedd and (dd is None or dd == 'linedd'):
         setup_linedd()
     if not is_set_up_pydelta and (dd is None or dd == 'pydelta'):
