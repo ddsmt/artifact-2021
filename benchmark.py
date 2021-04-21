@@ -82,11 +82,9 @@ def setup_ddsmt_dev():
     if not os.path.isdir('build/ddsmt-dev'):
         subprocess.run(['git', 'clone', 'https://github.com/aniemetz/ddSMT', 'build/ddsmt-dev'])
         subprocess.run(['git', 'checkout', 'development'], cwd = 'build/ddsmt-dev')
-        subprocess.run(['git', 'apply', '../../stuff/ddsmt-progress.patch'], cwd = 'build/ddsmt-dev')
     else:
         subprocess.run(['git', 'checkout', '.'], cwd = 'build/ddsmt-dev')
         subprocess.run(['git', 'pull'], cwd = 'build/ddsmt-dev')
-        subprocess.run(['git', 'apply', '../../stuff/ddsmt-progress.patch'], cwd = 'build/ddsmt-dev')
     global is_set_up_ddsmt_dev
     is_set_up_ddsmt_dev = True
 
