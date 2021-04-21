@@ -24,6 +24,7 @@ is_set_up_ddsexpr      = False
 is_set_up_ddsmt_master = False
 is_set_up_ddsmt_dev    = False
 is_set_up_delta        = False
+is_set_up_deltasmt     = False
 is_set_up_linedd       = False
 is_set_up_pydelta      = False
 is_set_up_yices        = False
@@ -608,6 +609,8 @@ def run_experiments(prefix='', regex=None, dd=None):
         setup_ddsmt_master()
     if not is_set_up_delta and (dd is None or dd == 'delta'):
         setup_delta()
+    if not is_set_up_deltasmt and (dd is None or dd == 'deltasmt'):
+        setup_deltasmt()
     if not is_set_up_linedd and (dd is None or dd == 'linedd'):
         setup_linedd()
     if not is_set_up_pydelta and (dd is None or dd == 'pydelta'):
