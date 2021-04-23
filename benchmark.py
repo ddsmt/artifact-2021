@@ -39,13 +39,15 @@ def setup_confidential():
         subprocess.run(['git', 'pull'], cwd='confidential')
 
 
-def setup_cvc4():
+def setup_cvc4(commit):
     """Prepare a cvc4 checkout for compilation"""
     if not os.path.isdir('build/cvc4'):
         subprocess.run(['git', 'clone', 'https://github.com/CVC4/CVC4.git', 'build/cvc4'])
     else:
         subprocess.run(['git', 'checkout', 'master'], cwd='build/cvc4')
         subprocess.run(['git', 'pull'], cwd='build/cvc4')
+    if commit:
+        subprocess.run(['git', 'checkout', commit], cwd='build/cvc4')
     if not os.path.isdir('build/cvc4/deps/antlr-3.4'):
         subprocess.run(['./contrib/get-antlr-3.4', 'cvc4'], cwd = 'build/cvc4')
     if not os.path.isdir('build/cvc4/deps/poly'):
@@ -564,7 +566,7 @@ def get_binary(input, dbentry, prefix):
         return build_z3(dbentry['z3-commit'], dbentry)
 
 
-def run_experiments(prefix='', regex=None, dd=None):
+def run_experiments(prefix='', regex=None, dd=None, build_only=False):
     data = json.load(open(f'{prefix}database.json'))
     if not is_set_up_ddsexpr and (dd is None or dd == 'ddsexpr'):
         setup_ddsexpr()
@@ -582,7 +584,7 @@ def run_experiments(prefix='', regex=None, dd=None):
         if regex and not re.match(regex, input):
             continue
         if not is_set_up_cvc4 and 'cvc4-commit' in opts:
-            setup_cvc4()
+            setup_cvc4(opts['cvc4-commit'])
         if not is_set_up_yices and 'yices-commit' in opts:
             setup_yices()
         if not is_set_up_z3:
@@ -594,6 +596,9 @@ def run_experiments(prefix='', regex=None, dd=None):
                 setup_z3_ref()
         print(f'{input}: {opts}')
         binary = get_binary(input, opts, prefix)
+
+        if build_only:
+            continue
 
         infile = f'{prefix}inputs/{input}'
         insize = os.stat(infile).st_size
@@ -618,9 +623,15 @@ if __name__ == '__main__':
                     choices=ddebuggers.keys(),
                     default=None,
                     help='delta debugger configuration')
+    ap.add_argument('--build-only',
+                    default=False,
+                    action='store_true',
+                    help='only build binaries, do not run tests')
     args = ap.parse_args()
     setup()
     if os.path.isdir('confidential/'):
         setup_confidential()
-        run_experiments('confidential/', regex = args.regex, dd = args.dd)
-    run_experiments(regex = args.regex, dd = args.dd)
+        run_experiments('confidential/', regex = args.regex,
+                        dd = args.dd, build_only = args.build_only)
+    run_experiments(
+        regex = args.regex, dd = args.dd, build_only = args.build_only)
