@@ -30,11 +30,18 @@ is_set_up_yices        = False
 is_set_up_z3           = False
 is_set_up_z3_ref       = False
 
+ddsmt_master_commit = '2d5e2c4'
+ddsmt_dev_commit = 'c9d8100'
+delta_commit = 'e4a4480'
+linedd_commit = 'c514d8d'
+pydelta_commit = '7438b58'
 
 def setup_confidential():
     """Integrate confidential benchmarks"""
     if not os.path.isdir('confidential'):
-        subprocess.run(['git', 'clone', 'git@github.com:ddsmt/artifact-2021-confidential.git', 'confidential'])
+        subprocess.run(['git', 'clone',
+                        'git@github.com:ddsmt/artifact-2021-confidential.git',
+                        'confidential'])
     else:
         subprocess.run(['git', 'pull'], cwd='confidential')
 
@@ -43,9 +50,6 @@ def setup_cvc4(commit):
     """Prepare a cvc4 checkout for compilation"""
     if not os.path.isdir('build/cvc4'):
         subprocess.run(['git', 'clone', 'https://github.com/CVC4/CVC4.git', 'build/cvc4'])
-    else:
-        subprocess.run(['git', 'checkout', 'master'], cwd='build/cvc4')
-        subprocess.run(['git', 'pull'], cwd='build/cvc4')
     if commit:
         subprocess.run(['git', 'checkout', commit], cwd='build/cvc4')
     if not os.path.isdir('build/cvc4/deps/antlr-3.4'):
@@ -75,6 +79,7 @@ def setup_ddsmt_master():
     """Download ddsmt-master"""
     if not os.path.isdir('build/ddsmt-master'):
         subprocess.run(['git', 'clone', 'https://github.com/aniemetz/ddSMT', 'build/ddsmt-master'])
+        subprocess.run(['git', 'checkout', ddsmt_master_commit, 'build/ddsmt-master'])
     global is_set_up_ddsmt_master
     is_set_up_ddsmt_master = True
 
@@ -82,11 +87,8 @@ def setup_ddsmt_master():
 def setup_ddsmt_dev():
     """Download ddsmt-dev"""
     if not os.path.isdir('build/ddsmt-dev'):
-        subprocess.run(['git', 'clone', 'https://github.com/aniemetz/ddSMT', 'build/ddsmt-dev'])
-        subprocess.run(['git', 'checkout', 'development'], cwd = 'build/ddsmt-dev')
-    else:
-        subprocess.run(['git', 'checkout', '.'], cwd = 'build/ddsmt-dev')
-        subprocess.run(['git', 'pull'], cwd = 'build/ddsmt-dev')
+        subprocess.run(['git', 'clone', 'https://github.com/ddsmt/ddsmt', 'build/ddsmt-dev'])
+        subprocess.run(['git', 'checkout', ddsmt_dev_commit], cwd = 'build/ddsmt-dev')
     global is_set_up_ddsmt_dev
     is_set_up_ddsmt_dev = True
 
@@ -95,6 +97,7 @@ def setup_delta():
     """Download and build SMT-RAT's delta"""
     if not os.path.isdir('build/delta'):
         subprocess.run(['git', 'clone', 'https://github.com/smtrat/smtrat', 'build/delta'])
+        subprocess.run(['git', 'checkout', delta_commit, 'build/delta'])
         subprocess.run(['git', 'apply', '../../stuff/delta-gcc.patch'], cwd = 'build/delta')
         subprocess.run(['git', 'apply', '../../stuff/delta-progress.patch'], cwd = 'build/delta')
         os.makedirs('build/delta/build')
@@ -113,6 +116,7 @@ def setup_linedd():
     """Download linedd"""
     if not os.path.isdir('build/linedd'):
         subprocess.run(['git', 'clone', 'https://github.com/sambayless/linedd', 'build/linedd'])
+        subprocess.run(['git', 'checkout', linedd_commit, 'build/linedd'])
         subprocess.run(['git', 'apply', '../../stuff/pydelta.patch'], cwd = 'build/linedd')
     global is_set_up_linedd
     is_set_up_linedd = True
@@ -122,6 +126,7 @@ def setup_pydelta():
     """Download pydelta"""
     if not os.path.isdir('build/pydelta'):
         subprocess.run(['git', 'clone', 'https://github.com/nafur/pydelta.git', 'build/pydelta'])
+        subprocess.run(['git', 'checkout', pydelta_commit, 'build/pydelta'])
         subprocess.run(['git', 'apply', '../../stuff/pydelta.patch'], cwd = 'build/pydelta')
     global is_set_up_pydelta
     is_set_up_pydelta = True
@@ -158,10 +163,6 @@ def setup_z3():
     if not os.path.isdir('build/z3'):
         subprocess.run(['git', 'clone', 'https://github.com/Z3Prover/z3.git', 'build/z3'])
         subprocess.run(['mkdir', 'build/z3/build'])
-    else:
-        subprocess.run(['git', 'checkout', '.'], cwd = 'build/z3')
-        subprocess.run(['git', 'checkout', 'master'], cwd='build/z3')
-        subprocess.run(['git', 'pull'], cwd = 'build/z3')
     global is_set_up_z3
     is_set_up_z3 = True
 
@@ -195,6 +196,8 @@ def build_cvc4(commit):
     """Build cvc4 on the given commit and put the binary to bin"""
     binfile = 'bin/cvc4-{}'.format(commit)
     if not os.path.isfile(binfile):
+        if not is_set_up_cvc4:
+            setup_cvc4(commit)
         subprocess.run(['git', 'checkout', commit], cwd = 'build/cvc4')
         subprocess.run(['./configure.sh', 'production', '--assertions', '--static', '--static-binary', '--poly', '--symfpu'], cwd = 'build/cvc4')
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'cvc4-bin'], cwd = 'build/cvc4/build')
@@ -210,6 +213,8 @@ def build_yices(commit, opts):
     """Build yices on the given commit and put the binary to bin"""
     binfile = 'bin/yices-{}'.format(commit)
     if not os.path.isfile(binfile):
+        if not is_set_up_yices:
+            setup_yices()
         subprocess.run(['git', 'checkout', commit], cwd = 'build/yices')
         subprocess.run(['rm', '-rf', 'build'], cwd = 'build/yices')
         subprocess.run(['autoconf'], cwd = 'build/yices')
@@ -251,6 +256,8 @@ def build_z3(commit, opts):
     """Build z3 on the given commit and put the binary to bin"""
     binfile = 'bin/z3-{}'.format(commit)
     if not os.path.isfile(binfile):
+        if not is_set_up_z3:
+            setup_z3()
         subprocess.run(['git', 'checkout', '.'], cwd = 'build/z3')
         subprocess.run(['git', 'checkout', commit], cwd = 'build/z3')
         subprocess.run(['git', 'apply', '../../stuff/z3-githash-1.patch'], cwd = 'build/z3')
@@ -325,6 +332,7 @@ def run_debugger(cmd, output, tmpout, cwd=None, cpus=DEBUGGER_JOBS):
         submit_slurm_job(cmd, output, tmpout, cwd=cwd, cpus=cpus)
     else:
         start = time.time()
+        # TODO: time limit
         subprocess.run(cmd,
                     stdout=open(f'{output}.out', 'w'),
                     stderr=open(f'{output}.err', 'w'),
@@ -533,17 +541,17 @@ def run_pydelta_j1(input, output, binary, opts):
 
 ddebuggers = {
     'ddsexpr': run_ddsexpr,
-    'ddsmt-dev-ddmin': run_ddsmt_dev_ddmin,
+#    'ddsmt-dev-ddmin': run_ddsmt_dev_ddmin,
     'ddsmt-dev-ddmin-j1': run_ddsmt_dev_ddmin_j1,
-    'ddsmt-dev-hierarchical': run_ddsmt_dev_hierarchical,
+#    'ddsmt-dev-hierarchical': run_ddsmt_dev_hierarchical,
     'ddsmt-dev-hierarchical-j1': run_ddsmt_dev_hierarchical_j1,
-    'ddsmt-dev-hybrid': run_ddsmt_dev_hybrid,
+#    'ddsmt-dev-hybrid': run_ddsmt_dev_hybrid,
     'ddsmt-dev-hybrid-j1': run_ddsmt_dev_hybrid_j1,
     'ddsmt-master': run_ddsmt_master,
-    'delta': run_delta,
+#    'delta': run_delta,
     'delta-j1': run_delta_j1,
     'linedd': run_linedd,
-    'pydelta': run_pydelta,
+#    'pydelta': run_pydelta,
     'pydelta-j1': run_pydelta_j1,
 }
 
@@ -583,13 +591,6 @@ def run_experiments(prefix='', regex=None, dd=None, build_only=False):
     for input,opts in data.items():
         if regex and not re.match(regex, input):
             continue
-        if not is_set_up_cvc4 and 'cvc4-commit' in opts:
-            setup_cvc4(opts['cvc4-commit'])
-        if not is_set_up_yices and 'yices-commit' in opts:
-            setup_yices()
-        if not is_set_up_z3:
-            if 'z3-commit' in opts:
-                setup_z3()
         if not is_set_up_z3_ref \
            and 'match' in opts \
            and opts['match'].startswith('incorrect'):
