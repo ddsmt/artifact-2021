@@ -381,25 +381,6 @@ def run_ddsmt_master(input, output, binary, opts):
 
     run_debugger(['build/ddsmt-master/ddsmt.py', '-vv', input, output, *solver], output, output)
 
-    if SUBMIT_TO_SLURM:
-        return
-
-    if not os.path.isfile(f'{output}.err'):
-        return
-    err = open(f'{output}.err').read()
-
-    m = re.search('unknown command (\'[^\']+\')', err)
-    if m is not None:
-        print('ERROR: unknown command {}'.format(m.group(1)))
-        return
-    m = re.search('function (\'[^\']+\') undeclared', err)
-    if m is not None:
-        print('ERROR: unknown function {}'.format(m.group(1)))
-        return
-    if re.search('AssertionError', err) != None:
-        print('ERROR: some assertion failed')
-        return
-
 
 def run_ddsmt_dev_ddmin(input, output, binary, opts):
     solver = [binary]
