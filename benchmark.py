@@ -292,7 +292,7 @@ def get_timeout(cmd, input):
 SLURM_JOB_ID = 0
 
 
-def submit_slurm_job(cmd, output, tmpout, cwd=None, cpus=DEBUGGER_JOBS):
+def submit_slurm_job(cmd, output, tmpout, cwd=None):
     """Submit the given command to slurm"""
 
     global SLURM_JOB_ID
@@ -304,8 +304,8 @@ def submit_slurm_job(cmd, output, tmpout, cwd=None, cpus=DEBUGGER_JOBS):
     open(scriptfile, 'w').write(
 f"""#!/bin/bash
 #SBATCH --time=01:00:00
-#SBATCH --cpus-per-task={cpus}
-#SBATCH --mem={4*cpus}G
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=8G
 #SBATCH --partition=octa
 #SBATCH --output={output}.out
 #SBATCH --error={output}.err
@@ -315,7 +315,7 @@ source {os.getcwd()}/slurm/venv/bin/activate
 START=$(date +%s.%N)
 pushd {cwd}
 
-runexec --full-access-dir {os.path.abspath(os.path.dirname(output) + "/../")} --output {os.path.abspath(output)}.log --walltimelimit 3600 --memlimit {32*1024*1024*1024} -- {' '.join(cmd)}
+runexec --full-access-dir {os.path.abspath(os.path.dirname(output) + "/../")} --output {os.path.abspath(output)}.log --walltimelimit 3600 --memlimit {12*1024*1024*1024} -- {' '.join(cmd)}
 
 popd
 END=$(date +%s.%N)
@@ -326,10 +326,10 @@ echo | awk "{{ print $END - $START }}" > {output}.time
     subprocess.run(cmd)
 
 
-def run_debugger(cmd, output, tmpout, cwd=None, cpus=DEBUGGER_JOBS):
+def run_debugger(cmd, output, tmpout, cwd=None):
     """Actually run the command and redirect stdout and stderr."""
     if SUBMIT_TO_SLURM:
-        submit_slurm_job(cmd, output, tmpout, cwd=cwd, cpus=cpus)
+        submit_slurm_job(cmd, output, tmpout, cwd=cwd)
     else:
         start = time.time()
         # TODO: time limit
@@ -358,7 +358,7 @@ def run_ddsexpr(input, output, binary, opts):
         opts['stdout'] = opts['stdout'].replace('`', '\\`')
         solver = ['stuff/match_out.py', str(timeout), f'"{opts["stdout"]}"', *solver]
 
-    run_debugger(['build/ddsexpr/ddsexpr', '-l', '-s', input, output, *solver], output, output, cpus=2)
+    run_debugger(['build/ddsexpr/ddsexpr', '-l', '-s', input, output, *solver], output, output)
 
 
 def run_ddsmt_master(input, output, binary, opts):
@@ -376,7 +376,7 @@ def run_ddsmt_master(input, output, binary, opts):
         timeout = get_timeout(solver, input)
         solver = ['stuff/match_out.py', str(timeout), opts['stdout'], *solver]
 
-    run_debugger(['build/ddsmt-master/ddsmt.py', '-vv', input, output, *solver], output, output, cpus=2)
+    run_debugger(['build/ddsmt-master/ddsmt.py', '-vv', input, output, *solver], output, output)
 
     if SUBMIT_TO_SLURM:
         return
@@ -398,7 +398,7 @@ def run_ddsmt_master(input, output, binary, opts):
         return
 
 
-def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOBS):
+def run_ddsmt_dev_ddmin(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -414,14 +414,10 @@ def run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DE
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'ddmin', *matcher, input, output, *solver], output, output, cpus=cpus)
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j1', '-v', '--strategy', 'ddmin', *matcher, input, output, *solver], output, output)
 
 
-def run_ddsmt_dev_ddmin_j1(input, output, binary, opts):
-    run_ddsmt_dev_ddmin(input, output, binary, opts, jobs=1, cpus=2)
-
-
-def run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOBS):
+def run_ddsmt_dev_hierarchical(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -437,14 +433,10 @@ def run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=DEBUGGER_JOBS, 
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'hierarchical', *matcher, input, output, *solver], output, output, cpus=cpus)
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j1', '-v', '--strategy', 'hierarchical', *matcher, input, output, *solver], output, output)
 
 
-def run_ddsmt_dev_hierarchical_j1(input, output, binary, opts):
-    run_ddsmt_dev_hierarchical(input, output, binary, opts, jobs=1, cpus=2)
-
-
-def run_ddsmt_dev_hybrid(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOBS):
+def run_ddsmt_dev_hybrid(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -460,14 +452,10 @@ def run_ddsmt_dev_hybrid(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=D
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j', str(jobs), '-v', '--strategy', 'hybrid', *matcher, input, output, *solver], output, output, cpus=cpus)
+    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j1', '-v', '--strategy', 'hybrid', *matcher, input, output, *solver], output, output)
 
 
-def run_ddsmt_dev_hybrid_j1(input, output, binary, opts):
-    run_ddsmt_dev_hybrid(input, output, binary, opts, jobs=1, cpus=2)
-
-
-def run_delta(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOBS):
+def run_delta(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -491,11 +479,8 @@ cd {os.getcwd()}
 {' '.join(solver)} $*
 ''')
     os.chmod(wrapper, 0o744)
-    cmd = [os.path.abspath('build/delta/build/delta'), '--threads', str(jobs), os.path.abspath(input), '-o', os.path.abspath(output), '--solver', './wrapper.sh']
-    run_debugger(cmd, output, 'delta.last.smt2', cwd=f'{output}.dir/', cpus=cpus)
-
-def run_delta_j1(input, output, binary, opts):
-    run_delta(input, output, binary, opts, jobs=1, cpus=2)
+    cmd = [os.path.abspath('build/delta/build/delta'), '--threads', '1', os.path.abspath(input), '-o', os.path.abspath(output), '--solver', './wrapper.sh']
+    run_debugger(cmd, output, 'delta.last.smt2', cwd=f'{output}.dir/')
 
 
 def run_linedd(input, output, binary, opts):
@@ -515,10 +500,10 @@ def run_linedd(input, output, binary, opts):
         opts['stdout'] = opts['stdout'].replace('`', '\\`')
         solver = ['stuff/match_out.py', str(timeout), f'"{opts["stdout"]}"', *solver]
 
-    run_debugger(['build/linedd/linedd', input, output, *solver], output, output, cpus=2)
+    run_debugger(['build/linedd/linedd', input, output, *solver], output, output)
 
 
-def run_pydelta(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_JOBS):
+def run_pydelta(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -534,25 +519,18 @@ def run_pydelta(input, output, binary, opts, jobs=DEBUGGER_JOBS, cpus=DEBUGGER_J
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/pydelta/bin/pydelta', '--max-threads', str(jobs), *matcher, '--mode-beautify', '--outputfile', output, input, *solver], output, output, cpus=cpus)
+    run_debugger(['build/pydelta/bin/pydelta', '--max-threads', '1', *matcher, '--mode-beautify', '--outputfile', output, input, *solver], output, output)
 
-def run_pydelta_j1(input, output, binary, opts):
-    run_pydelta(input, output, binary, opts, jobs=1, cpus=2)
 
 ddebuggers = {
     'ddsexpr': run_ddsexpr,
-#    'ddsmt-dev-ddmin': run_ddsmt_dev_ddmin,
-    'ddsmt-dev-ddmin-j1': run_ddsmt_dev_ddmin_j1,
-#    'ddsmt-dev-hierarchical': run_ddsmt_dev_hierarchical,
-    'ddsmt-dev-hierarchical-j1': run_ddsmt_dev_hierarchical_j1,
-#    'ddsmt-dev-hybrid': run_ddsmt_dev_hybrid,
-    'ddsmt-dev-hybrid-j1': run_ddsmt_dev_hybrid_j1,
+    'ddsmt-dev-ddmin': run_ddsmt_dev_ddmin,
+    'ddsmt-dev-hierarchical': run_ddsmt_dev_hierarchical,
+    'ddsmt-dev-hybrid': run_ddsmt_dev_hybrid,
     'ddsmt-master': run_ddsmt_master,
-#    'delta': run_delta,
-    'delta-j1': run_delta_j1,
+    'delta': run_delta,
     'linedd': run_linedd,
-#    'pydelta': run_pydelta,
-    'pydelta-j1': run_pydelta_j1,
+    'pydelta': run_pydelta,
 }
 
 
