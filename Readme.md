@@ -117,6 +117,9 @@ The script creates the following files:
 # Available badge
 
 We have uploaded the Docker image to Zenodo, and the permanent link should be present in the artifact submission.
+The artifact was uploaded to Zenodo and is available at
+https://zenodo.org/record/4721925
+(DOI: `10.5281/zenodo.4721925`).
 
 # Reusable badge
 
