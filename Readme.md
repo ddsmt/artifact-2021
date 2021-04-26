@@ -80,3 +80,22 @@ The script roughly proceeds as follows:
   * `load_inputs()` opens the `database.json` file and stores the file size. If `LOAD_TIMES == True`, it also records the original exit code.
   * `load_solver(solver)` parses the solver output for all files in the database and tries to recognize and categorizes all unexpected results. These include empty log files, parser errors (mostly `ddsmt-master`), runtime errors (segfaults, assertions, uncaught exceptions), timeouts, empty output file (usually due to slow IO during a timeout), output file does not actually trigger the same error condition.
   * Every result is put into a SQLite database where `time` encodes the status: `-1` is a parser error, `-2` a runtime error, `-3` an incorrect output, `-4` a timeout, `-5` an aborted run and a positive number the running time of a proper benchmark run.
+* `do_analysis()` now queries the data in the SQLite database to produce tables and data for scatter plots.
+  * `render_to_file(file, tpl, data)` loads a template file from `tpl`, renders it using `Jinja2` with `data` as arguments and write the result to `file`. It is used to generate LaTeX tables.
+  * `get_all_results()` returns a full list of results for all files and all solvers in the database.
+  * `get_overview_results()` returns a selection of statistical data points from the results that is shown in the paper.
+  * `scatter(sizefile, timefile, solverA, solverB)` generates gnuplot data for two scatter plots that compare `solverA` and `solverB`. The first compares them using the output size of each file and writes the data to `sizefile`, the second uses the running time and writes the data to `timefile`.
+  * `scatter_best(sizefile, timefile, solverA, solvers)` does the same as `scatter()`, but uses the virtual best of `solvers` for `solverB` for every file.
+
+Simply run the script when the benchmarks have been finished:
+```
+./results.py
+```
+A few errors and warnings in the output are to be expected, they should correspond to the errors shown in the table in the paper.
+
+The script creates the following files:
+* `out/db.db` is the SQLite database that can be opened with another script or tools like `sqlitebrowser` to further inspect the results. Check `ResultLoader.__setup_database()` for the database schema definition.
+* `out/table-complete.tex` is a complete (multi-page) table of all results.
+* `out/table-overview.tex` is a condensed table as shown in the paper.
+* `out/scatter-*.data` containing the gnuplot data for the various scatter plot comparisons.
+

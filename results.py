@@ -469,6 +469,7 @@ def get_overview_results():
 
 
 def scatter(filename_size, filename_time, A, B, C=None):
+    # Make sure we include data where A or B have no data, this is why we do `UNION ALL` here. Take care that this does not introduce duplicates.
     res = loader.db.execute('''
     SELECT a.input, a.insize AS insize, a.outsize AS aout, b.outsize AS bout, a.time AS atime, b.time AS btime
     FROM data AS a
@@ -486,6 +487,7 @@ def scatter(filename_size, filename_time, A, B, C=None):
     res = res.fetchall()
     for r in res:
         r = dict(r)
+        # Clip at 115% output size
         if r['aout'] is None or r['aout'] > r['insize'] * 1.15:
             r['aout'] = r['insize'] * 1.15
         if r['bout'] is None or r['bout'] > r['insize'] * 1.15:
@@ -506,6 +508,7 @@ def scatter(filename_size, filename_time, A, B, C=None):
 
 
 def scatter_best(filename_size, filename_time, A, B):
+    # Getting the best of B would make the approach in `scatter()` even more ugly. We thus do the JOIN manually in python based on dicts, it's not that bad after all...
     adata = loader.db.execute('''
     SELECT input, insize, outsize, time
     FROM data
@@ -527,6 +530,7 @@ def scatter_best(filename_size, filename_time, A, B):
         if not a in bdata:
             continue
         rb = bdata[a]
+        # clip at 115% output file
         if ra['outsize'] is None or ra['outsize'] > ra['insize'] * 1.15:
             ra['outsize'] = ra['insize'] * 1.15
         if rb['outsize'] is None or rb['outsize'] > rb['insize'] * 1.15:
@@ -564,14 +568,15 @@ def load_data():
     for solver in os.listdir('out/'):
         if not os.path.isdir(f'out/{solver}'):
             continue
-        if solver != 'pydelta-j1':
-            continue
         loader.load_solver(solver)
 
 
 def do_analysis():
+    # complete table
     render_to_file('out/table-complete.tex', 'table-complete.j2', **get_all_results())
+    # overview table for the paper
     render_to_file('out/table-overview.tex', 'table-overview.j2', **get_overview_results())
+    # various scatter plots
     scatter('out/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-paper-ddmin-j1', 'ddsmt-paper-hierarchical-j1')
     scatter('out/scatter-dev-paper-size.data', 'out/scatter-dev-paper-time.data', 'ddsmt-paper-hybrid', 'ddsmt-paper-hybrid')
     scatter('out/scatter-dev-paper-size-j1.data', 'out/scatter-dev-paper-time-j1.data', 'ddsmt-paper-hybrid-j1', 'ddsmt-paper-hybrid-j1')
