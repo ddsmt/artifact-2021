@@ -117,7 +117,6 @@ def setup_linedd():
     if not os.path.isdir('build/linedd'):
         subprocess.run(['git', 'clone', 'https://github.com/sambayless/linedd', 'build/linedd'])
         subprocess.run(['git', 'checkout', linedd_commit, 'build/linedd'])
-        subprocess.run(['git', 'apply', '../../stuff/pydelta.patch'], cwd = 'build/linedd')
     global is_set_up_linedd
     is_set_up_linedd = True
 
