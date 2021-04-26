@@ -5,16 +5,31 @@ Stanford University
 This artifact contains the log files and data to replicate the experiments in
 the paper "ddSMT 2.0: Better Delta Debugging for the SMT-LIBv2 Language and Friends" accepted to CAV'21.
 
+# Functional badge
+
+This section discusses how to reproduce the experimental results shown in the paper.
+
+## Quickstart
+
+* Install Docker as described at https://docs.docker.com/get-docker/.
+* Download the Docker image.
+* Start the docker image:
+
+    ```
+    $ docker load --input <filename>.tgz
+    $ docker run -it ddSMT/artifact-2021
+    ```
+
+* Run all or only a few of the benchmarks using `./benchmarks.py` and analyze the results with `./results.py` (check the rest of this section for more details).
+
 ## Artifact Directory Structure
 
-### Files
+### Files and Directories
 
 * `benchmark.py`: Python script to prepare and perform benchmark runs. This includes building specific solver versions if necessary and preparing utility files for submitting the benchmarks run to a Slurm HPC cluster.
 * `database.json`: A json file that contains necessary information about all benchmark instances, including solver versions and instructions on the error condition.
 * `results.py`: Python script to parse, collect and evaluate benchmark runs.
-
-### Directories
-
+* `Readme.md`: This file.
 * `bin/`: Contains binaries of all solver versions.
 * `build/`: Contains checkouts of delta debugging tools and solvers.
 * `inputs/`: Contains the actual input files.
@@ -99,3 +114,26 @@ The script creates the following files:
 * `out/table-overview.tex` is a condensed table as shown in the paper.
 * `out/scatter-*.data` containing the gnuplot data for the various scatter plot comparisons.
 
+# Available badge
+
+We have uploaded the Docker image to Zenodo, and the permanent link should be present in the artifact submission.
+
+# Reusable badge
+
+ddSMT 2.0 can be either downloaded from https://github.com/ddsmt/ddSMT or installed via pip:
+```
+pip install ddSMT
+```
+Note that the development has continued in the meantime and the experiments in the paper have been conducted with the version of ddSMT 2.0 from the time of submitting the paper (commit hash c9d8100).
+
+The experimental setup (described above for the functional badge) can be obtained from https://github.com/ddsmt/artifact-2021. It should work just as described above, though you may need to install some dependencies that are already installed in the docker container.
+The repository contains a Dockerfile that builds the docker image we uploaded for the available badge. Note that building it takes a considerable amount of time if all solver binaries are build from scratch.
+
+To run ddSMT 2.0 on a new benchmark, call it as follows:
+```
+ddsmt input.smt2 output.smt2 solver-binary
+```
+ddSMT 2.0 is meant to work on SMT-LIBv2 and similar inputs (including custom extensions of SMT-LIBv2 and derived formats like SyGuS) but should work on all formats based on SMT-LIBv2-style s-expressions.
+Extensive documentation on how to use ddSMT 2.0 is available online at https://ddsmt.readthedocs.io/.
+
+Below is an example for a fresh input:
