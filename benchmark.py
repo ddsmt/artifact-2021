@@ -332,11 +332,14 @@ def run_debugger(cmd, output, tmpout, cwd=None):
         submit_slurm_job(cmd, output, tmpout, cwd=cwd)
     else:
         start = time.time()
-        # TODO: time limit
-        subprocess.run(cmd,
-                    stdout=open(f'{output}.out', 'w'),
-                    stderr=open(f'{output}.err', 'w'),
-                    cwd=cwd)
+        try:
+            subprocess.run(cmd,
+                        stdout=open(f'{output}.log', 'w'),
+                        stderr=subprocess.STDOUT,
+                        timeout=3600,
+                        cwd=cwd)
+        except subprocess.TimeoutExpired:
+            print("Timeout")
         duration = time.time() - start
         open(f'{output}.time', 'w').write(str(duration))
 
