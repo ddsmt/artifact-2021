@@ -15,6 +15,13 @@ import benchmark
 LOAD_TIMES = True
 
 
+ERROR_PARSER = -1
+ERROR_SEGFAULT = -2
+ERROR_INCORRECT = -3
+ERROR_TIMEOUT = -4
+ERROR_ABORTED = -5
+
+
 jenv = jinja2.Environment(
     loader=jinja2.FileSystemLoader('stuff/'),
     variable_start_string='\\VAR{',
@@ -64,8 +71,8 @@ def do_check_run(input, dbentry, filename):
 
 
 class ResultLoader:
-    def __init__(self, dbname, reset_db):
-        if reset_db and os.path.isfile(dbname):
+    def __init__(self, dbname):
+        if os.path.isfile(dbname):
             os.unlink(dbname)
         self.db = sqlite3.connect(dbname)
         self.db.row_factory = sqlite3.Row
@@ -86,54 +93,54 @@ CREATE TABLE IF NOT EXISTS data (
         self.db.execute('INSERT INTO data (input,solver,insize,outsize,time) VALUES (?,?,?,?,?)', [input, solver, insize, outsize, time])
         self.db.commit()
 
-    def __has_parser_error(self, fullname, err, out):
-        """Check whether the err/out outputs indicate a debugger parser error"""
+    def __has_parser_error(self, fullname, solver, log):
+        """Check whether the log output indicate a debugger parser error"""
         
         # ddSMT errors
-        m = re.search('\[ddsmt\] .* unknown command (\'[^\']+\')', err)
+        m = re.search('\[ddsmt\] .* unknown command (\'[^\']+\')', log)
         if m is not None:
             if not fullname.startswith('out/ddsmt-master'):
-                print(f'ddSMT parser error: unknown command {m.group(1)} in {fullname}')
+                print(f'{solver} parser error: unknown command {m.group(1)} in {fullname}')
             return True
-        m = re.search('\[ddsmt\] .* function (\'[^\']+\') undeclared', err)
+        m = re.search('\[ddsmt\] .* function (\'[^\']+\') undeclared', log)
         if m is not None:
             if not fullname.startswith('out/ddsmt-master'):
-                print(f'ddSMT parser error: unknown function{m.group(1)} in {fullname}')
+                print(f'{solver} parser error: unknown function{m.group(1)} in {fullname}')
             return True
-        m = re.search('\[ddsmt\] .* function argument (\'[^\']+\') undeclared', err)
+        m = re.search('\[ddsmt\] .* function argument (\'[^\']+\') undeclared', log)
         if m is not None:
             if not fullname.startswith('out/ddsmt-master'):
-                print(f'ddSMT parser error: unknown function argument {m.group(1)} in {fullname}')
+                print(f'{solver} parser error: unknown function argument {m.group(1)} in {fullname}')
             return True
-        m = re.search('\[ddsmt\] .* \'\)\' expected', err)
+        m = re.search('\[ddsmt\] .* \'\)\' expected', log)
         if m is not None:
             if not fullname.startswith('out/ddsmt-master'):
-                print(f'ddSMT parser error: expected ")" in {fullname}')
+                print(f'{solver} parser error: expected ")" in {fullname}')
             return True
-        if 'assert(sf.find_sort_and_scope (str(t_ident)))' in err:
+        if 'assert(sf.find_sort_and_scope (str(t_ident)))' in log:
             assert fullname.startswith('out/ddsmt-master')
             return True
 
         # delta errors
-        m = re.search('Parsing error in line', err)
+        m = re.search('Parsing error in line', log)
         if m is not None:
             if not fullname.startswith('out/delta/'):
-                print(f'delta parser error in {fullname}')
+                print(f'{solver} parser error in {fullname}')
             return True
 
         return False
 
-    def __has_error(self, fullname, err, out):
-        if 'Traceback' in err:
-            if 'ddsmt-master' in fullname and 'AssertionError' in err:
+    def __has_error(self, fullname, solver, log):
+        if 'Traceback' in log:
+            if 'ddsmt-master' in fullname and 'AssertionError' in log:
                 return True
-            print(f'ERROR: traceback in {fullname}.err')
+            print(f'ERROR {solver}: traceback in {fullname}.log')
             return True
-        if 'AssertionError' in err:
-            print(f'ERROR: assertion in {fullname}.err')
+        if 'AssertionError' in log:
+            print(f'ERROR {solver}: assertion in {fullname}.log')
             return True
-        if 'Segmentation fault' in err:
-            print(f'ERROR: segfault in {fullname}.err')
+        if 'Segmentation fault' in log:
+            print(f'ERROR {solver}: segfault in {fullname}.log')
             return True
 
         return False
@@ -158,89 +165,118 @@ CREATE TABLE IF NOT EXISTS data (
         for filename in self.database:
             fullname = f'out/{solver}/{filename}'
             insize = self.database[filename]['insize']
-            if not os.path.isfile(f'{fullname}.err'):
-                print(f'ERROR: {fullname}.err does not exist')
-                self.__add_result(filename, solver, insize, insize, -5)
-                continue
-            if not os.path.isfile(f'{fullname}.out'):
-                print(f'ERROR: {fullname}.out does not exist')
-                self.__add_result(filename, solver, insize, insize, -5)
-                continue
+            
+            # Load log/err/out/time files
+            err = ''
+            if os.path.isfile(f'{fullname}.err'):
+                err = open(f'{fullname}.err').read()
+            out = ''
+            if os.path.isfile(f'{fullname}.out'):
+                out = open(f'{fullname}.out').read()
             log = ''
             if os.path.isfile(f'{fullname}.log'):
                 log = open(f'{fullname}.log').read()
-            err = open(f'{fullname}.err').read() + '\n' + log
-            out = open(f'{fullname}.out').read() + '\n' + log
-
-            if self.__has_parser_error(fullname, err, out):
-                self.__add_result(filename, solver, insize, insize, -1)
+            runtime = -1
+            if os.path.isfile(f'{fullname}.time'):
+                runtime = float(open(f'{fullname}.time').read())
+            
+            # An empty log file is bad
+            if log == '':
+                print(f'ERROR {solver}: log file is empty {filename}.log')
+                self.__add_result(filename, solver, insize, insize, ERROR_ABORTED)
                 continue
 
-            if self.__has_error(fullname, err, out):
-                self.__add_result(filename, solver, insize, insize, -2)
+            # Check log for parser errors
+            if self.__has_parser_error(fullname, solver, log):
+                self.__add_result(filename, solver, insize, insize, ERROR_PARSER)
+                continue
+
+            # Check log for runtime errors
+            if self.__has_error(fullname, solver, log):
+                self.__add_result(filename, solver, insize, insize, ERROR_SEGFAULT)
                 continue
         
+            # Check if the job was cancelled
             cancelled = any([
                 re.search('CANCELLED AT .* DUE TO TIME LIMIT', err) is not None,
                 re.search('Killing process [0-9]+ due to wall time timeout.', err) is not None,
                 'terminationreason=memory' in out,
                 'terminationreason=walltime' in out,
+                runtime > 3600,
             ])
 
+            # Load the output file
             resfile = None
+            outsize = None
+
+            # Check the canonical output file
             if os.path.isfile(fullname):
                 outsize = os.stat(fullname).st_size
                 if outsize > 0:
                     resfile = fullname
                 else:
+                    # This may indicate an issue with slow IO + timeout
                     print(f'Warning: {fullname} has 0 bytes')
-            if not resfile and os.path.isfile(f'{fullname}.dir/delta.last.smt2'):
-                outsize = os.stat(f'{fullname}.dir/delta.last.smt2').st_size
-                if outsize > 0:
-                    resfile = f'{fullname}.dir/delta.last.smt2'
-                else:
-                    if re.search('the default timeout is set to [0-9]+ seconds\.$', log):
-                        # nothing was done
-                        outsize = insize
+
+            # Check alternative output file (for delta)
+            if not resfile:
+                if os.path.isfile(f'{fullname}.dir/delta.last.smt2'):
+                    outsize = os.stat(f'{fullname}.dir/delta.last.smt2').st_size
+                    if outsize > 0:
+                        resfile = f'{fullname}.dir/delta.last.smt2'
                     else:
-                        print(f'Warning: {fullname}.dir/delta.last.smt2 has 0 bytes')
+                        if re.search('the default timeout is set to [0-9]+ seconds\.$', log):
+                            # Log ends at this point, nothing was done
+                            outsize = insize
+                        else:
+                            print(f'Warning: {fullname}.dir/delta.last.smt2 has 0 bytes')
+            
+            # Check for explicit "could not minimize"
             if not resfile:
                 m = re.search('unable to minimize input file', err)
                 if m is not None:
-                    outsize = insize
-                else:
-                    if not cancelled:
-                        print(f'Warning: {fullname} does not exist, assume it could not be minimized, not cancelled yet')
+                    # No minimization was possible
+                    resfile = f'inputs/{filename}'
                     outsize = insize
 
+            # Check if we have been cancelled
+            if not resfile:
+                if cancelled:
+                    # No minimization before the timeout
+                    outsize = insize
+                else:
+                    print(f'Warning: {fullname} has no output file and does not look like it was cancelled. We assume it could not be minimized.')
+                    outsize = insize
+
+            # With LOAD_TIMES, check if the output file is acceptable
             if LOAD_TIMES and resfile is not None:
                 if not do_check_run(filename, self.database[filename], resfile):
                     if cancelled:
-                        print(f'WARN: {resfile} does not trigger, but was cancelled')
-                        self.__add_result(filename, solver, insize, insize, -4)
+                        print(f'Warning: {resfile} does not trigger, but was cancelled, might be an IO issue')
+                        self.__add_result(filename, solver, insize, insize, ERROR_TIMEOUT)
                     elif os.path.isfile(f'{fullname}.time'):
                         print(f'ERROR: {resfile} does not trigger the issue')
-                        self.__add_result(filename, solver, insize, insize, -3)
+                        self.__add_result(filename, solver, insize, insize, ERROR_INCORRECT)
                     else:
-                        print(f'WARN: {resfile} does not trigger the issue, but may still be running')
-                        self.__add_result(filename, solver, insize, insize, -3)
+                        print(f'Warning: {resfile} does not trigger the issue, but may still be running')
+                        self.__add_result(filename, solver, insize, insize, ERROR_INCORRECT)
                     continue
 
-            
-            if os.path.isfile(f'{fullname}.time'):
-                runtime = float(open(f'{fullname}.time').read())
-                if runtime > 3600:
-                    self.__add_result(filename, solver, insize, outsize, -4)
+            # Check for timeouts
+            if runtime > 3600:
+                self.__add_result(filename, solver, insize, outsize, ERROR_TIMEOUT)
+                continue
+            elif runtime == -1:
+                if cancelled:
+                    print(f'Warning: {fullname}.time does not exist, it was cancelled')
+                    self.__add_result(filename, solver, insize, outsize, ERROR_TIMEOUT)
                     continue
-            elif cancelled:
-                print(f'Warning: {fullname}.time does not exist, it was cancelled')
-                self.__add_result(filename, solver, insize, outsize, -4)
-                continue
-            else:
-                print(f'Warning: {fullname}.time does not exist, but was not cancelled')
-                self.__add_result(filename, solver, insize, outsize, -5)
-                continue
+                else:
+                    print(f'Warning: {fullname}.time does not exist, but was not cancelled')
+                    self.__add_result(filename, solver, insize, outsize, ERROR_ABORTED)
+                    continue
 
+            # We have a proper result
             self.__add_result(filename, solver, insize, outsize, runtime)
 
 
@@ -251,12 +287,19 @@ def solver_name(s):
         'ddsmt-dev-ddmin-j1': '\\stratddmin',
         'ddsmt-dev-hierarchical': '\\strathiershort-j8',
         'ddsmt-dev-hierarchical-j1': '\\strathiershort',
-        'ddsmt-dev-hybrid': '\\strathybrid-j8',
-        'ddsmt-dev-hybrid-j1': '\\strathybrid',
+        'ddsmt-dev-hybrid': 'hybrid-j8',
+        'ddsmt-dev-hybrid-j1': 'hybrid',
+        'ddsmt-paper-hybrid': 'hybrid-j8',
+        'ddsmt-paper-ddmin-j1': 'paper-ddmin',
+        'ddsmt-paper-hierarchical-j1': 'paper-hier',
+        'ddsmt-paper-hybrid-j1': 'paper-hybrid',
+        'ddsmt-thread-hybrid': 'thread-hybrid-j8',
+        'ddsmt-thread-hybrid-j1': 'thread-hybrid',
         'delta': '\\deltadd-j8',
         'delta-j1': '\\deltadd',
         'pydelta': '\\pydelta-j8',
         'pydelta-j1': '\\pydelta',
+        'pydelta-j0': '\\pydelta-j0',
     }
     return d.get(s, s)
 
@@ -345,7 +388,11 @@ def overview_data(solvers):
         'bestreduce': {},
         #'avgbestruntime': {},
         'avg': {},
+        'allavg': {},
         'avgwoto': {},
+        'med': {},
+        'allmed': {},
+        'medwoto': {},
         #'avg300': {},
     }
     for s in solvers:
@@ -370,6 +417,24 @@ WHERE solver = ? AND data.outsize = mins.minsize
 #''', [s]).fetchone()[0])
         res['avg'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND (time >= 0 OR time = -4)', [s]).fetchone()[0])
         res['avgwoto'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND time >= 0', [s]).fetchone()[0])
+        res['allavg'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ?', [s]).fetchone()[0])
+        data = list(loader.db.execute('SELECT 1-(outsize * 1.0 / insize) FROM data WHERE solver = ? AND (time >= 0 OR time = -4)', [s]).fetchall())
+        if data:
+            res['med'][s] = ffloat(data[len(data) // 2][0])
+        else:
+            res['med'][s] = '--'
+        data = list(loader.db.execute('SELECT 1-(outsize * 1.0 / insize) FROM data WHERE solver = ?', [s]).fetchall())
+        if data:
+            res['allmed'][s] = ffloat(data[len(data) // 2][0])
+        else:
+            res['allmed'][s] = '--'
+        data = list(loader.db.execute('SELECT 1-(outsize * 1.0 / insize) FROM data WHERE solver = ? AND time >= 0', [s]).fetchall())
+        if data:
+            res['medwoto'][s] = ffloat(data[len(data) // 2][0])
+        else:
+            res['medwoto'][s] = '--'
+        #res['medwoto'][s] = ffloat(loader.db.execute('SELECT MED(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND time >= 0', [s]).fetchone()[0])
+        #res['medwoto'][s] = '--'
         #res['avg300'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND insize>300 AND time >= 0', [s]).fetchone()[0])
     return res
 
@@ -384,16 +449,20 @@ def get_overview_results():
         'reduce': 'Any Simplification',
         'bestreduce': 'Smallest Output',
         #'avgbestruntime': 'avg runtime on best',
-        'avg': 'Avg. Reduction',
-        'avgwoto': 'Avg. Reduction (w/o TO)',
+        'med': 'Med. Reduction (w/o ERR)',
+        'medwoto': 'Med. Reduction (w/o TO/ERR)',
+        'avg': 'Avg. Reduction (w/o ERR)',
+        'avgwoto': 'Avg. Reduction (w/o TO/ERR)',
+        'allmed': 'Med. Reduction',
+        'allavg': 'Avg. Reduction',
         #'avg300': 'average reduction ($>$300 bytes)',
     }
-    slv = ['ddsexpr', 'ddsmt-master', 'delta-j1', 'linedd', 'pydelta-j1', 'ddsmt-dev-ddmin-j1', 'ddsmt-dev-hierarchical-j1', 'ddsmt-dev-hybrid-j1']
+    slv = ['ddsexpr', 'ddsmt-master', 'delta-j1', 'linedd', 'pydelta-j1', 'ddsmt-paper-ddmin-j1', 'ddsmt-paper-hierarchical-j1', 'ddsmt-paper-hybrid-j1']
     return {
         'total': total,
         'solvers': slv,
         'solvernames': {s: solver_name(s) for s in slv},
-        'data': overview_data(solvers),
+        'data': overview_data(slv),
         'datanames': datanames,
     }
 
@@ -480,35 +549,36 @@ def scatter_best(filename_size, filename_time, A, B):
     f.close()
 
 
-def do_analysis():
-    render_to_file('out/table.tex', 'table-complete.j2', **get_all_results())
-    render_to_file('out/table-overview.tex', 'table-overview.j2', **get_overview_results())
-    scatter('out/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-dev-ddmin-j1', 'ddsmt-dev-hierarchical-j1')
-    scatter_best('out/scatter-hybrid-best-size.data', 'out/scatter-hybrid-best-time.data', 'ddsmt-dev-hybrid-j1', ['ddsmt-dev-ddmin-j1', 'ddsmt-dev-hierarchical-j1'])
+def load_data():
+    global loader
 
+    # Start with a fresh database
+    loader = ResultLoader('out/db.db')
 
-PARSE_RESULTS = True
-
-
-loader = ResultLoader('out/db.db', PARSE_RESULTS)
-
-solvers = sorted([
-    s for s in os.listdir('out/') if os.path.isdir(f'out/{s}')
-])
-
-if PARSE_RESULTS:
+    # Load some basic data about the inputs
     loader.load_inputs()
     if os.path.isdir('confidential'):
         loader.load_inputs('confidential/')
-    for solver in solvers:
-        if solver in [
-            'ddsmt-dev-ddmin',
-            'ddsmt-dev-hierarchical-old', 'ddsmt-dev-hierarchical-j1-old',
-            'ddsmt-dev-hierarchical',
-            'ddsmt-dev-hybrid',
-            'delta',
-            'pydelta']:
+
+    # Load the results for every solver
+    for solver in os.listdir('out/'):
+        if not os.path.isdir(f'out/{solver}'):
+            continue
+        if solver != 'pydelta-j1':
             continue
         loader.load_solver(solver)
 
+
+def do_analysis():
+    render_to_file('out/table-complete.tex', 'table-complete.j2', **get_all_results())
+    render_to_file('out/table-overview.tex', 'table-overview.j2', **get_overview_results())
+    scatter('out/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-paper-ddmin-j1', 'ddsmt-paper-hierarchical-j1')
+    scatter('out/scatter-dev-paper-size.data', 'out/scatter-dev-paper-time.data', 'ddsmt-paper-hybrid', 'ddsmt-paper-hybrid')
+    scatter('out/scatter-dev-paper-size-j1.data', 'out/scatter-dev-paper-time-j1.data', 'ddsmt-paper-hybrid-j1', 'ddsmt-paper-hybrid-j1')
+    scatter_best('out/scatter-hybrid-best-size.data', 'out/scatter-hybrid-best-time.data', 'ddsmt-paper-hybrid-j1', ['ddsmt-paper-ddmin-j1', 'ddsmt-paper-hierarchical-j1'])
+
+    scatter('out/scatter-master-paper-size-j1.data', 'out/scatter-master-paper-time-j1.data', 'ddsmt-master', 'ddsmt-paper-hybrid-j1')
+
+
+load_data()
 do_analysis()
