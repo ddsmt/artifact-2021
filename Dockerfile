@@ -4,7 +4,11 @@ FROM ubuntu:20.04
 RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get -y install -q \
-    python3
+    python3 \
+    python3-pip
+
+# Install Python dependencies required by ddSMT
+RUN pip3 install progressbar
 
 # Install dependencies to compile solvers and delta debuggers
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install -q \
@@ -35,4 +39,5 @@ COPY bin/ bin/
 RUN chown ddsmt:ddsmt -R /home/ddsmt
 USER ddsmt
 
+# Download and set up delta debuggers
 RUN ./benchmark.py --build-only
