@@ -13,8 +13,6 @@ import time
 
 # number of jobs to compile stuff
 COMPILE_JOBS = 8
-# number of jobs for debuggers
-DEBUGGER_JOBS = 8
 # whether to use slurm or local execution
 SUBMIT_TO_SLURM = False
 
@@ -79,7 +77,7 @@ def setup_ddsmt_master():
     """Download ddsmt-master"""
     if not os.path.isdir('build/ddsmt-master'):
         subprocess.run(['git', 'clone', 'https://github.com/aniemetz/ddSMT', 'build/ddsmt-master'])
-        subprocess.run(['git', 'checkout', ddsmt_master_commit, 'build/ddsmt-master'])
+        subprocess.run(['git', 'checkout', ddsmt_master_commit], cwd='build/ddsmt-master')
     global is_set_up_ddsmt_master
     is_set_up_ddsmt_master = True
 
@@ -88,7 +86,7 @@ def setup_ddsmt_dev():
     """Download ddsmt-dev"""
     if not os.path.isdir('build/ddsmt-dev'):
         subprocess.run(['git', 'clone', 'https://github.com/ddsmt/ddsmt', 'build/ddsmt-dev'])
-        subprocess.run(['git', 'checkout', ddsmt_dev_commit], cwd = 'build/ddsmt-dev')
+        subprocess.run(['git', 'checkout', ddsmt_dev_commit], cwd='build/ddsmt-dev')
     global is_set_up_ddsmt_dev
     is_set_up_ddsmt_dev = True
 
@@ -97,7 +95,7 @@ def setup_delta():
     """Download and build SMT-RAT's delta"""
     if not os.path.isdir('build/delta'):
         subprocess.run(['git', 'clone', 'https://github.com/smtrat/smtrat', 'build/delta'])
-        subprocess.run(['git', 'checkout', delta_commit, 'build/delta'])
+        subprocess.run(['git', 'checkout', delta_commit], cwd='build/delta')
         subprocess.run(['git', 'apply', '../../stuff/delta-gcc.patch'], cwd = 'build/delta')
         subprocess.run(['git', 'apply', '../../stuff/delta-progress.patch'], cwd = 'build/delta')
         os.makedirs('build/delta/build')
@@ -116,7 +114,7 @@ def setup_linedd():
     """Download linedd"""
     if not os.path.isdir('build/linedd'):
         subprocess.run(['git', 'clone', 'https://github.com/sambayless/linedd', 'build/linedd'])
-        subprocess.run(['git', 'checkout', linedd_commit, 'build/linedd'])
+        subprocess.run(['git', 'checkout', linedd_commit], cwd='build/linedd')
     global is_set_up_linedd
     is_set_up_linedd = True
 
@@ -125,7 +123,7 @@ def setup_pydelta():
     """Download pydelta"""
     if not os.path.isdir('build/pydelta'):
         subprocess.run(['git', 'clone', 'https://github.com/nafur/pydelta.git', 'build/pydelta'])
-        subprocess.run(['git', 'checkout', pydelta_commit, 'build/pydelta'])
+        subprocess.run(['git', 'checkout', pydelta_commit], cwd='build/pydelta')
         subprocess.run(['git', 'apply', '../../stuff/pydelta.patch'], cwd = 'build/pydelta')
     global is_set_up_pydelta
     is_set_up_pydelta = True
