@@ -53,10 +53,11 @@ This section discusses how to reproduce the experimental results shown in the pa
 ### Structure of `database.json`
 
 TODO: provide a database.json file for a representative set of inputs and add
-option to benchmark.py to provide custom database.json?
+option to `benchmark.py` to provide custom database.json?
 
 The benchmark database is a json dictionary that maps a filename (of a file
 that resides in `inputs/`) to a dictionary with further information.
+
 For each input, it specifies:
 
 * the solver (e.g. as filename `"binary": "boolector0"` or as a commit hash
@@ -74,12 +75,12 @@ With this information, it is possible to reproduce the error for every
 benchmark instance: obtain or build the solver binary, run it (with the given
 arguments) and identify the error condition.
 
-## Steps to reproduce the experimental results
+## Steps to Reproduce the Experimental Results
 
 Reproducing the full set of experimental results takes a considerable amount of
 time. The eight delta debugging tools with 244 benchmarks amount to a total of
 1952 benchmark runs, of which 627 timeout after an hour.
-Our runs required a total of 773 CPU hours.
+Our experiments required a total of **773 CPU hours**.
 
 **Note**: The experiments in the paper include three confidential benchmarks
 that we are not allowed to include in this artifact. Therefore, the `inputs/`
@@ -88,20 +89,33 @@ directory contains 241 files instead of the 244 files reported in the paper.
 If you want to perform a full benchmark run, we strongly suggest to use some
 kind of parallel batch processing system. Our script supports Slurm out of the
 box, however, adapting it to another system might require some work.
-In any case, you should check/modify the Slurm configuration (check the
-`submit_slurm_job()` function in `benchmark.py`) as necessary.
+If a parallel batch processing system is used, modify the
+Slurm configuration in `benchmark.py` as necessary
+(check the `submit_slurm_job()` function).
 
 ### Run benchmarks
 
-First change the settings in `benchmark.py` (lines 14 - 19) according to your
-hardware setup.
-By default, it uses eight CPU cores for compilation and delta debugging and
-runs the benchmarks locally (i.e. not using Slurm).
+By default, `benchmark.py` uses eight CPU cores for compiling solver and
+debugger binaries and it runs the experiments locally (i.e., not using Slurm).
+If you want to change this behavior you can modify variables `COMPILE_JOBS` and
+`SUBMIT_TO_SLURM` in `benchmark.py` (lines 14-17) based on your hardware setup.
 
-If you want to perform a full benchmark run, simply call the script:
+**Note**: The artifact comes with all solver binaries and debugging tools
+pre-compiled and there is no need to compile the tools from source.
+`benchmark.py` will automatically use the pre-compiled binaries from `bin/` and
+`build/`.
+
+If you want to run all experiments simply, simply call the script:
 
 ```
 ./benchmark.py
+```
+
+Since this will take at least 773 CPU hours to complete we prepared a smaller
+set that will finish in ~30min on a 8 core machine:
+
+```
+./benchmark.py TODO TODO
 ```
 
 If you only want to run a subset, you can restrict the run to a single delta
@@ -127,7 +141,7 @@ If run with Slurm, there are additionally
 * `out/<tool>/<input>.err`: The output on standard err of Slurm.
 * `out/<tool>/<input>.out`: The output on standard out of Slurm.
 
-### Collect results
+### Analyzing the Results
 
 While it is often very instructive to have a look at individual examples,
 getting comprehensive results quickly becomes infeasible. We thus include
@@ -143,6 +157,24 @@ The script first loads all relevant information about the input files and the
 solver output into a SQLite database. Then, it queries this database to
 generate the result files shown in the paper.
 This approach allows to easily perform other, manual analysis on the data.
+
+Simply run the script when the benchmarks have been finished:
+```
+./results.py
+```
+A few errors and warnings in the output are to be expected, they should
+correspond to the errors shown in the table in the paper.
+
+The script creates the following files:
+* `out/db.db` is the SQLite database that can be opened with another script or
+  tools like `sqlitebrowser` to further inspect the results. Check
+  `ResultLoader.__setup_database()` for the database schema definition.
+* `out/table-complete.tex` is a complete (multi-page) table of all results.
+* `out/table-overview.tex` is a condensed table as shown in the paper.
+* `out/scatter-*.data` containing the gnuplot data for the various scatter plot
+  comparisons.
+
+#### Details on `results.py`
 
 The script roughly proceeds as follows:
 * `load_data()` loads all data into the database.
@@ -176,22 +208,6 @@ The script roughly proceeds as follows:
     `scatter()`, but uses the virtual best of `solvers` for `solverB` for every
     file.
 
-Simply run the script when the benchmarks have been finished:
-```
-./results.py
-```
-A few errors and warnings in the output are to be expected, they should
-correspond to the errors shown in the table in the paper.
-
-The script creates the following files:
-* `out/db.db` is the SQLite database that can be opened with another script or
-  tools like `sqlitebrowser` to further inspect the results. Check
-  `ResultLoader.__setup_database()` for the database schema definition.
-* `out/table-complete.tex` is a complete (multi-page) table of all results.
-* `out/table-overview.tex` is a condensed table as shown in the paper.
-* `out/scatter-*.data` containing the gnuplot data for the various scatter plot
-  comparisons.
-
 # Available badge
 
 We have uploaded the Docker image to Zenodo, and the permanent link should be
@@ -201,6 +217,8 @@ https://zenodo.org/record/4721925
 (DOI: `10.5281/zenodo.4721925`).
 
 # Reusable badge
+
+TODO: compile all solver binaries ~3h with 8 cores
 
 ddSMT 2.0 can be either downloaded from https://github.com/ddsmt/ddSMT or
 installed via pip:
