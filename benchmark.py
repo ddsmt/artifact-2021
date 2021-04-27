@@ -106,8 +106,6 @@ def setup_delta():
             subprocess.run(['git', 'apply', '../../../../../../stuff/delta-gcc.patch'], cwd='build/delta/build/resources/src/CArL-EP')
             subprocess.run(['cmake', '..'], cwd='build/delta/build')
         subprocess.run(['make', f'-j{COMPILE_JOBS}', 'delta'], cwd='build/delta/build')
-    else:
-        subprocess.run(['git', 'pull'], cwd = 'build/delta')
     global is_set_up_delta
     is_set_up_delta = True
 
