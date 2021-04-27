@@ -174,6 +174,29 @@ The script creates the following files:
 * `out/scatter-*.data` containing the gnuplot data for the various scatter plot
   comparisons.
 
+
+### ddSMT 2.0 Source Code
+
+ddSMT is free software released under the GPLv3.
+
+The source code of ddSMT 2.0 is included in the artifact and can be found in
+`build/ddsmt-dev/`. The artifact Docker image has `less` pre-installed, which
+can be used to view the source files.
+The source code is also available on GitHub (https://github.com/ddsmt/ddSMT).
+
+The source files of ddSMT are located in the `ddsmt` subdirectory.
+The code for the `ddmin` strategy can be found in `strategy_ddmin.py` and the
+`hierarchical` strategy is implemented in `strategy_hierarchical.py`.
+Mutators to simplify input formulas are implemented in
+`mutators_{arithmetic,boolean,bv,core,fp,smtlib,strings}.py`.
+The main function of ddSMT `ddsmt_main` is located in `cli.py`.
+
+ddSMT provides a comprehensive documentation on the implemented strategies as
+well as mutators here:
+https://ddsmt.readthedocs.io/en/master/guide.html
+
+
+
 #### Details on `results.py`
 
 The script roughly proceeds as follows:
@@ -210,8 +233,6 @@ The script roughly proceeds as follows:
 
 # Available badge
 
-We have uploaded the Docker image to Zenodo, and the permanent link should be
-present in the artifact submission.
 The artifact was uploaded to Zenodo and is available at
 https://zenodo.org/record/4721925
 (DOI: `10.5281/zenodo.4721925`).
