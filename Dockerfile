@@ -41,7 +41,8 @@ COPY bin/ bin/
 COPY inputs/ inputs/
 COPY results.py .
 COPY stuff/ stuff/
-COPY paper_results/ paper_results/
+COPY paper_results.tar.xz .
+RUN tar xf paper_results.tar.xz && rm paper_results.tar.xz
 
 RUN chown ddsmt:ddsmt -R /home/ddsmt
 USER ddsmt
