@@ -9,6 +9,8 @@ RUN apt-get update && \
 
 # Install Python dependencies required by ddSMT
 RUN pip3 install progressbar
+RUN pip3 install jinja2
+RUN pip3 install toml
 
 # Install dependencies to compile solvers and delta debuggers
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install -q \
@@ -16,12 +18,14 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install -q \
     autotools-dev \
     build-essential \
     cmake \
+    default-jre \
     git \
-    libgmp-dev \
+    gperf \
     libboost-dev \
     libboost-program-options-dev \
-    python3-distutils \
+    libgmp-dev \
     python3-dev \
+    python3-distutils \
     wget
 
 RUN useradd -ms /bin/bash ddsmt
@@ -29,12 +33,12 @@ WORKDIR /home/ddsmt
 
 # Copy artifact files
 COPY benchmark.py .
-COPY bin/ bin/
 COPY database.json .
+COPY bin/ bin/
 COPY inputs/ inputs/
 COPY results.py .
 COPY stuff/ stuff/
-COPY bin/ bin/
+COPY paper_results/ paper_results/
 
 RUN chown ddsmt:ddsmt -R /home/ddsmt
 USER ddsmt
