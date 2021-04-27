@@ -17,8 +17,8 @@ This section discusses how to reproduce the experimental results shown in the pa
 * Start the docker image:
 
     ```
-    $ docker load --input <filename>.tgz
-    $ docker run -it ddSMT/artifact-2021
+    $ docker load --input ddsmt_artifact_2021.tar.xz
+    $ docker run -it ddsmt_artifact_2021
     ```
 
 * Run all or only a few of the benchmarks using `./benchmarks.py` and analyze
@@ -93,7 +93,7 @@ If a parallel batch processing system is used, modify the
 Slurm configuration in `benchmark.py` as necessary
 (check the `submit_slurm_job()` function).
 
-### Run benchmarks
+### Run Benchmarks
 
 By default, `benchmark.py` uses eight CPU cores for compiling solver and
 debugger binaries and it runs the experiments locally (i.e., not using Slurm).
@@ -105,17 +105,32 @@ pre-compiled and there is no need to compile the tools from source.
 `benchmark.py` will automatically use the pre-compiled binaries from `bin/` and
 `build/`.
 
+Since running all experiments takes at least 773 CPU hours to complete we
+prepared a smaller set that will finish in ~30min (tested on an eight core
+machine):
+
+```
+./benchmark.py --demo
+```
+
+The results are stored in `out/`. For every input file `<input>` and delta
+debugger `<tool>` the following files are generated:
+* `out/<tool>/<input>`: The minimized version of the original input.
+* `out/<tool>/<input>.log`: The combined output of the delta debugger.
+* `out/<tool>/<input>.time`: Contains the overall running time after the delta
+  debugger has terminated.
+
+If run with Slurm, there are additionally
+* `out/<tool>/<input>.err`: The output on standard err of Slurm.
+* `out/<tool>/<input>.out`: The output on standard out of Slurm.
+
+
+#### Other Run Options
+
 If you want to run all experiments simply, simply call the script:
 
 ```
 ./benchmark.py
-```
-
-Since this will take at least 773 CPU hours to complete we prepared a smaller
-set that will finish in ~30min on a 8 core machine:
-
-```
-./benchmark.py TODO TODO
 ```
 
 If you only want to run a subset, you can restrict the run to a single delta
@@ -132,15 +147,6 @@ files. For every such pair, it makes sure the solver binary exists in `bin/`
 (and builds it on the fly if it does not, but knows how to build it) and then
 runs the delta debugger with the configuration from `database.json`.
 
-The results are stored in `out/`. For every input file `<input>` and delta debugger `<tool>` the following files are generated:
-* `out/<tool>/<input>`: The minimized version of the original input.
-* `out/<tool>/<input>.log`: The combined output of the delta debugger.
-* `out/<tool>/<input>.time`: Contains the overall running time after the delta debugger has terminated.
-
-If run with Slurm, there are additionally
-* `out/<tool>/<input>.err`: The output on standard err of Slurm.
-* `out/<tool>/<input>.out`: The output on standard out of Slurm.
-
 ### Analyzing the Results
 
 While it is often very instructive to have a look at individual examples,
@@ -148,20 +154,27 @@ getting comprehensive results quickly becomes infeasible. We thus include
 `results.py` to analyze all available output files and generate the results
 included in the paper.
 
-By default, the variable `LOAD_TIMES` is set to true. This allows the script to
-locally run solvers on the minimized inputs to perform some sanity checks on
-the result files. If enabled, `results.py` calls into `benchmark.py` to obtain
-the solver binary (and build it on the fly, if necessary).
+By default, `results.py` locally runs solvers on the minimized inputs to perform
+some sanity checks on the result files.
+If enabled, `results.py` calls into `benchmark.py` to obtain the solver binary
+(and build it on the fly, if necessary).
 
 The script first loads all relevant information about the input files and the
 solver output into a SQLite database. Then, it queries this database to
 generate the result files shown in the paper.
 This approach allows to easily perform other, manual analysis on the data.
 
-Simply run the script when the benchmarks have been finished:
+For analyzing the `--demo` benchmark set, run `results.py` as follows:
+
+```
+./results.py --demo
+```
+
+For analyzing the results of a full run simply call:
 ```
 ./results.py
 ```
+
 A few errors and warnings in the output are to be expected, they should
 correspond to the errors shown in the table in the paper.
 
@@ -173,6 +186,8 @@ The script creates the following files:
 * `out/table-overview.tex` is a condensed table as shown in the paper.
 * `out/scatter-*.data` containing the gnuplot data for the various scatter plot
   comparisons.
+
+TODO: How to compare the demo results against the paper results?
 
 
 ### ddSMT 2.0 Source Code
@@ -202,8 +217,9 @@ https://ddsmt.readthedocs.io/en/master/guide.html
 The script roughly proceeds as follows:
 * `load_data()` loads all data into the database.
   * `ResultLoader` manages the loading process
-  * `load_inputs()` opens the `database.json` file and stores the file size. If
-    `LOAD_TIMES == True`, it also records the original exit code.
+  * `load_inputs()` opens the `database.json` file and stores the file size. By
+    default, it also records the original exit code (can be disabled with
+    `--no-load-times`).
   * `load_solver(solver)` parses the solver output for all files in the
     database and tries to recognize and categorizes all unexpected results.
     These include empty log files, parser errors (mostly `ddsmt-master`),
@@ -231,41 +247,72 @@ The script roughly proceeds as follows:
     `scatter()`, but uses the virtual best of `solvers` for `solverB` for every
     file.
 
-# Available badge
+# Available Badge
 
 The artifact was uploaded to Zenodo and is available at
 https://zenodo.org/record/4721925
 (DOI: `10.5281/zenodo.4721925`).
 
-# Reusable badge
+# Reusable Badge
 
-TODO: compile all solver binaries ~3h with 8 cores
+## Using ddSMT without Docker Environment
 
 ddSMT 2.0 can be either downloaded from https://github.com/ddsmt/ddSMT or
 installed via pip:
 ```
 pip install ddSMT
 ```
+
 Note that the development has continued in the meantime and the experiments in
 the paper have been conducted with the version of ddSMT 2.0 from the time of
 submitting the paper (commit hash c9d8100).
 
-The experimental setup (described above for the functional badge) can be
-obtained from https://github.com/ddsmt/artifact-2021. It should work just as
-described above, though you may need to install some dependencies that are
-already installed in the docker container.
-The repository contains a Dockerfile that builds the docker image we uploaded
-for the available badge. Note that building it takes a considerable amount of
-time if all solver binaries are build from scratch.
+### Documentation
+
+The official documentation of ddSMT 2.0 is available at
+https://ddsmt.readthedocs.io/
+
+The quickstart guide on how to use ddSMT on new input is available at
+https://ddsmt.readthedocs.io/en/master/quickstart.html
+
+## Building the Docker Image
+
+- Install Docker as described at https://docs.docker.com/get-docker/.
+
+- The experimental setup (described above for the functional badge) can be
+  obtained from https://github.com/ddsmt/artifact-2021.
+
+  ```
+  git clone https://github.com/ddsmt/artifact-2021
+  ```
+
+- Build the docker image
+  ```
+  docker build -t ddsmt_artifact_2021 .
+  ```
+
+  **Note**: This will also build all missing solver binaries from source, which
+            takes ~3h on an eight core machine.
+
+- Use docker image as described in the "Functional Badge" section.
+
+## Inputs supported by ddSMT
+
+TODO: refer to documentation section on how to use ddsmt on new input etc.
+
+ddSMT 2.0 is meant to work on SMT-LIBv2 and similar inputs (including custom
+extensions of SMT-LIBv2 and derived formats like SyGuS) but should work on all
+formats based on SMT-LIBv2-style s-expressions.
+
+Extensive documentation on how to use ddSMT 2.0 is available online at
+https://ddsmt.readthedocs.io/.
+
+
+## Using ddSMT with New Inputs
 
 To run ddSMT 2.0 on a new benchmark, call it as follows:
 ```
 ddsmt input.smt2 output.smt2 solver-binary
 ```
-ddSMT 2.0 is meant to work on SMT-LIBv2 and similar inputs (including custom
-extensions of SMT-LIBv2 and derived formats like SyGuS) but should work on all
-formats based on SMT-LIBv2-style s-expressions.
-Extensive documentation on how to use ddSMT 2.0 is available online at
-https://ddsmt.readthedocs.io/.
 
 Below is an example for a fresh input:
