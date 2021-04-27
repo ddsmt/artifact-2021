@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import glob
 import jinja2
 import json
@@ -12,15 +13,13 @@ import sys
 import benchmark
 
 
-LOAD_TIMES = True
-
-
 ERROR_PARSER = -1
 ERROR_SEGFAULT = -2
 ERROR_INCORRECT = -3
 ERROR_TIMEOUT = -4
 ERROR_ABORTED = -5
 
+args = None
 
 jenv = jinja2.Environment(
     loader=jinja2.FileSystemLoader('stuff/'),
@@ -99,32 +98,32 @@ CREATE TABLE IF NOT EXISTS data (
         # ddSMT errors
         m = re.search('\[ddsmt\] .* unknown command (\'[^\']+\')', log)
         if m is not None:
-            if not fullname.startswith('out/ddsmt-master'):
+            if not fullname.startswith(f'{args.dir}/ddsmt-master'):
                 print(f'{solver} parser error: unknown command {m.group(1)} in {fullname}')
             return True
         m = re.search('\[ddsmt\] .* function (\'[^\']+\') undeclared', log)
         if m is not None:
-            if not fullname.startswith('out/ddsmt-master'):
+            if not fullname.startswith(f'{args.dir}/ddsmt-master'):
                 print(f'{solver} parser error: unknown function{m.group(1)} in {fullname}')
             return True
         m = re.search('\[ddsmt\] .* function argument (\'[^\']+\') undeclared', log)
         if m is not None:
-            if not fullname.startswith('out/ddsmt-master'):
+            if not fullname.startswith(f'{args.dir}/ddsmt-master'):
                 print(f'{solver} parser error: unknown function argument {m.group(1)} in {fullname}')
             return True
         m = re.search('\[ddsmt\] .* \'\)\' expected', log)
         if m is not None:
-            if not fullname.startswith('out/ddsmt-master'):
+            if not fullname.startswith(f'{args.dir}/ddsmt-master'):
                 print(f'{solver} parser error: expected ")" in {fullname}')
             return True
         if 'assert(sf.find_sort_and_scope (str(t_ident)))' in log:
-            assert fullname.startswith('out/ddsmt-master')
+            assert fullname.startswith(f'{args.dir}/ddsmt-master')
             return True
 
         # delta errors
         m = re.search('Parsing error in line', log)
         if m is not None:
-            if not fullname.startswith('out/delta/'):
+            if not fullname.startswith(f'{args.dir}/delta/'):
                 print(f'{solver} parser error in {fullname}')
             return True
 
@@ -148,13 +147,16 @@ CREATE TABLE IF NOT EXISTS data (
     def load_inputs(self, basedir=''):
         """Load all input files"""
         print(f'Loading inputs{f" from {basedir}" if basedir else ""}...')
-        database = json.load(open(f'{basedir}database.json'))
+        if args.demo:
+            database = json.load(open(f'{basedir}database_demo.json'))
+        else:
+            database = json.load(open(f'{basedir}database.json'))
         for filename in database:
             fullname = f'{basedir}inputs/{filename}'
             database[filename]['prefix'] = basedir
             size = os.stat(fullname).st_size
             database[filename]['insize'] = size
-            if LOAD_TIMES:
+            if args.load_times:
                 out, err, exitcode = do_test_run(fullname, database[filename], fullname)
                 database[filename]['exitcode'] = exitcode
         self.database.update(database)
@@ -163,7 +165,7 @@ CREATE TABLE IF NOT EXISTS data (
         """Load all results for one solver"""
         print(f'Loading results from {solver}...')
         for filename in self.database:
-            fullname = f'out/{solver}/{filename}'
+            fullname = f'{args.dir}/{solver}/{filename}'
             insize = self.database[filename]['insize']
             
             # Load log/err/out/time files
@@ -248,8 +250,8 @@ CREATE TABLE IF NOT EXISTS data (
                     print(f'Warning: {fullname} has no output file and does not look like it was cancelled. We assume it could not be minimized.')
                     outsize = insize
 
-            # With LOAD_TIMES, check if the output file is acceptable
-            if LOAD_TIMES and resfile is not None:
+            # With args.load_times, check if the output file is acceptable
+            if args.load_times and resfile is not None:
                 if not do_check_run(filename, self.database[filename], resfile):
                     if cancelled:
                         print(f'Warning: {resfile} does not trigger, but was cancelled, might be an IO issue')
@@ -557,7 +559,7 @@ def load_data():
     global loader
 
     # Start with a fresh database
-    loader = ResultLoader('out/db.db')
+    loader = ResultLoader(f'{args.dir}/db.db')
 
     # Load some basic data about the inputs
     loader.load_inputs()
@@ -565,25 +567,44 @@ def load_data():
         loader.load_inputs('confidential/')
 
     # Load the results for every solver
-    for solver in os.listdir('out/'):
-        if not os.path.isdir(f'out/{solver}'):
+    for solver in os.listdir(f'{args.dir}/'):
+        if not os.path.isdir(f'{args.dir}/{solver}'):
             continue
         loader.load_solver(solver)
 
 
 def do_analysis():
     # complete table
-    render_to_file('out/table-complete.tex', 'table-complete.j2', **get_all_results())
+    render_to_file(f'{args.dir}/table-complete.tex', 'table-complete.j2', **get_all_results())
     # overview table for the paper
-    render_to_file('out/table-overview.tex', 'table-overview.j2', **get_overview_results())
+    render_to_file(f'{args.dir}/table-overview.tex', 'table-overview.j2', **get_overview_results())
     # various scatter plots
-    scatter('out/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-paper-ddmin-j1', 'ddsmt-paper-hierarchical-j1')
-    scatter('out/scatter-dev-paper-size.data', 'out/scatter-dev-paper-time.data', 'ddsmt-paper-hybrid', 'ddsmt-paper-hybrid')
-    scatter('out/scatter-dev-paper-size-j1.data', 'out/scatter-dev-paper-time-j1.data', 'ddsmt-paper-hybrid-j1', 'ddsmt-paper-hybrid-j1')
-    scatter_best('out/scatter-hybrid-best-size.data', 'out/scatter-hybrid-best-time.data', 'ddsmt-paper-hybrid-j1', ['ddsmt-paper-ddmin-j1', 'ddsmt-paper-hierarchical-j1'])
+    scatter(f'{args.dir}/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-paper-ddmin-j1', 'ddsmt-paper-hierarchical-j1')
+    scatter(f'{args.dir}/scatter-dev-paper-size.data', 'out/scatter-dev-paper-time.data', 'ddsmt-paper-hybrid', 'ddsmt-paper-hybrid')
+    scatter(f'{args.dir}/scatter-dev-paper-size-j1.data', 'out/scatter-dev-paper-time-j1.data', 'ddsmt-paper-hybrid-j1', 'ddsmt-paper-hybrid-j1')
+    scatter_best(f'{args.dir}/scatter-hybrid-best-size.data', 'out/scatter-hybrid-best-time.data', 'ddsmt-paper-hybrid-j1', ['ddsmt-paper-ddmin-j1', 'ddsmt-paper-hierarchical-j1'])
 
-    scatter('out/scatter-master-paper-size-j1.data', 'out/scatter-master-paper-time-j1.data', 'ddsmt-master', 'ddsmt-paper-hybrid-j1')
+    scatter(f'{args.dir}/scatter-master-paper-size-j1.data', 'out/scatter-master-paper-time-j1.data', 'ddsmt-master', 'ddsmt-paper-hybrid-j1')
 
 
-load_data()
-do_analysis()
+def main():
+    global args
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--demo', default=False, action='store_true',
+                    help='analyze results from demo run')
+    ap.add_argument('--no-load-times', dest='load_times', default=True,
+                    action='store_false',
+                    help='do not run solver binary on minimized input')
+    ap.add_argument('--dir', default='out',
+                    help='results directory')
+    args = ap.parse_args()
+    args.dir = args.dir.strip('/')
+
+    load_data()
+    do_analysis()
+
+if __name__ == '__main__':
+    main()
+
+# TODO: check if it works with demo and full
+
