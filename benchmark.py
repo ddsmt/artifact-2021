@@ -15,6 +15,8 @@ import time
 COMPILE_JOBS = 8
 # whether to use slurm or local execution
 SUBMIT_TO_SLURM = False
+# timeout for local executions
+LOCAL_TIMEOUT = 3600
 
 
 is_set_up_cvc4         = False
@@ -333,7 +335,7 @@ def run_debugger(cmd, output, tmpout, cwd=None):
             subprocess.run(cmd,
                         stdout=open(f'{output}.log', 'w'),
                         stderr=subprocess.STDOUT,
-                        timeout=3600,
+                        timeout=LOCAL_TIMEOUT,
                         cwd=cwd)
         except subprocess.TimeoutExpired:
             print("Timeout")
@@ -533,8 +535,8 @@ def get_binary(input, dbentry, prefix):
         return build_z3(dbentry['z3-commit'], dbentry)
 
 
-def run_experiments(prefix='', regex=None, dd=None, build_only=False):
-    data = json.load(open(f'{prefix}database.json'))
+def run_experiments(prefix='', dbfile='database.json', regex=None, dd=None, build_only=False):
+    data = json.load(open(f'{prefix}{dbfile}'))
     if not is_set_up_ddsexpr and (dd is None or dd == 'ddsexpr'):
         setup_ddsexpr()
     if not is_set_up_ddsmt_dev and (dd is None or dd.startswith('ddsmt-dev')):
@@ -587,11 +589,20 @@ if __name__ == '__main__':
                     default=False,
                     action='store_true',
                     help='only build binaries, do not run tests')
+    ap.add_argument('--demo',
+                    default=False,
+                    action='store_true',
+                    help='only run a small set of examples as demo')
     args = ap.parse_args()
     setup()
-    if os.path.isdir('confidential/'):
-        setup_confidential()
-        run_experiments('confidential/', regex = args.regex,
-                        dd = args.dd, build_only = args.build_only)
-    run_experiments(
-        regex = args.regex, dd = args.dd, build_only = args.build_only)
+    if args.demo:
+        LOCAL_TIMEOUT = 120
+        run_experiments('', dbfile='database_demo.json', regex=args.regex,
+                        dd=args.dd, build_only=args.build_only)
+    else:
+        if os.path.isdir('confidential/'):
+            setup_confidential()
+            run_experiments('confidential/', regex=args.regex,
+                            dd=args.dd, build_only=args.build_only)
+        run_experiments(
+            regex=args.regex, dd=args.dd, build_only=args.build_only)

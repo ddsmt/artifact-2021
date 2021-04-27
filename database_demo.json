@@ -1,0 +1,37 @@
+{
+    "btor2-bug-16965-103.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "btorexp.c:2267: encode_lemma: Assertion"
+    },
+    "btor2-bug-16966-2630.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "btorexp.c:2267: encode_lemma: Assertion"
+    },
+    "btor2-bug-21435-401.smt2": {
+        "binary": "boolector2",
+        "args": ["-rww"],
+        "match": "stderr",
+        "stderr": "btorexp.c:2267: encode_lemma: Assertion"
+    },
+    "issue5239.smt2": {
+        "cvc4-commit": "e6c9674",
+        "args": ["--uf-ss-totality", "-i"],
+        "match": "stderr",
+        "stderr": "d_nv"
+    },
+    "issue5427.smt2": {
+        "cvc4-commit": "80930ce",
+        "args": ["--check-models"],
+        "match": "stderr",
+        "stderr": "vpto.isConst"
+    },
+    "issue5484-1.smt2": {
+        "cvc4-commit": "f2ed7b1",
+        "match": "stderr",
+        "stderr": "CVC4::Subs::add"
+    }
+}
