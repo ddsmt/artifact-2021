@@ -34,6 +34,7 @@ WORKDIR /home/ddsmt
 # Copy artifact files
 COPY benchmark.py .
 COPY database.json .
+COPY database_demo.json .
 COPY bin/ bin/
 COPY inputs/ inputs/
 COPY results.py .
