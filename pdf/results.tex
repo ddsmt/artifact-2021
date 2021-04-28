@@ -1,0 +1,71 @@
+\documentclass{article}
+
+\usepackage{subcaption}
+\usepackage{tabularx}
+\usepackage{rotating}
+\usepackage{booktabs}
+\usepackage{xspace}
+\usepackage{tikz}
+\usepackage{pgfplots}
+
+\newcommand{\ddsmt}{\textsf{ddSMT}\xspace}
+
+
+\newcommand{\ddmin}{\textit{ddmin}\xspace}
+\newcommand{\deltadd}{\textsf{delta}\xspace}
+\newcommand{\deltasmt}{\textsf{deltaSMT}\xspace}
+\newcommand{\ddsexpr}{\textsf{ddsexpr}\xspace}
+\newcommand{\linedd}{\textsf{linedd}\xspace}
+\newcommand{\pydelta}{\textsf{pyDelta}\xspace}
+
+\newcommand{\stratddmin}{\textsf{ddmin}\xspace}
+\newcommand{\strathier}{\textsf{hierarchical}\xspace}
+\newcommand{\strathiershort}{\textsf{hier.}\xspace}
+\newcommand{\strathybrid}{\textsf{hybrid}\xspace}
+
+
+\begin{document}
+
+\input{table-overview.tex}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.32\textwidth}
+      \centering
+        \input{plots/size_hierddmin.tex}
+      \vspace{-1ex}
+    \end{subfigure}
+    \hfill{}
+    \begin{subfigure}{0.32\textwidth}
+      \centering
+      \scalebox{1}{\input{plots/size_hybrid.tex}}
+      \vspace{-1ex}
+    \end{subfigure}
+    \hfill{}
+    \begin{subfigure}{0.32\textwidth}
+      \centering
+      \scalebox{1}{\input{plots/size_master.tex}}
+      \vspace{-1ex}
+    \end{subfigure}
+    \caption{Output size (in \% of original size).}\label{fig:size}
+    \vspace{2ex}
+    \begin{subfigure}{0.32\textwidth}
+      \centering
+      \scalebox{1}{\input{plots/time_hierddmin.tex}}
+      \vspace{-1ex}
+    \end{subfigure}
+    \hfill{}
+    \begin{subfigure}{0.32\textwidth}
+      \centering
+      \scalebox{1}{\input{plots/time_hybrid.tex}}
+      \vspace{-1ex}
+    \end{subfigure}
+    \hfill{}
+    \begin{subfigure}{0.32\textwidth}
+      \centering
+      \scalebox{1}{\input{plots/time_master.tex}}
+      \vspace{-1ex}
+    \end{subfigure}
+    \caption{Overall runtime (in seconds).}\label{fig:time}
+\end{figure}
+\end{document}

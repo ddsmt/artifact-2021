@@ -357,7 +357,7 @@ SELECT input, solver, insize, outsize, time FROM data
 
 
 def ffloat(f):
-    return '--' if f is None else f'{f:.2f}'
+    return '--' if f is None else f'{round(f*-100):+}'
 
 
 def fint(i):
@@ -367,23 +367,23 @@ def fint(i):
 def overview_data(solvers):
     res = {
         'parsererror': {},
-        'segfault': {},
+        #'segfault': {},
         'incorrect': {},
         'timeout': {},
         'reduce': {},
         'bestreduce': {},
         #'avgbestruntime': {},
-        'avg': {},
         'allavg': {},
+        'avg': {},
         'avgwoto': {},
-        'med': {},
-        'allmed': {},
-        'medwoto': {},
+        #'med': {},
+        #'allmed': {},
+        #'medwoto': {},
         #'avg300': {},
     }
     for s in solvers:
         res['parsererror'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -1', [s]).fetchone()[0])
-        res['segfault'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -2', [s]).fetchone()[0])
+        #res['segfault'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -2', [s]).fetchone()[0])
         res['incorrect'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -3', [s]).fetchone()[0])
         res['timeout'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND time = -4', [s]).fetchone()[0])
         res['reduce'][s] = fint(loader.db.execute('SELECT COUNT(*) FROM data WHERE solver = ? AND outsize != insize AND (time >= 0 OR time = -4)', [s]).fetchone()[0])
@@ -404,24 +404,24 @@ WHERE solver = ? AND data.outsize = mins.minsize
         res['avg'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND (time >= 0 OR time = -4)', [s]).fetchone()[0])
         res['avgwoto'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND time >= 0', [s]).fetchone()[0])
         res['allavg'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ?', [s]).fetchone()[0])
-        data = list(loader.db.execute('SELECT 1-(outsize * 1.0 / insize) FROM data WHERE solver = ? AND (time >= 0 OR time = -4)', [s]).fetchall())
-        if data:
-            res['med'][s] = ffloat(data[len(data) // 2][0])
-        else:
-            res['med'][s] = '--'
-        data = list(loader.db.execute('SELECT 1-(outsize * 1.0 / insize) FROM data WHERE solver = ?', [s]).fetchall())
-        if data:
-            res['allmed'][s] = ffloat(data[len(data) // 2][0])
-        else:
-            res['allmed'][s] = '--'
-        data = list(loader.db.execute('SELECT 1-(outsize * 1.0 / insize) FROM data WHERE solver = ? AND time >= 0', [s]).fetchall())
-        if data:
-            res['medwoto'][s] = ffloat(data[len(data) // 2][0])
-        else:
-            res['medwoto'][s] = '--'
-        #res['medwoto'][s] = ffloat(loader.db.execute('SELECT MED(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND time >= 0', [s]).fetchone()[0])
-        #res['medwoto'][s] = '--'
-        #res['avg300'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND insize>300 AND time >= 0', [s]).fetchone()[0])
+#        data = list(loader.db.execute('SELECT 1-(outsize * 1.0 / insize) FROM data WHERE solver = ? AND (time >= 0 OR time = -4)', [s]).fetchall())
+#        if data:
+#            res['med'][s] = ffloat(data[len(data) // 2][0])
+#        else:
+#            res['med'][s] = '--'
+#        data = list(loader.db.execute('SELECT 1-(outsize * 1.0 / insize) FROM data WHERE solver = ?', [s]).fetchall())
+#        if data:
+#            res['allmed'][s] = ffloat(data[len(data) // 2][0])
+#        else:
+#            res['allmed'][s] = '--'
+#        data = list(loader.db.execute('SELECT 1-(outsize * 1.0 / insize) FROM data WHERE solver = ? AND time >= 0', [s]).fetchall())
+#        if data:
+#            res['medwoto'][s] = ffloat(data[len(data) // 2][0])
+#        else:
+#            res['medwoto'][s] = '--'
+#        #res['medwoto'][s] = ffloat(loader.db.execute('SELECT MED(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND time >= 0', [s]).fetchone()[0])
+#        #res['medwoto'][s] = '--'
+#        #res['avg300'][s] = ffloat(loader.db.execute('SELECT AVG(1-(outsize * 1.0 / insize)) FROM data WHERE solver = ? AND insize>300 AND time >= 0', [s]).fetchone()[0])
     return res
 
 
@@ -429,18 +429,18 @@ def get_overview_results():
     total = loader.db.execute('SELECT COUNT(DISTINCT input) FROM data').fetchone()[0]
     datanames = {
         'parsererror': 'Parse Errors',
-        'segfault': 'Errors',
+        #'segfault': 'Errors',
         'timeout': 'Timeouts',
         'incorrect': 'Incorrect Output',
         'reduce': 'Any Simplification',
         'bestreduce': 'Smallest Output',
         #'avgbestruntime': 'avg runtime on best',
-        'med': 'Med. Reduction (w/o ERR)',
-        'medwoto': 'Med. Reduction (w/o TO/ERR)',
-        'avg': 'Avg. Reduction (w/o ERR)',
-        'avgwoto': 'Avg. Reduction (w/o TO/ERR)',
-        'allmed': 'Med. Reduction',
-        'allavg': 'Avg. Reduction',
+        #'med': 'Med. Reduction (w/o ERR)',
+        #'medwoto': 'Med. Reduction (w/o TO/ERR)',
+        'allavg': 'Avg. Reduction (\\%)',
+        'avg': 'Avg. Reduction w/o ERR (\\%)',
+        'avgwoto': 'Avg. Reduction w/o TO/ERR (\\%)',
+        #'allmed': 'Med. Reduction',
         #'avg300': 'average reduction ($>$300 bytes)',
     }
     slv = ['ddsexpr', 'ddsmt-master', 'delta', 'linedd', 'pydelta', 'ddsmt-paper-ddmin', 'ddsmt-paper-hierarchical', 'ddsmt-paper-hybrid']
@@ -563,12 +563,15 @@ def do_analysis():
     # overview table for the paper
     render_to_file(f'{args.dir}/table-overview.tex', 'table-overview.j2', **get_overview_results())
     # various scatter plots
-    scatter(f'{args.dir}/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-paper-ddmin', 'ddsmt-paper-hierarchical')
-    scatter(f'{args.dir}/scatter-dev-dev-size.data', 'out/scatter-dev-dev-time.data', 'ddsmt-paper-hybrid', 'ddsmt-paper-hybrid')
-    scatter(f'{args.dir}/scatter-dev-dev-size.data', 'out/scatter-dev-dev-time.data', 'ddsmt-paper-hybrid', 'ddsmt-paper-hybrid')
-    scatter_best(f'{args.dir}/scatter-hybrid-best-size.data', 'out/scatter-hybrid-best-time.data', 'ddsmt-paper-hybrid', ['ddsmt-paper-ddmin', 'ddsmt-paper-hierarchical'])
-
-    scatter(f'{args.dir}/scatter-master-dev-size.data', 'out/scatter-master-dev-time.data', 'ddsmt-master', 'ddsmt-paper-hybrid')
+    scatter(f'{args.dir}/scatter-ddmin-hierarchical-size.data',
+            f'{args.dir}/scatter-ddmin-hierarchical-time.data',
+            'ddsmt-paper-ddmin', 'ddsmt-paper-hierarchical')
+    scatter_best(f'{args.dir}/scatter-hybrid-best-size.data',
+                 f'{args.dir}/scatter-hybrid-best-time.data',
+                 'ddsmt-paper-hybrid', ['ddsmt-paper-ddmin', 'ddsmt-paper-hierarchical'])
+    scatter(f'{args.dir}/scatter-master-hybrid-size.data',
+            f'{args.dir}/scatter-master-hybrid-time.data',
+            'ddsmt-master', 'ddsmt-paper-hybrid')
 
 
 def main():

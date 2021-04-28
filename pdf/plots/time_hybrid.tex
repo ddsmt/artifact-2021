@@ -1,0 +1,42 @@
+\begin{tikzpicture}
+    \begin{loglogaxis}[
+        xmin=0,
+        ymin=0,
+        xmax=7200,
+        ymax=7200,
+        width=\linewidth,
+        height=\linewidth,
+        axis x line=bottom,
+        axis y line=left,
+        legend pos=south east,
+        xtick = {1, 10, 60, 600},
+        extra x ticks = {3600, 7200},
+        extra x tick labels = {\tiny 1\hskip -1pth, \tiny T},
+        extra x tick style = { grid = major },
+        xticklabel={\tiny
+            \pgfkeys{/pgf/fpu=true}
+            \pgfmathparse{exp(\tick)}%
+            \pgfmathprintnumber[fixed relative, precision=1]{\pgfmathresult}
+            \pgfkeys{/pgf/fpu=false}
+        },
+        x label style = {at={(axis description cs:0.5,0.05)}, anchor=north},
+        ytick = {1, 10, 60, 600},
+        extra y ticks = {3600, 7200},
+        extra y tick labels = {\tiny 1\hskip -1pth, \tiny T},
+        extra y tick style = { grid = major },
+        yticklabel={\tiny
+            \pgfkeys{/pgf/fpu=true}
+            \pgfmathparse{exp(\tick)}%
+            \pgfmathprintnumber[fixed relative, precision=1]{\pgfmathresult}
+            \pgfkeys{/pgf/fpu=false}
+        },
+        xlabel={\scriptsize \strathybrid},
+        ylabel={\scriptsize best(\stratddmin,\hskip 1pt\strathiershort)},
+        y label style = {at={(axis description cs:0.1,0.5)}, anchor=north},
+        legend style={font=\scriptsize},
+        draw=none
+        ]
+        \addplot[mark=*, mark size=0.5pt, only marks] table[x index=0,y index=1] {data/scatter-hybrid-best-time.data};
+        \addplot[no marks,forget plot, color=black!50] coordinates {(0.1, 0.1) (7200,7200) };
+    \end{loglogaxis}
+\end{tikzpicture}

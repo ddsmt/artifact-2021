@@ -11,8 +11,13 @@ RUN apt-get update && \
 RUN pip3 install progressbar
 RUN pip3 install jinja2
 
+# Install additional dependencies to generate the results PDF
+RUN apt-get update && DEBIAN_FRONTEND="noninteractive"  apt-get -y install -q \
+  texlive-latex-base \
+  texlive-latex-extra
+
 # Install dependencies to compile solvers and delta debuggers
-RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install -q \
+RUN apt-get update && DEBIAN_FRONTEND="noninteractive" apt-get -y install -q \
     automake \
     autotools-dev \
     build-essential \
