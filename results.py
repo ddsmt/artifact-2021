@@ -285,23 +285,11 @@ CREATE TABLE IF NOT EXISTS data (
 def solver_name(s):
     d = {
         'ddsmt-master': '\\ddsmt',
-        'ddsmt-dev-ddmin': '\\stratddmin-j8',
-        'ddsmt-dev-ddmin-j1': '\\stratddmin',
-        'ddsmt-dev-hierarchical': '\\strathiershort-j8',
-        'ddsmt-dev-hierarchical-j1': '\\strathiershort',
-        'ddsmt-dev-hybrid': 'hybrid-j8',
-        'ddsmt-dev-hybrid-j1': 'hybrid',
-        'ddsmt-paper-hybrid': 'hybrid-j8',
-        'ddsmt-paper-ddmin-j1': 'paper-ddmin',
-        'ddsmt-paper-hierarchical-j1': 'paper-hier',
-        'ddsmt-paper-hybrid-j1': 'paper-hybrid',
-        'ddsmt-thread-hybrid': 'thread-hybrid-j8',
-        'ddsmt-thread-hybrid-j1': 'thread-hybrid',
-        'delta': '\\deltadd-j8',
-        'delta-j1': '\\deltadd',
-        'pydelta': '\\pydelta-j8',
-        'pydelta-j1': '\\pydelta',
-        'pydelta-j0': '\\pydelta-j0',
+        'ddsmt-dev-ddmin': '\\stratddmin',
+        'ddsmt-dev-hierarchical': '\\strathiershort',
+        'ddsmt-dev-hybrid': 'hybrid',
+        'delta': '\\deltadd',
+        'pydelta': '\\pydelta',
     }
     return d.get(s, s)
 
@@ -339,7 +327,6 @@ SELECT input, solver, insize, outsize, time FROM data
         inputs.append(c['input'])
         solvers.append(solver_name(c['solver']))
     for i in data:
-        newisbest = False
         best = data[i]['insize']
         for s in data[i]:
             if s == 'insize':
@@ -361,9 +348,6 @@ SELECT input, solver, insize, outsize, time FROM data
                 data[i][s]['time'] = f'{t:0.0f}'
             if data[i][s]['outsize'] == best:
                 data[i][s]['best'] = True
-                if s in ['ddmin', 'ddmin-j1', 'hier', 'hier-j1', 'hybrid', 'hybrid-j1']:
-                    newisbest = True
-        data[i]['newisbest'] = newisbest
         
     return {
         'data': data,
@@ -459,7 +443,7 @@ def get_overview_results():
         'allavg': 'Avg. Reduction',
         #'avg300': 'average reduction ($>$300 bytes)',
     }
-    slv = ['ddsexpr', 'ddsmt-master', 'delta-j1', 'linedd', 'pydelta-j1', 'ddsmt-paper-ddmin-j1', 'ddsmt-paper-hierarchical-j1', 'ddsmt-paper-hybrid-j1']
+    slv = ['ddsexpr', 'ddsmt-master', 'delta', 'linedd', 'pydelta', 'ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical', 'ddsmt-dev-hybrid']
     return {
         'total': total,
         'solvers': slv,
@@ -579,12 +563,12 @@ def do_analysis():
     # overview table for the paper
     render_to_file(f'{args.dir}/table-overview.tex', 'table-overview.j2', **get_overview_results())
     # various scatter plots
-    scatter(f'{args.dir}/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-paper-ddmin-j1', 'ddsmt-paper-hierarchical-j1')
-    scatter(f'{args.dir}/scatter-dev-paper-size.data', 'out/scatter-dev-paper-time.data', 'ddsmt-paper-hybrid', 'ddsmt-paper-hybrid')
-    scatter(f'{args.dir}/scatter-dev-paper-size-j1.data', 'out/scatter-dev-paper-time-j1.data', 'ddsmt-paper-hybrid-j1', 'ddsmt-paper-hybrid-j1')
-    scatter_best(f'{args.dir}/scatter-hybrid-best-size.data', 'out/scatter-hybrid-best-time.data', 'ddsmt-paper-hybrid-j1', ['ddsmt-paper-ddmin-j1', 'ddsmt-paper-hierarchical-j1'])
+    scatter(f'{args.dir}/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical')
+    scatter(f'{args.dir}/scatter-dev-dev-size.data', 'out/scatter-dev-dev-time.data', 'ddsmt-dev-hybrid', 'ddsmt-dev-hybrid')
+    scatter(f'{args.dir}/scatter-dev-dev-size.data', 'out/scatter-dev-dev-time.data', 'ddsmt-dev-hybrid', 'ddsmt-dev-hybrid')
+    scatter_best(f'{args.dir}/scatter-hybrid-best-size.data', 'out/scatter-hybrid-best-time.data', 'ddsmt-dev-hybrid', ['ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical'])
 
-    scatter(f'{args.dir}/scatter-master-paper-size-j1.data', 'out/scatter-master-paper-time-j1.data', 'ddsmt-master', 'ddsmt-paper-hybrid-j1')
+    scatter(f'{args.dir}/scatter-master-dev-size.data', 'out/scatter-master-dev-time.data', 'ddsmt-master', 'ddsmt-dev-hybrid')
 
 
 def main():
