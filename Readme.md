@@ -420,7 +420,7 @@ The minimized file will be saved as `output.smt2`.
 
 ddSMT is able to minimize the input file `murxla-dd-murxla-3319538980.smt2`
 to 1.3% of the original file size.
-To confirm that the minimized file still triggers the orginal behavior call:
+To confirm that the minimized file still triggers the original behavior call:
 
 ```
 ./bitwuzla output.smt2
