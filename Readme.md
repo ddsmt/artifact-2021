@@ -28,8 +28,8 @@ This section discusses how to reproduce the experimental results shown in the pa
     files in the container to `/home/ddsmt/mount` will make the files
     accessible on the host machine at location `<local directory>`.
 
-* Run a selected set of the benchmarks using `./benchmarks.py --demo` and analyze
-  the results with `./results.py` (check the rest of this section for more
+* Run a selected subset of the benchmarks using `./benchmarks.py --demo` and analyze
+  the results with `./results.py --demo` (check the rest of this section for more
   details). Note that running the benchmark takes some time, `./benchmarks.py --demo`
   may take about 30 minutes.
 
