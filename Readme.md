@@ -17,8 +17,8 @@ This section discusses how to reproduce the experimental results shown in the pa
 * Start the docker image:
 
     ```
-    $ docker load --input ddsmt_artifact_2021.tar.xz
-    $ docker run -it ddsmt_artifact_2021 -v <local directory>:/home/ddsmt/mount
+    $ docker load --input ddsmt-artifact-2021.tar.xz
+    $ docker run -it ddsmt-artifact-2021 -v <local directory>:/home/ddsmt/mount
     ```
 
     **Note**: The artifact will generate PDFs that cannot be properly viewed
@@ -150,7 +150,7 @@ directory `out_ae/`.
 
 #### Additional Run Options
 
-- If you want to run all experiments simply, simply call the script:
+- If you want to run all experiments, simply call the script:
 
     ```
     ./benchmark.py
@@ -168,9 +168,9 @@ directory `out_ae/`.
 ### 2. Analyzing the Results
 
 While it is often very instructive to have a look at individual examples,
-getting comprehensive results quickly becomes infeasible. We thus include
-`results.py` to analyze all available output files and generate the results
-included in the paper.
+getting comprehensive results quickly becomes infeasible. We thus include the
+script `results.py` to analyze all available output files and generate the
+results included in the paper.
 
 By default, `results.py` locally runs solvers on the minimized inputs to perform
 some sanity checks on the result files.
@@ -227,7 +227,7 @@ for the `--demo` subset as follows:
     **Note**: This will generate the files in `out_ae/` instead of `out/`.
 
 
-#### Details on `results.py`
+#### Implementation Details on `results.py`
 
 The script roughly proceeds as follows:
 * `load_data()` loads all data into the database.
@@ -316,26 +316,6 @@ https://zenodo.org/record/4721925
 
 # Reusable Badge
 
-## Using ddSMT without Docker Environment
-
-ddSMT 2.0 can be either downloaded from https://github.com/ddsmt/ddSMT or
-installed via pip:
-```
-pip install ddSMT
-```
-
-Note that the development has continued in the meantime and the experiments in
-the paper have been conducted with the version of ddSMT 2.0 from the time of
-submitting the paper (commit hash c9d8100).
-
-### Documentation
-
-The official documentation of ddSMT 2.0 is available at
-https://ddsmt.readthedocs.io/
-
-The quickstart guide on how to use ddSMT on new input is available at
-https://ddsmt.readthedocs.io/en/master/quickstart.html
-
 ## Building the Docker Image
 
 - Install Docker as described at https://docs.docker.com/get-docker/.
@@ -349,7 +329,8 @@ https://ddsmt.readthedocs.io/en/master/quickstart.html
 
 - Build the docker image
   ```
-  docker build -t ddsmt_artifact_2021 .
+  cd artifact-2021
+  docker build -t ddsmt-artifact-2021 .
   ```
 
   **Note**: This will also build all missing solver binaries from source, which
@@ -357,23 +338,90 @@ https://ddsmt.readthedocs.io/en/master/quickstart.html
 
 - Use docker image as described in the "Functional Badge" section.
 
-## Inputs supported by ddSMT
+**Note**: The provided `Dockerfile` lists all dependencies required to set up
+          the artifact without a Docker environment.
 
-TODO: refer to documentation section on how to use ddsmt on new input etc.
+## Using ddSMT without Docker Environment
+
+ddSMT 2.0 can be either downloaded from https://github.com/ddsmt/ddSMT or
+installed via pip:
+```
+pip3 install ddsmt
+```
+
+**Note**: The development of ddSMT has continued in the meantime and the
+experiments in the paper have been conducted with the version of ddSMT 2.0 from
+the time of submitting the paper (commit hash c9d8100). The above command will
+install the latest stable version of ddSMT.
+
+Further installation instructions can be found at
+https://ddsmt.readthedocs.io/en/master/installation.html
+
+To check if ddSMT was installed successfully try:
+```
+ddsmt --version
+```
+
+This should print the currently installed version of ddSMT, e.g.:
+```
+$ ddsmt --version
+2.0.1
+```
+
+
+### Documentation
 
 ddSMT 2.0 is meant to work on SMT-LIBv2 and similar inputs (including custom
 extensions of SMT-LIBv2 and derived formats like SyGuS) but should work on all
-formats based on SMT-LIBv2-style s-expressions.
+formats based on SMT-LIBv2-style S-expressions.
 
 Extensive documentation on how to use ddSMT 2.0 is available online at
 https://ddsmt.readthedocs.io/.
 
+Some useful links:
+- Installation instructions: https://ddsmt.readthedocs.io/en/master/installation.html
+- Quickstart guide: https://ddsmt.readthedocs.io/en/master/quickstart.html
+- How to run: https://ddsmt.readthedocs.io/en/master/quickstart.html#how-to-run-ddsmt
+- List of available command-line options: https://ddsmt.readthedocs.io/en/master/quickstart.html#full-option-listing
+
 
 ## Using ddSMT with New Inputs
 
-To run ddSMT 2.0 on a new benchmark, call it as follows:
+The ddSMT artifact repository provides a new binary and input that was not used
+in the experiments at
+https://github.com/ddsmt/artifact-2021/tree/master/example
+
+Download the `bitwuzla` binary and the `murxla-dd-murxla-3319538980.smt2` input
+from https://github.com/ddsmt/artifact-2021/tree/master/example.
+
+Make sure to make the binary executable:
 ```
-ddsmt input.smt2 output.smt2 solver-binary
+chmod +x bitwuzla
 ```
 
-Below is an example for a fresh input:
+Executing `bitwuzla` on `murxla-dd-murxla-3319538980.smt2` will produce the
+following error:
+
+```
+$ bitwuzla murxla-dd-murxla-3319538980.smt2
+bitwuzla: /home/an/git/dev/bitwuzla/src/bzladbg.c:603: bzla_dbg_precond_apply_exp: Assertion `bzla_sort_fun_get_domain(bzla, bzla_node_get_sort_id(fun)) == bzla_node_get_sort_id(args)' failed.
+[bitwuzla>main] CAUGHT SIGNAL 6
+unknown
+Aborted (core dumped)
+```
+
+You can minimize the input file with ddSMT as follows:
+
+```
+ddsmt murxla-dd-murxla-3319538980.smt2 output.smt2 bitwuzla
+```
+
+The minimized file will be saved as `output.smt2`.
+
+ddSMT is able to minimize the input file `murxla-dd-murxla-3319538980.smt2`
+to 1.3% of the original file size.
+To confirm that the minimized file still triggers the orginal behavior call:
+
+```
+./bitwuzla output.smt2
+```
