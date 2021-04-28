@@ -46,6 +46,7 @@ This section discusses how to reproduce the experimental results shown in the pa
   enabled.
 * `results.py`: Python script to parse, collect and evaluate benchmark runs.
 * `Readme.md`: This file.
+* `make-pdf.sh`: Script to generate results PDF.
 
 ### Directories
 

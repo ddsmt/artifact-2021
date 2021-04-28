@@ -48,6 +48,10 @@ COPY results.py .
 COPY stuff/ stuff/
 COPY paper_results.tar.xz .
 RUN tar xf paper_results.tar.xz && rm paper_results.tar.xz
+RUN mkdir -p pdf/data
+COPY pdf/plots/ pdf/plots/
+COPY pdf/results.tex pdf/
+COPY make-pdf.sh .
 
 RUN chown ddsmt:ddsmt -R /home/ddsmt
 USER ddsmt
