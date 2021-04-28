@@ -68,9 +68,6 @@ This section discusses how to reproduce the experimental results shown in the pa
 
 ### Structure of `database.json`
 
-TODO: provide a database.json file for a representative set of inputs and add
-option to `benchmark.py` to provide custom database.json?
-
 The benchmark database is a json dictionary that maps a filename (of a file
 that resides in `inputs/`) to a dictionary with further information.
 
