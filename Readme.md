@@ -18,7 +18,7 @@ This section discusses how to reproduce the experimental results shown in the pa
 
     ```
     $ docker load --input ddsmt-artifact-2021.tar.xz
-    $ docker run -v <local directory>:/home/ddsmt/mount -it ddsmt-artifact-2021
+    $ docker run -v <local directory>:/home/ddsmt/mount -it ddsmt-artifact-2021 /bin/bash
     ```
 
     **Note**: The artifact will generate PDFs that cannot be properly viewed
