@@ -285,9 +285,9 @@ CREATE TABLE IF NOT EXISTS data (
 def solver_name(s):
     d = {
         'ddsmt-master': '\\ddsmt',
-        'ddsmt-dev-ddmin': '\\stratddmin',
-        'ddsmt-dev-hierarchical': '\\strathiershort',
-        'ddsmt-dev-hybrid': 'hybrid',
+        'ddsmt-paper-ddmin': '\\stratddmin',
+        'ddsmt-paper-hierarchical': '\\strathiershort',
+        'ddsmt-paper-hybrid': 'hybrid',
         'delta': '\\deltadd',
         'pydelta': '\\pydelta',
     }
@@ -443,7 +443,7 @@ def get_overview_results():
         'allavg': 'Avg. Reduction',
         #'avg300': 'average reduction ($>$300 bytes)',
     }
-    slv = ['ddsexpr', 'ddsmt-master', 'delta', 'linedd', 'pydelta', 'ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical', 'ddsmt-dev-hybrid']
+    slv = ['ddsexpr', 'ddsmt-master', 'delta', 'linedd', 'pydelta', 'ddsmt-paper-ddmin', 'ddsmt-paper-hierarchical', 'ddsmt-paper-hybrid']
     return {
         'total': total,
         'solvers': slv,
@@ -563,12 +563,12 @@ def do_analysis():
     # overview table for the paper
     render_to_file(f'{args.dir}/table-overview.tex', 'table-overview.j2', **get_overview_results())
     # various scatter plots
-    scatter(f'{args.dir}/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical')
-    scatter(f'{args.dir}/scatter-dev-dev-size.data', 'out/scatter-dev-dev-time.data', 'ddsmt-dev-hybrid', 'ddsmt-dev-hybrid')
-    scatter(f'{args.dir}/scatter-dev-dev-size.data', 'out/scatter-dev-dev-time.data', 'ddsmt-dev-hybrid', 'ddsmt-dev-hybrid')
-    scatter_best(f'{args.dir}/scatter-hybrid-best-size.data', 'out/scatter-hybrid-best-time.data', 'ddsmt-dev-hybrid', ['ddsmt-dev-ddmin', 'ddsmt-dev-hierarchical'])
+    scatter(f'{args.dir}/scatter-ddmin-hierarchical-size.data', 'out/scatter-ddmin-hierarchical-time.data', 'ddsmt-paper-ddmin', 'ddsmt-paper-hierarchical')
+    scatter(f'{args.dir}/scatter-dev-dev-size.data', 'out/scatter-dev-dev-time.data', 'ddsmt-paper-hybrid', 'ddsmt-paper-hybrid')
+    scatter(f'{args.dir}/scatter-dev-dev-size.data', 'out/scatter-dev-dev-time.data', 'ddsmt-paper-hybrid', 'ddsmt-paper-hybrid')
+    scatter_best(f'{args.dir}/scatter-hybrid-best-size.data', 'out/scatter-hybrid-best-time.data', 'ddsmt-paper-hybrid', ['ddsmt-paper-ddmin', 'ddsmt-paper-hierarchical'])
 
-    scatter(f'{args.dir}/scatter-master-dev-size.data', 'out/scatter-master-dev-time.data', 'ddsmt-master', 'ddsmt-dev-hybrid')
+    scatter(f'{args.dir}/scatter-master-dev-size.data', 'out/scatter-master-dev-time.data', 'ddsmt-master', 'ddsmt-paper-hybrid')
 
 
 def main():

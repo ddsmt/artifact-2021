@@ -22,7 +22,7 @@ LOCAL_TIMEOUT = 3600
 is_set_up_cvc4         = False
 is_set_up_ddsexpr      = False
 is_set_up_ddsmt_master = False
-is_set_up_ddsmt_dev    = False
+is_set_up_ddsmt_paper    = False
 is_set_up_delta        = False
 is_set_up_linedd       = False
 is_set_up_pydelta      = False
@@ -31,7 +31,7 @@ is_set_up_z3           = False
 is_set_up_z3_ref       = False
 
 ddsmt_master_commit = '2d5e2c4'
-ddsmt_dev_commit = 'c9d8100'
+ddsmt_paper_commit = 'c9d8100'
 delta_commit = 'e4a4480'
 linedd_commit = 'c514d8d'
 pydelta_commit = '7438b58'
@@ -84,13 +84,13 @@ def setup_ddsmt_master():
     is_set_up_ddsmt_master = True
 
 
-def setup_ddsmt_dev():
-    """Download ddsmt-dev"""
-    if not os.path.isdir('build/ddsmt-dev'):
-        subprocess.run(['git', 'clone', 'https://github.com/ddsmt/ddsmt', 'build/ddsmt-dev'])
-        subprocess.run(['git', 'checkout', ddsmt_dev_commit], cwd='build/ddsmt-dev')
-    global is_set_up_ddsmt_dev
-    is_set_up_ddsmt_dev = True
+def setup_ddsmt_paper():
+    """Download ddsmt-paper"""
+    if not os.path.isdir('build/ddsmt-paper'):
+        subprocess.run(['git', 'clone', 'https://github.com/ddsmt/ddsmt', 'build/ddsmt-paper'])
+        subprocess.run(['git', 'checkout', ddsmt_paper_commit], cwd='build/ddsmt-paper')
+    global is_set_up_ddsmt_paper
+    is_set_up_ddsmt_paper = True
 
 
 def setup_delta():
@@ -379,7 +379,7 @@ def run_ddsmt_master(input, output, binary, opts):
     run_debugger(['build/ddsmt-master/ddsmt.py', '-vv', input, output, *solver], output, output)
 
 
-def run_ddsmt_dev_ddmin(input, output, binary, opts):
+def run_ddsmt_paper_ddmin(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -395,10 +395,10 @@ def run_ddsmt_dev_ddmin(input, output, binary, opts):
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j1', '-v', '--strategy', 'ddmin', *matcher, input, output, *solver], output, output)
+    run_debugger(['build/ddsmt-paper/bin/ddsmt', '-j1', '-v', '--strategy', 'ddmin', *matcher, input, output, *solver], output, output)
 
 
-def run_ddsmt_dev_hierarchical(input, output, binary, opts):
+def run_ddsmt_paper_hierarchical(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -414,10 +414,10 @@ def run_ddsmt_dev_hierarchical(input, output, binary, opts):
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j1', '-v', '--strategy', 'hierarchical', *matcher, input, output, *solver], output, output)
+    run_debugger(['build/ddsmt-paper/bin/ddsmt', '-j1', '-v', '--strategy', 'hierarchical', *matcher, input, output, *solver], output, output)
 
 
-def run_ddsmt_dev_hybrid(input, output, binary, opts):
+def run_ddsmt_paper_hybrid(input, output, binary, opts):
     solver = [binary]
     if 'args' in opts:
         solver = solver + opts['args']
@@ -433,7 +433,7 @@ def run_ddsmt_dev_hybrid(input, output, binary, opts):
     elif opts['match'] == 'exitcode':
         matcher = ['--ignore-output']
 
-    run_debugger(['build/ddsmt-dev/bin/ddsmt', '-j1', '-v', '--strategy', 'hybrid', *matcher, input, output, *solver], output, output)
+    run_debugger(['build/ddsmt-paper/bin/ddsmt', '-j1', '-v', '--strategy', 'hybrid', *matcher, input, output, *solver], output, output)
 
 
 def run_delta(input, output, binary, opts):
@@ -505,9 +505,9 @@ def run_pydelta(input, output, binary, opts):
 
 ddebuggers = {
     'ddsexpr': run_ddsexpr,
-    'ddsmt-dev-ddmin': run_ddsmt_dev_ddmin,
-    'ddsmt-dev-hierarchical': run_ddsmt_dev_hierarchical,
-    'ddsmt-dev-hybrid': run_ddsmt_dev_hybrid,
+    'ddsmt-paper-ddmin': run_ddsmt_paper_ddmin,
+    'ddsmt-paper-hierarchical': run_ddsmt_paper_hierarchical,
+    'ddsmt-paper-hybrid': run_ddsmt_paper_hybrid,
     'ddsmt-master': run_ddsmt_master,
     'delta': run_delta,
     'linedd': run_linedd,
@@ -537,8 +537,8 @@ def run_experiments(prefix='', dbfile='database.json', regex=None, dd=None, buil
     data = json.load(open(f'{prefix}{dbfile}'))
     if not is_set_up_ddsexpr and (dd is None or dd == 'ddsexpr'):
         setup_ddsexpr()
-    if not is_set_up_ddsmt_dev and (dd is None or dd.startswith('ddsmt-dev')):
-        setup_ddsmt_dev()
+    if not is_set_up_ddsmt_paper and (dd is None or dd.startswith('ddsmt-paper')):
+        setup_ddsmt_paper()
     if not is_set_up_ddsmt_master and (dd is None or dd == 'ddsmt-master'):
         setup_ddsmt_master()
     if not is_set_up_delta and (dd is None or dd == 'delta'):

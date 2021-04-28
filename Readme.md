@@ -139,7 +139,7 @@ with `-f <pattern of input files>`. Please check `./benchmark.py --help` for
 the list of delta debugger names.
 
 ```
-./benchmark.py -d ddsmt-dev-hybrid -f issue5
+./benchmark.py -d ddsmt-paper-hybrid -f issue5
 ```
 
 The script then iterates over all enabled delta debuggers and selected input
@@ -195,7 +195,7 @@ TODO: How to compare the demo results against the paper results?
 ddSMT is free software released under the GPLv3.
 
 The source code of ddSMT 2.0 is included in the artifact and can be found in
-`build/ddsmt-dev/`. The artifact Docker image has `less` pre-installed, which
+`build/ddsmt-paper/`. The artifact Docker image has `less` pre-installed, which
 can be used to view the source files.
 The source code is also available on GitHub (https://github.com/ddsmt/ddSMT).
 
