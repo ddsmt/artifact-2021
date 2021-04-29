@@ -12,7 +12,7 @@ import time
 
 
 # number of jobs to compile stuff
-COMPILE_JOBS = 8
+COMPILE_JOBS = 15
 # whether to use slurm or local execution
 SUBMIT_TO_SLURM = False
 # timeout for local executions
