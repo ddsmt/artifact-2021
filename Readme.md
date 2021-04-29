@@ -16,6 +16,9 @@ This section discusses how to reproduce the experimental results shown in the pa
 
 * Install Docker as described at https://docs.docker.com/get-docker/.
 * Download the Docker image `ddsmt-artifact-2021.tar.xz`.
+
+  md5sum: `d66d3c321c9bb471e583c9107f953633`
+
 * Import the docker image:
   ```
   docker load --input ddsmt-artifact-2021.tar.xz
@@ -417,7 +420,7 @@ ddsmt murxla-dd-murxla-3319538980.smt2 output.smt2 bitwuzla
 The minimized file will be saved as `output.smt2`.
 
 ddSMT is able to minimize the input file `murxla-dd-murxla-3319538980.smt2`
-to 1.3% of the original file size.
+to 1.3% of the original file size (pass option `-v` to ddSMT to get statistics).
 To confirm that the minimized file still triggers the original behavior call:
 
 ```
