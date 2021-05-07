@@ -15,7 +15,7 @@ This section discusses how to reproduce the experimental results shown in the pa
 ## Quickstart
 
 * Install Docker as described at https://docs.docker.com/get-docker/.
-* Download the Docker image `ddsmt-artifact-2021.tar.xz`.
+* Download the Docker image `ddsmt-artifact-2021.tar.xz` from https://zenodo.org/record/4721925.
 
   md5sum: `d66d3c321c9bb471e583c9107f953633`
 
