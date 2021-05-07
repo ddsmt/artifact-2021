@@ -30,6 +30,13 @@ This section discusses how to reproduce the experimental results shown in the pa
     docker run -v <local directory>:/home/ddsmt/mount -it ddsmt-artifact-2021 /bin/bash
     ```
 
+    **Note**: The mount point `/home/ddsmt/mount` maintains the permissions
+    from `<local directory>` (since it is a bind mount).
+    In order to make sure that `/home/ddsmt/mount` is writable from inside the
+    container either use `/tmp` as `<local directory>` or `chmod 777 <local
+    directory>`.
+    You can find more information here: https://stackoverflow.com/a/50325808
+
     **Note**: The artifact will generate PDFs that cannot be properly viewed
     inside the container. Hence, `-v <local directory>:/home/ddsmt/mount`
     specifies a mount point that can be used to copy files from the container
